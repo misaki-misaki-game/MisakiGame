@@ -14,9 +14,11 @@ public partial class SingletonMonoBehaviour<T> : DebugSetUp where T : MonoBehavi
     {
         get
         {
-            m_instance ??= (T)FindObjectOfType(typeof(T));
-            Debug.Assert(m_instance == null, typeof(T) + "をアタッチしているGameObjectがありません");
-            return m_instance;
+            // instanceがnullならTクラスをヒエラルキー上から探す　無ければエラー
+            instance ??= (T)FindObjectOfType(typeof(T));
+            Debug.Assert(instance == null, typeof(T) + "をアタッチしているGameObjectがありません");
+            
+            return instance; // 探したinstanceを返す
         }
     }
 
@@ -34,6 +36,7 @@ public partial class SingletonMonoBehaviour<T> : DebugSetUp where T : MonoBehavi
             Destroy(this.gameObject);
             return;
         }
+        // このオブジェクトをシーンしても消さないようにする
         DontDestroyOnLoad(this.gameObject);
     }
 
@@ -60,7 +63,7 @@ public partial class SingletonMonoBehaviour<T>
     /// -----protected変数------ ///
     /// ------private変数------- ///
 
-    private static T m_instance;
+    private static T instance; // インスタンス変数
 
     /// ------private変数------- ///
     /// -------プロパティ------- ///

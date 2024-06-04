@@ -10,6 +10,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.cinemachine": {
+      "version": "2.9.7",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.31"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "2.3.1",
       "depth": 0,
@@ -177,6 +186,14 @@
       "dependencies": {
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
+      }
+    },
+    "com.unity.universaltoonshader.urp": {
+      "version": "file:C:/Users/mimim/OneDrive/デスクトップ/個人制作/MisakiGame/UnityChanToonShaderVer2_Project-urp-2.5.1/UnityChanToonShaderVer2_Project-urp-2.5.1",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "7.3.1"
       }
     },
     "com.unity.visualscripting": {
