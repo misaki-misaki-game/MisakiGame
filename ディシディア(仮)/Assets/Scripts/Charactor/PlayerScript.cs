@@ -48,11 +48,11 @@ namespace Misaki
             // アニメーション状態を攻撃中にする
             animState = AnimState.E_Attack;
 
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_BAttack");
-
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_BAttack");
 
             // ヒットしたら相手のAddBraveDamegeを呼び出す
             // 
@@ -95,9 +95,6 @@ namespace Misaki
             // アニメーション状態を攻撃中にする
             animState = AnimState.E_Attack;
 
-            // アニメーション状態が待機中だった場合、向きを矯正する
-            StraighteningDirection();
-
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
 
@@ -139,15 +136,6 @@ namespace Misaki
             // プレイヤーの向きを入力の向きに変更　
             transform.LookAt(transform.position + moveZ + moveX);
 
-            // Idleアニメーション時はrotation.yの向きを矯正し
-            // 各アニメーションに合わせて状態を変更する
-            StraighteningDirection();
-            if (anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "RunF")
-            {
-                if (startIdle) startIdle = false;
-                if (animState != AnimState.E_Attack) animState = AnimState.E_Move;
-            }
-
             // Move は指定したベクトルだけ移動させる命令
             con.Move(moveDirection * Time.deltaTime);
         }
@@ -160,14 +148,14 @@ namespace Misaki
             if (anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle" && !startIdle)
             {
                 // 待機アニメーションに遷移したときの向き矯正
-                transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y + 49.436f, 0);
+                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y + reviseIdleDir, 0);
                 startIdle = true;
                 animState = AnimState.E_Idle;
             }
             else if (animState == AnimState.E_Attack && startIdle)
             {
                 // 待機アニメーションから別のアニメーションに遷移した時の向き矯正
-                transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y - 49.436f, 0);
+                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y - reviseIdleDir, 0);
             }
         }
 
@@ -179,7 +167,9 @@ namespace Misaki
             plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
         }
 
-        // アニメーションが終わった際にアニメーション状態をなにもしていないに変更
+        /// <summary>
+        /// アニメーション終了時の関数
+        /// </summary>
         public void AnimEnd()
         {
             animState = default;
