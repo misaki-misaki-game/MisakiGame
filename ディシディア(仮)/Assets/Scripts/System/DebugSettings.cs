@@ -1,31 +1,45 @@
 using UnityEngine;
-//ゲームの設定用ScriptableObject
-[CreateAssetMenu(menuName = "ScriptableObject/DebugSettings", fileName = "DebugSettings")]
-public class DebugSettings : ScriptableObject
+namespace Misaki
 {
-    /// --------変数一覧-------- ///
-    /// -------public変数------- /// 
+    //ゲームの設定用ScriptableObject
+    [CreateAssetMenu(menuName = "ScriptableObject/DebugSettings", fileName = "DebugSettings")]
+    public class DebugSettings : ScriptableObject
+    {
+        /// --------変数一覧-------- ///
 
-    [Header("デバッグログを表示したい場合はチェックをつける")]
-    public bool debugLogEnabled; //デバッグログを表示するか
+        #region public変数
+        /// -------public変数------- ///
 
+        [Header("デバッグログを表示したい場合はチェックをつける")]
+        public bool debugLogEnabled; //デバッグログを表示するか
 
-    /// -------public変数------- ///
-    /// -----protected変数------ ///
+        /// -------public変数------- ///
+        #endregion
 
-
-
-    /// -----protected変数------ ///
-    /// ------private変数------- ///
-
-
-
-    /// ------private変数------- ///
-    /// -------プロパティ------- ///
+        #region protected変数
+        /// -----protected変数------ ///
 
 
 
-    /// -------プロパティ------- ///
-    /// --------変数一覧-------- ///
+        /// -----protected変数------ ///
+        #endregion
 
+        #region private変数
+        /// ------private変数------- ///
+
+
+
+        /// ------private変数------- ///
+        #endregion
+
+        #region プロパティ
+        /// -------プロパティ------- ///
+
+
+
+        /// -------プロパティ------- ///
+        #endregion
+
+        /// --------変数一覧-------- ///
+    }
 }
