@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using Unity.VisualScripting;
 using UnityEditor;
+using TMPro;
 
 namespace Misaki
 {
@@ -48,6 +49,9 @@ namespace Misaki
             // アニメーション状態を攻撃中にする
             animState = AnimState.E_Attack;
 
+            // 武器のステートを変更
+            attackScript.SetAttackState = AttackState.E_BraveAttack;
+
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
 
@@ -62,20 +66,36 @@ namespace Misaki
         public override void BraveHitReaction()
         {
             base.BraveHitReaction();
-            // anim
+
+            // アニメーション状態を被ダメージ中にする
+            animState = AnimState.E_HitReaction;
+
+            // ランダムに決めた小怯みアニメーションを再生
+            int rnd = Random.Range(0, smallHitClip.Length);
+            AllocateMotion("SmallHitReaction", smallHitClip[rnd]);
+            anim.SetTrigger("At_SmallHit");
+
         }
 
         public override void Dead()
         {
             base.Dead();
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Death");
+
             // ゲームオーバーにする
+
         }
 
         public override void Dodge()
         {
             base.Dodge();
-            // anim
             // 回避中は無敵
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Dodge");
+
         }
 
         public override void Guard()
@@ -95,6 +115,9 @@ namespace Misaki
             // アニメーション状態を攻撃中にする
             animState = AnimState.E_Attack;
 
+            // 武器のステートを変更
+            attackScript.SetAttackState = AttackState.E_HPAttack;
+
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
 
@@ -106,15 +129,19 @@ namespace Misaki
         public override void HPHitReaction()
         {
             base.HPHitReaction();
-            // anim　再生中は無敵
 
+            // アニメーション状態を攻撃中にする
+            animState = AnimState.E_HitReaction;
+
+            // ランダムに決めた小怯みアニメーションを再生
+            anim.SetTrigger("At_LargeHit");
         }
 
         public override void Move()
         {
             base.Move();
-            // 攻撃中はリターン
-            if (animState == AnimState.E_Attack) return;
+            // 攻撃中・戦闘不能中はリターン
+            if (animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
 
             // 移動速度を取得 
             float spd = parameter.speed;//Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : normalSpeed;
@@ -141,37 +168,11 @@ namespace Misaki
         }
 
         /// <summary>
-        /// 待機アニメーション時の向きを矯正する関数
-        /// </summary>
-        private void StraighteningDirection()
-        {
-            if (anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle" && !startIdle)
-            {
-                // 待機アニメーションに遷移したときの向き矯正
-                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y + reviseIdleDir, 0);
-                startIdle = true;
-                animState = AnimState.E_Idle;
-            }
-            else if (animState == AnimState.E_Attack && startIdle)
-            {
-                // 待機アニメーションから別のアニメーションに遷移した時の向き矯正
-                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y - reviseIdleDir, 0);
-            }
-        }
-
-        /// <summary>
-        /// カメラを追従させる関数
-        /// </summary>
-        private void TrackingCamera()
-        {
-            plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
-        }
-
-        /// <summary>
         /// アニメーション終了時の関数
         /// </summary>
         public void AnimEnd()
         {
+            attackScript.SetAttackState = AttackState.E_None;
             animState = default;
             anim.SetTrigger("At_Idle");
         }
@@ -196,15 +197,15 @@ namespace Misaki
             parameter = new Parameter(hp, brave, speed, attack);
 
             // コンポーネントを取得
-            con = GetComponent<CharacterController>();
-            anim = GetComponent<Animator>();
+            con ??= GetComponent<CharacterController>();
+            anim ??= GetComponent<Animator>();
 
             // マウスを固定する気はない
             // マウスカーソルを非表示にし、位置を固定
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
 
-            key = Keyboard.current; // 現在のキーボード情報を取得
+            key ??= Keyboard.current; // 現在のキーボード情報を取得
 
             // Actionスクリプトのインスタンス生成
             playerInputs = new PlayerInputs();
@@ -222,18 +223,32 @@ namespace Misaki
             startPos = transform.position; // 初期位置を取得
             cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             animState = default; // アニメーション状態をなにもしていないに変更
+            overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
+            // anim.runtimeAnimatorController = overrideController; Animatorを上書き
+            overrideClips = new string[overrideController.animationClips.Length]; // 要素数を代入
+
+            // クリップ配列に名前を代入
+            for (int i = 0; i < overrideClips.Length; i++)
+            {
+                overrideClips[i] = overrideController.animationClips[i].name;
+            }
+
+            Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
         }
 
         private void Update()
         {
-            // キーボードチェック
-            CheckKeyBoard();
+            if (!isEnemy)
+            {
+                // キーボードチェック
+                CheckKeyBoard();
 
-            // 移動関数
-            Move();
+                // 移動関数
+                Move();
 
-            // カメラを追従させる
-            TrackingCamera();
+                // カメラを追従させる
+                TrackingCamera();
+            }
         }
 
         private void OnDestroy()
@@ -298,6 +313,86 @@ namespace Misaki
             }
         }
 
+        /// <summary>
+        /// 待機アニメーション時の向きを矯正する関数
+        /// </summary>
+        private void StraighteningDirection()
+        {
+            if (anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle" && !startIdle)
+            {
+                // 待機アニメーションに遷移したときの向き矯正
+                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y + reviseIdleDir, 0);
+                startIdle = true;
+                animState = AnimState.E_Idle;
+            }
+            else if (animState == AnimState.E_Attack && startIdle)
+            {
+                // 待機アニメーションから別のアニメーションに遷移した時の向き矯正
+                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y - reviseIdleDir, 0);
+            }
+        }
+
+        /// <summary>
+        /// カメラを追従させる関数
+        /// </summary>
+        private void TrackingCamera()
+        {
+            plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
+        }
+
+        /// <summary>
+        /// 指定のアニメーションクリップを差し替える関数
+        /// </summary>
+        /// <param name="name">アニメーションクリップの名称</param>
+        /// <param name="clip">差し替えたいクリップ</param>
+        private void AllocateMotion(string name, AnimationClip clip)
+        {
+            AnimatorStateInfo[] layerInfo = new AnimatorStateInfo[anim.layerCount];
+            for (int i = 0; i < anim.layerCount; i++)
+            {
+                layerInfo[i] = anim.GetCurrentAnimatorStateInfo(i);
+            }
+
+            // (3) AnimationClipを差し替えて、強制的にアップデート
+            // ステートがリセットされる
+            overrideController[name] = clip;
+            anim.Update(0.0f);
+
+            // ステートを戻す
+            for (int i = 0; i < anim.layerCount; i++)
+            {
+                anim.Play(layerInfo[i].fullPathHash, i, layerInfo[i].normalizedTime);
+            }
+        }
+
+        //　キャラクターが他のゲームオブジェクトにぶつかったら
+        public void OnControllerColliderHit(ControllerColliderHit col)
+        {
+            //　ぶつかった相手がEnWeponタグを持つ相手だったら
+            if (col.gameObject.tag == Tags.EnemyWepon.ToString())
+            {
+                /*
+                //　ぶつかった相手のRigidbodyコンポーネントを取得
+                Rigidbody rigid = col.transform.GetComponent<Rigidbody>();
+                //　Rigidbodyを持っていなかったらAddComponentで取り付ける
+                if (rigid == null)
+                {
+                    //　まったく関係ないが自作のスクリプトを取り付けてみる
+                    col.gameObject.AddComponent<AddComponentTest>();
+                    //　ジェネリクス版
+                    rigid = col.gameObject.AddComponent<Rigidbody>() as Rigidbody;
+                    //　文字列で指定版
+                    //				rigid = col.gameObject.AddComponent ("Rigidbody") as Rigidbody;
+                    //　typeof使用版
+                    //				rigid = col.gameObject.AddComponent(typeof(Rigidbody)) as Rigidbody;
+                    //　constraintsのX、Y、Z軸で移動し、回転しないようにする
+                    rigid.constraints = ~RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+                }
+                //　Rigidbodyに力を加える
+                rigid.AddForce(transform.forward * power);
+                */
+            }
+        }
         /// ------private関数------- ///
         #endregion
 
@@ -327,20 +422,30 @@ namespace Misaki
         /// ------private変数------- ///
 
         private bool startIdle = false; // 待機アニメーションがスタートしているか
+        private bool isEnemy = false;
 
         // 初期パラメータ
-        [SerializeField] float hp = 1000;
-        [SerializeField] float brave = 100;
-        [SerializeField] float speed = 10;
-        [SerializeField] float attack = 10;
+        [SerializeField] private float hp = 1000;
+        [SerializeField] private float brave = 100;
+        [SerializeField] private float speed = 10;
+        [SerializeField] private float attack = 10;
 
         private float gravity = 10f; // 重力
+
+        [SerializeField]private string[] overrideClips;// = { "SmallHitReaction" }; // 差し替えたいアニメーションクリップ名
 
         private Vector2 moveInputValue; // 入力した値
 
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
         private Vector3 startPos; // 初期位置
+
+        private AnimState animState; // アニメーションの状態変数
+
+        [Header("小怯みアニメーション")]
+        [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
+
+        private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
 
@@ -350,7 +455,11 @@ namespace Misaki
 
         private PlayerInputs playerInputs; // InputSystemから生成したスクリプト
 
-        private AnimState animState; // アニメーションの状態変数
+        // HPとBrave値の表示テキスト
+        [SerializeField] private TextMeshProUGUI textHP;
+        [SerializeField] private TextMeshProUGUI textBrave;
+
+        [SerializeField] private AttackScript attackScript; // 自身の武器の攻撃スクリプト
 
         /// ------private変数------- ///
         #endregion
