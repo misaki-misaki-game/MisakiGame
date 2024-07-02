@@ -27,13 +27,6 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
-        private void Start()
-        {
-            // 自身のカプセルコライダーを取得し、無効化
-            myCollider = GetComponent<CapsuleCollider>();
-            //myCollider.enabled = false;
-        }
-
         private void OnTriggerEnter(Collider col)
         {
             // ステートによって処理を変える
@@ -46,7 +39,7 @@ namespace Misaki
             if (col.tag == Tags.Enemy.ToString())
             {
                 Debug.Log("Brave攻撃が敵に当たった");
-                // col.GetComponent<Enemy>().SetState(Enemy.EnemyState.Damage);
+                col.GetComponent<PlayerScript>().BraveHitReaction();
             }
         }
 
@@ -86,8 +79,6 @@ namespace Misaki
 
         #region private変数
         /// ------private変数------- ///
-
-        private CapsuleCollider myCollider; // 自身のコライダー
 
         private AttackState attack = AttackState.E_None; // 攻撃の種類
 

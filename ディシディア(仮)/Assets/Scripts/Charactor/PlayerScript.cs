@@ -59,8 +59,6 @@ namespace Misaki
             anim.SetTrigger("At_BAttack");
 
             // ヒットしたら相手のAddBraveDamegeを呼び出す
-            // 
-
         }
 
         public override void BraveHitReaction()
@@ -72,9 +70,8 @@ namespace Misaki
 
             // ランダムに決めた小怯みアニメーションを再生
             int rnd = Random.Range(0, smallHitClip.Length);
-            AllocateMotion("SmallHitReaction", smallHitClip[rnd]);
+            AllocateMotion("SmallHit01", smallHitClip[rnd]);
             anim.SetTrigger("At_SmallHit");
-
         }
 
         public override void Dead()
@@ -95,7 +92,6 @@ namespace Misaki
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_Dodge");
-
         }
 
         public override void Guard()
@@ -168,11 +164,18 @@ namespace Misaki
         }
 
         /// <summary>
+        /// 攻撃終了時の関数
+        /// </summary>
+        public void AttackEnd()
+        {
+            attackScript.SetAttackState = AttackState.E_None;
+        }
+
+        /// <summary>
         /// アニメーション終了時の関数
         /// </summary>
         public void AnimEnd()
         {
-            attackScript.SetAttackState = AttackState.E_None;
             animState = default;
             anim.SetTrigger("At_Idle");
         }
@@ -200,13 +203,14 @@ namespace Misaki
             con ??= GetComponent<CharacterController>();
             anim ??= GetComponent<Animator>();
 
-            // マウスを固定する気はない
-            // マウスカーソルを非表示にし、位置を固定
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            if (!isEnemy)
+            {
+                // マウスを固定する気はない
+                // マウスカーソルを非表示にし、位置を固定
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
 
-            key ??= Keyboard.current; // 現在のキーボード情報を取得
-
+                key ??= Keyboard.current; // 現在のキーボード情報を取得
             // Actionスクリプトのインスタンス生成
             playerInputs = new PlayerInputs();
 
@@ -222,9 +226,10 @@ namespace Misaki
 
             startPos = transform.position; // 初期位置を取得
             cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
+            }
             animState = default; // アニメーション状態をなにもしていないに変更
             overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
-            // anim.runtimeAnimatorController = overrideController; Animatorを上書き
+            anim.runtimeAnimatorController = overrideController; //Animatorを上書き
             overrideClips = new string[overrideController.animationClips.Length]; // 要素数を代入
 
             // クリップ配列に名前を代入
@@ -347,16 +352,17 @@ namespace Misaki
         /// <param name="clip">差し替えたいクリップ</param>
         private void AllocateMotion(string name, AnimationClip clip)
         {
+            // アニメーションステートを取得
             AnimatorStateInfo[] layerInfo = new AnimatorStateInfo[anim.layerCount];
             for (int i = 0; i < anim.layerCount; i++)
             {
                 layerInfo[i] = anim.GetCurrentAnimatorStateInfo(i);
             }
 
-            // (3) AnimationClipを差し替えて、強制的にアップデート
+            // AnimationClipを差し替えて、強制的にアップデート
             // ステートがリセットされる
             overrideController[name] = clip;
-            anim.Update(0.0f);
+            anim.Rebind();
 
             // ステートを戻す
             for (int i = 0; i < anim.layerCount; i++)
@@ -422,7 +428,7 @@ namespace Misaki
         /// ------private変数------- ///
 
         private bool startIdle = false; // 待機アニメーションがスタートしているか
-        private bool isEnemy = false;
+        [SerializeField] private bool isEnemy = false;
 
         // 初期パラメータ
         [SerializeField] private float hp = 1000;
@@ -432,7 +438,7 @@ namespace Misaki
 
         private float gravity = 10f; // 重力
 
-        [SerializeField]private string[] overrideClips;// = { "SmallHitReaction" }; // 差し替えたいアニメーションクリップ名
+        private string[] overrideClips; // 差し替えたいアニメーションクリップ名
 
         private Vector2 moveInputValue; // 入力した値
 
@@ -445,7 +451,7 @@ namespace Misaki
         [Header("小怯みアニメーション")]
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
 
-        private AnimatorOverrideController overrideController; // Animator上書き用変数
+        [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
 

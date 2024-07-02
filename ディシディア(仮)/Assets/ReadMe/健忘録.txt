@@ -1,0 +1,5 @@
+Tag.Enemyに攻撃が当たるとヒット判定がでる
+武器側でデバッグログがでている
+
+Layer.PLWepon はLayer.Enemyにのみ当たる
+Lsyer.ENWepon はLayer.Playerにのみ当たる

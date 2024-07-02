@@ -158,21 +158,22 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 16213632}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5b8233c10cdc7e4a9f45907f2a9df1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   debugSettings: {fileID: 11400000, guid: 223e32d8dd08b7c4ea0e93eb4db0b9ca, type: 2}
+  isEnemy: 1
   hp: 1000
   brave: 100
   speed: 6
   attack: 10
-  overrideClips: []
   smallHitClip:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 7400000, guid: a272263d067d2084b8ba101db069f15f, type: 2}
+  - {fileID: 7400000, guid: 1a0461995b568284e9873e369ce86186, type: 2}
+  - {fileID: 7400000, guid: 8259dbcd4101ae447b3fb736cc407ebd, type: 2}
+  overrideController: {fileID: 0}
   plCamera: {fileID: 2120917785}
   textHP: {fileID: 772192702}
   textBrave: {fileID: 1445615596}
@@ -1703,15 +1704,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugSettings: {fileID: 11400000, guid: 223e32d8dd08b7c4ea0e93eb4db0b9ca, type: 2}
+  isEnemy: 0
   hp: 1000
   brave: 100
   speed: 6
   attack: 10
-  overrideClips: []
   smallHitClip:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 7400000, guid: a272263d067d2084b8ba101db069f15f, type: 2}
+  - {fileID: 7400000, guid: 1a0461995b568284e9873e369ce86186, type: 2}
+  - {fileID: 7400000, guid: 8259dbcd4101ae447b3fb736cc407ebd, type: 2}
+  overrideController: {fileID: 0}
   plCamera: {fileID: 781147741}
   textHP: {fileID: 772192702}
   textBrave: {fileID: 1445615596}
