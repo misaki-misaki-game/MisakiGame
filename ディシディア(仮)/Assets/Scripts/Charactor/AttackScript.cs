@@ -129,7 +129,7 @@ namespace Misaki
 
         private List<GameObject> hitObj = new List<GameObject>(); // ヒットしたオブジェクト格納用リスト
 
-        private PlayerScript ownOwner; // このアタックスクリプトの所有者
+        private BaseCharactorScript ownOwner; // このアタックスクリプトの所有者
 
         /// ------private変数------- ///
         #endregion
@@ -144,8 +144,8 @@ namespace Misaki
         // attackのセッター関数
         public AttackState SetAttackState { set { attack = value; } }
 
-        // ownerPlayerScriptのセッター関数
-        public PlayerScript SetOwnOwner { set { ownOwner = value; } }
+        // ownerScriptのセッター関数
+        public BaseCharactorScript SetOwnOwner { set { ownOwner = value; } }
 
         /// -------プロパティ------- ///
         #endregion

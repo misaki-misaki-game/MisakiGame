@@ -10,6 +10,7 @@ using TMPro;
 using System.Threading.Tasks;
 using static UnityEditor.PlayerSettings;
 using UnityEngine.Events;
+using static Misaki.BaseCharactorScript;
 
 namespace Misaki
 {
@@ -19,28 +20,6 @@ namespace Misaki
 
         #region public関数
         /// -------public関数------- ///
-
-        public override void ReceiveBraveDamage(float damage)
-        {
-            base.ReceiveBraveDamage(damage);
-            // Braveからdamage分を引く
-            parameter.brave = parameter.brave - damage;
-            StartCoroutine(BraveHitReaction());
-        }
-
-        public override void ReceiveHPDamage(float brave)
-        {
-            base.ReceiveHPDamage(brave);
-            // HPからdamageを引く
-            parameter.hp = parameter.hp - brave;
-            StartCoroutine(HPHitReaction());
-        }
-
-        public override void Born()
-        {
-            base.Born();
-            //anim
-        }
 
         public override void BraveAttack()
         {
@@ -95,44 +74,23 @@ namespace Misaki
         {
             base.Dead();
 
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_Death");
-
             // ゲームオーバーにする
-
         }
 
         public override void Dodge()
         {
             base.Dodge();
-            // 回避中は無敵
 
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_Dodge");
         }
 
         public override void Guard()
         {
             base.Guard();
-            // anim
-            // 防御中はダメージ軽減か無敵
         }
 
         public override void HPAttack()
         {
             base.HPAttack();
-
-            // HP攻撃中ならリターン
-            if (animState == AnimState.E_Attack) return;
-
-            // アニメーション状態をHP攻撃中にする
-            animState = AnimState.E_Attack;
-
-            // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
-            if (startIdle) startIdle = false;
-
-            // 攻撃の所有者を自分にする
-            attackScript.SetOwnOwner = this;
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_HAttack");
@@ -181,57 +139,20 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
-        /// <summary>
-        /// ブレイブ攻撃開始時の関数
-        /// </summary>
-        /// <param name="motionValue">攻撃モーション値</param>
-        public void BeginBraveAttack(float motionValue)
+        public override void EndAnim()
         {
-            // 武器のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_BraveAttack;
-            attackScript.SetBraveAttack = motionValue * attack;
-            attackScript.ClearHitObj();
-        }
-
-        /// <summary>
-        /// HP攻撃開始時の関数
-        /// </summary>
-        public void BiginHPAttack()
-        {
-            // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_HPAttack;
-            attackScript.SetHPAttack = brave;
-            attackScript.ClearHitObj();
-        }
-
-        /// <summary>
-        /// 攻撃終了時の関数
-        /// </summary>
-        public void EndAttack()
-        {
-            // 武器のステートを変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_None;
-            attackScript.ClearHitObj();
-        }
-
-        /// <summary>
-        /// アニメーション終了時の関数
-        /// </summary>
-        public void EndAnim()
-        {
-            animState = default;
+            base.EndAnim();
             anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
-            anim.SetTrigger("At_Idle");
+            anim.SetTrigger("At_Idle"); // 待機状態に移動する
         }
 
         /// <summary>
         /// 自分のブレイブ攻撃が当たった時の関数
         /// </summary>
         /// <param name="obtainBrave">取得したブレイブ</param>
-        public void HitBraveAttack(float obtainBrave)
+        public override void HitBraveAttack(float obtainBrave)
         {
-            // ブレイブを加算する
-            parameter.brave += obtainBrave;
+            base.HitBraveAttack(obtainBrave);
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -240,15 +161,23 @@ namespace Misaki
         /// <summary>
         /// 自分のHP攻撃が当たった時の関数
         /// </summary>
-        public void HitHPAttack()
+        public override void HitHPAttack()
         {
-            // ブレイブを0にする
-            parameter.brave = 0;
+            base.HitHPAttack();
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
-            // ブレイブ状態をリジェネ状態にする
-            braveState = BraveState.E_Regenerate;
+        }
+
+        /// <summary>
+        /// ブレイブを徐々に回復する関数
+        /// </summary>
+        public override void RegenerateBrave()
+        {
+            base.RegenerateBrave();
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
         /// -------public関数------- ///
@@ -272,6 +201,7 @@ namespace Misaki
             // コンポーネントを取得
             con ??= GetComponent<CharacterController>();
             anim ??= GetComponent<Animator>();
+            animState = default; // アニメーション状態をなにもしていないに変更
 
             if (!isEnemy)
             {
@@ -281,23 +211,23 @@ namespace Misaki
                 Cursor.lockState = CursorLockMode.Locked;
 
                 key ??= Keyboard.current; // 現在のキーボード情報を取得
-            // Actionスクリプトのインスタンス生成
-            playerInputs = new PlayerInputs();
+                                          // Actionスクリプトのインスタンス生成
+                playerInputs = new PlayerInputs();
 
-            // Actionイベント登録
-            playerInputs.Player.Move.started += OnMove;
-            playerInputs.Player.Move.performed += OnMove;
-            playerInputs.Player.Move.canceled += OnMove;
-            playerInputs.Player.BAttack.started += OnBAttack;
-            playerInputs.Player.HAttack.started += OnHAttack;
+                // Actionイベント登録
+                playerInputs.Player.Move.started += OnMove;
+                playerInputs.Player.Move.performed += OnMove;
+                playerInputs.Player.Move.canceled += OnMove;
+                playerInputs.Player.BAttack.started += OnBAttack;
+                playerInputs.Player.HAttack.started += OnHAttack;
 
-            // playerInputsを起動
-            playerInputs.Enable();
+                // playerInputsを起動
+                playerInputs.Enable();
 
-            startPos = transform.position; // 初期位置を取得
-            cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
+                startPos = transform.position; // 初期位置を取得
+                cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
-            animState = default; // アニメーション状態をなにもしていないに変更
+
             overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
             anim.runtimeAnimatorController = overrideController; //Animatorを上書き
             overrideClips = new string[overrideController.animationClips.Length]; // 要素数を代入
@@ -425,29 +355,6 @@ namespace Misaki
             }
         }
 
-        /// <summary>
-        /// ブレイブを徐々に回復する関数
-        /// </summary>
-        private void RegenerateBrave()
-        {
-            // 通常状態の場合はリターン
-            // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
-            // ブレイク状態の場合はbrakSpeed秒掛けて回復
-            if (braveState == BraveState.E_Default) return;
-            else if (braveState == BraveState.E_Regenerate) parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
-            else parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
-
-            // ブレイブ値がブレイブ基準値以上まで回復したら回復を止める
-            if (parameter.brave >= parameter.standardBrave)
-            {
-                parameter.brave = parameter.standardBrave;
-                braveState = BraveState.E_Default;
-            }
-            
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
-        }
-
         /// ------private関数------- ///
         #endregion
 
@@ -476,8 +383,6 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        private bool startIdle = false; // 待機アニメーションがスタートしているか
-
         [SerializeField] private bool isEnemy = false;
 
         private float gravity = 10f; // 重力
@@ -499,8 +404,6 @@ namespace Misaki
         private Vector3 startPos; // 初期位置
         private Vector3 knockbackVelocity = Vector3.zero; // ノックバック距離
 
-        private BraveState braveState; // ブレイブの状態変数
-
         [Header("小怯みアニメーション")]
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
 
@@ -518,8 +421,6 @@ namespace Misaki
         // HPとBrave値の表示テキスト
         [SerializeField] private TextMeshProUGUI textHP;
         [SerializeField] private TextMeshProUGUI textBrave;
-
-        [SerializeField] private AttackScript attackScript; // 自身の武器の攻撃スクリプト
 
         /// ------private変数------- ///
         #endregion

@@ -63,6 +63,37 @@ namespace Misaki
         /// </summary>
         IEnumerator HPHitReaction();
 
+        /// <summary>
+        /// ブレイブ攻撃開始時の関数
+        /// </summary>
+        /// <param name="motionValue">攻撃モーション値</param>
+        void BeginBraveAttack(float motionValue);
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// </summary>
+        void BiginHPAttack();
+
+        /// <summary>
+        /// 攻撃終了時の関数
+        /// </summary>
+        void EndAttack();
+
+        /// <summary>
+        /// アニメーション終了時の関数
+        /// </summary>
+        void EndAnim();
+
+        /// <summary>
+        /// 自分のHP攻撃が当たった時の関数
+        /// </summary>
+        void HitHPAttack();
+
+        /// <summary>
+        /// ブレイブを徐々に回復する関数
+        /// </summary>
+        void RegenerateBrave();
+
         /// -------public関数------- ///
         #endregion
 

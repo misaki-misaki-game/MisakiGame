@@ -164,6 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugSettings: {fileID: 11400000, guid: 223e32d8dd08b7c4ea0e93eb4db0b9ca, type: 2}
+  attackScript: {fileID: 0}
   adjustEffectYPos: 0.5
   braveDamageEffect: {fileID: 1459862227383078, guid: 88b4ade0d8f70ba44b57266ecedb3112,
     type: 3}
@@ -185,7 +186,6 @@ MonoBehaviour:
   shockwave: {fileID: 1714681308540598, guid: 40ef87a8c1d7372448d6ce2115961caa, type: 3}
   textHP: {fileID: 972522255}
   textBrave: {fileID: 1528976704}
-  attackScript: {fileID: 0}
 --- !u!143 &16213636
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1712,6 +1712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugSettings: {fileID: 11400000, guid: 223e32d8dd08b7c4ea0e93eb4db0b9ca, type: 2}
+  attackScript: {fileID: 9205399915486004213}
   adjustEffectYPos: 0
   braveDamageEffect: {fileID: 0}
   hpDamageEffect: {fileID: 0}
@@ -1731,7 +1732,6 @@ MonoBehaviour:
   shockwave: {fileID: 0}
   textHP: {fileID: 772192702}
   textBrave: {fileID: 1445615596}
-  attackScript: {fileID: 9205399915486004213}
 --- !u!4 &1396283092 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400272, guid: 3fa7e78f8230bbc4aa653b2c7921db90,
