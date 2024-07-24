@@ -8,7 +8,7 @@ public enum AnimState
 {
     E_Idle = 0, // 待機中
     E_Move = 1, // 移動中
-    E_Attack = 2, // 攻撃中
+    E_Attack = 2, // ブレイブ攻撃中
     E_HitReaction = 3, // 被ダメージ中
     E_Dead = 4, // 戦闘不能中
     E_None = default // なにもしていない
@@ -17,9 +17,17 @@ public enum AnimState
 // 攻撃の種類
 public enum AttackState
 {
-    E_None=0,
-    E_BraveAttack = 1,
-    E_HPAttack = 2
+    E_None = 0, // 攻撃していない
+    E_BraveAttack = 1, // ブレイブ攻撃時
+    E_HPAttack = 2 // HP攻撃時
+}
+
+// ブレイブの状態
+public enum BraveState
+{
+    E_Default = 0, // 通常状態
+    E_Regenerate = 1, // リジェネ状態
+    E_Break = 2 // ブレイク状態
 }
 
 /// -------public変数------- ///

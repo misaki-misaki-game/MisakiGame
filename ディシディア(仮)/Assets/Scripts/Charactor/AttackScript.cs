@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -12,7 +14,13 @@ namespace Misaki
         #region public関数
         /// -------public関数------- ///
 
-
+        /// <summary>
+        /// hitObjをリセットする関数
+        /// </summary>
+        public void ClearHitObj()
+        {
+            hitObj.Clear();
+        }
 
         /// -------public関数------- ///
         #endregion
@@ -30,26 +38,59 @@ namespace Misaki
         private void OnTriggerEnter(Collider col)
         {
             // ステートによって処理を変える
-            if (attack == AttackState.E_BraveAttack) AddBrave(col);
-            else if (attack == AttackState.E_HPAttack) AddHP(col);
+            if (attack == AttackState.E_BraveAttack) CalcBrave(col);
+            else if (attack == AttackState.E_HPAttack) CalcHP(col);
         }
 
-        private void AddBrave(Collider col)
+        /// <summary>
+        /// ヒットしたコライダーにブレイブダメージを与える
+        /// 及び与えたブレイブダメージを自身の所有者に渡す関数
+        /// </summary>
+        /// <param name="col">ヒットしたコライダー</param>
+        private void CalcBrave(Collider col)
         {
-            if (col.tag == Tags.Enemy.ToString())
+            // エネミータグかつヒットオブジェクトリストに入っていなければ
+            if (col.tag == Tags.Enemy.ToString() && !ChackInHit(col.gameObject))
             {
-                Debug.Log("Brave攻撃が敵に当たった");
-                col.GetComponent<PlayerScript>().BraveHitReaction();
+                Debug.Log("Brave攻撃が敵に当たった" + braveAttack);
+          
+                // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
+                hitObj.Add(col.gameObject);
+                col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack);
+
+                // 与えたブレイブを自身の所有者に渡す
+                ownOwner.HitBraveAttack(braveAttack);
             }
         }
-
-        private void AddHP(Collider col)
+        
+        /// <summary>
+        /// ブレイブ値をヒットしたコライダーのHPに与える
+        /// ヒットしたら自身の所有者のブレイブを0にする関数
+        /// </summary>
+        /// <param name="col">ヒットしたコライダー</param>
+        private void CalcHP(Collider col)
         {
-            if (col.tag == Tags.Enemy.ToString())
+            // エネミータグかつヒットオブジェクトリストに入っていなければ
+            // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
+            if (col.tag == Tags.Enemy.ToString() && !ChackInHit(col.gameObject))
             {
                 Debug.Log("HP攻撃が敵に当たった");
-                // col.GetComponent<Enemy>().SetState(Enemy.EnemyState.Damage);
+                hitObj.Add(col.gameObject);
+                col.GetComponent<PlayerScript>().ReceiveHPDamage(hpAttack);
+
+                // 所有者のブレイブを0にしてリジェネを開始する
+                ownOwner.HitHPAttack();
             }
+        }
+
+        /// <summary>
+        /// リストの中にエネミーがあるかどうかをチェックする関数
+        /// </summary>
+        /// <param name="obj">エネミーGameObject</param>
+        /// <returns>ヒットしているかどうか</returns>
+        private bool ChackInHit(GameObject obj)
+        {
+            return hitObj.Contains(obj);
         }
 
         /// ------private関数------- ///
@@ -80,7 +121,14 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        private AttackState attack = AttackState.E_None; // 攻撃の種類
+        private float braveAttack = 0; // 攻撃値
+        private float hpAttack = 0; // HP値
+
+        private AttackState attack = default; // 攻撃の種類
+
+        private List<GameObject> hitObj = new List<GameObject>(); // ヒットしたオブジェクト格納用リスト
+
+        private PlayerScript ownOwner; // このアタックスクリプトの所有者
 
         /// ------private変数------- ///
         #endregion
@@ -88,9 +136,16 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
     
+        // braveAttackとhpAttackのセッター関数
+        public float SetBraveAttack { set { braveAttack = value; } }
+        public float SetHPAttack { set { hpAttack = value; } }
+
         // attackのセッター関数
         public AttackState SetAttackState { set { attack = value; } }
-    
+
+        // ownerPlayerScriptのセッター関数
+        public PlayerScript SetOwnOwner { set { ownOwner = value; } }
+
         /// -------プロパティ------- ///
         #endregion
     

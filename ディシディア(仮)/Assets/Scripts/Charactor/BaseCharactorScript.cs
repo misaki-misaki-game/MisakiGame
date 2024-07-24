@@ -14,14 +14,14 @@ namespace Misaki
         /// <summary>
         /// ブレイブ値へダメージを与える関数
         /// </summary>
-        public virtual void AddBraveDamage(float damage)
+        public virtual void ReceiveBraveDamage(float damage)
         {
         }
 
         /// <summary>
         /// HP値へダメージを与える関数
         /// </summary>
-        public virtual void AddHPDamage(float brave)
+        public virtual void ReceiveHPDamage(float brave)
         {
         }
 
@@ -122,7 +122,11 @@ namespace Misaki
         public class Parameter
         {
             public float hp = 0; // HP
+            public float maxHp = 0; // 最大HP
             public float brave = 0; // ブレイブ値
+            public float standardBrave = 0; // 基準ブレイブ値
+            public float regenerateSpeed = 0; // ブレイブのリジェネスピード
+            public float breakSpeed = 0; // ブレイク時のリジェネスピード
             public float speed = 0; // 移動スピード
             public float attack = 0; // 攻撃力
 
@@ -130,22 +134,29 @@ namespace Misaki
             /// コンストラクタ
             /// </summary>
             public Parameter() { }
+
             /// <summary>
             /// 引数付きコンストラクタ
             /// </summary>
-            /// <param name="initialHP">初期HP</param>
-            /// <param name="initialBrave">初期ブレイブ値</param>
-            /// <param name="initialSpeed">初期移動スピード</param>
-            public Parameter(float initialHP, float initialBrave, float initialSpeed, float initialAttack)
+            /// <param name="initialHP">HP</param>
+            /// <param name="initialBrave">ブレイブ値</param>
+            /// <param name="initialRegenerateSpeed">ブレイブリジェネスピード</param>
+            /// <param name="initialSpeed">移動スピード</param>
+            /// <param name="initialAttack">攻撃力</param>
+            /// <param name="initialBreakSpeed">ブレイク時のリジェネスピード</param>
+            public Parameter(float initialHP, float initialBrave, float initialRegenerateSpeed, float initialBreakSpeed, float initialSpeed, float initialAttack)
             {
                 // 各パラメータに代入する
-                hp = initialHP;
-                brave = initialBrave;
+                maxHp = initialHP;
+                hp = maxHp;
+                standardBrave = initialBrave;
+                brave = standardBrave;
+                regenerateSpeed = initialRegenerateSpeed;
+                breakSpeed = initialBreakSpeed;
                 speed = initialSpeed;
                 attack= initialAttack;
             }
-        }
-
+        } 
 
         /// -------public変数------- ///
         #endregion

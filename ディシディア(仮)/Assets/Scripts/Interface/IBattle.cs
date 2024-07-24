@@ -8,14 +8,14 @@ namespace Misaki
         /// -------public関数------- ///
 
         /// <summary>
-        /// ブレイブ値へダメージを与える関数
+        /// ブレイブ値へのダメージを受け取る関数
         /// </summary>
-        void AddBraveDamage(float damage);
+        void ReceiveBraveDamage(float damage);
 
         /// <summary>
-        /// HP値へダメージを与える関数
+        /// HP値へのダメージを受け取る関数
         /// </summary>
-        void AddHPDamage(float damage);
+        void ReceiveHPDamage(float damage);
 
         /// <summary>
         /// 生まれる関数

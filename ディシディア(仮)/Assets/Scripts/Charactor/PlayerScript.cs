@@ -7,6 +7,8 @@ using UnityEngine.InputSystem.Controls;
 using Unity.VisualScripting;
 using UnityEditor;
 using TMPro;
+using System.Threading.Tasks;
+using static UnityEditor.PlayerSettings;
 
 namespace Misaki
 {
@@ -17,17 +19,17 @@ namespace Misaki
         #region public関数
         /// -------public関数------- ///
 
-        public override void AddBraveDamage(float damage)
+        public override void ReceiveBraveDamage(float damage)
         {
-            base.AddBraveDamage(damage);
+            base.ReceiveBraveDamage(damage);
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
             BraveHitReaction();
         }
 
-        public override void AddHPDamage(float brave)
+        public override void ReceiveHPDamage(float brave)
         {
-            base.AddHPDamage(brave);
+            base.ReceiveHPDamage(brave);
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
             HPHitReaction();
@@ -43,22 +45,24 @@ namespace Misaki
         {
             base.BraveAttack();
 
-            // 攻撃中ならリターン
-            if (animState == AnimState.E_Attack) return;
+            // ブレイブ攻撃中ならリターン
+            if (animState == AnimState.E_Attack)
+            {
+                anim.SetTrigger("At_BAttack");
+            }
+            else if (animState != AnimState.E_Idle&&animState != AnimState.E_Move) return;
 
-            // アニメーション状態を攻撃中にする
+            // アニメーション状態をブレイブ攻撃中にする
             animState = AnimState.E_Attack;
-
-            // 武器のステートを変更
-            attackScript.SetAttackState = AttackState.E_BraveAttack;
 
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
 
+            // 攻撃の所有者を自分にする
+            attackScript.SetOwnOwner = this;
+
             // 対応アニメーションを再生
             anim.SetTrigger("At_BAttack");
-
-            // ヒットしたら相手のAddBraveDamegeを呼び出す
         }
 
         public override void BraveHitReaction()
@@ -68,10 +72,26 @@ namespace Misaki
             // アニメーション状態を被ダメージ中にする
             animState = AnimState.E_HitReaction;
 
+            // エフェクトを生成する
+            InstantiateEffect(braveEffect, effectPos);
+
             // ランダムに決めた小怯みアニメーションを再生
             int rnd = Random.Range(0, smallHitClip.Length);
             AllocateMotion("SmallHit01", smallHitClip[rnd]);
             anim.SetTrigger("At_SmallHit");
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+
+            // リジェネ中なら通常状態にしてリジェネを止める
+            if (braveState == BraveState.E_Regenerate) braveState = BraveState.E_Default;
+
+            // ブレイブが0以下になったらブレイク状態にする
+            if (parameter.brave <= 0)
+            {
+                parameter.brave = 0;
+                braveState = BraveState.E_Break; 
+            }
         }
 
         public override void Dead()
@@ -105,21 +125,20 @@ namespace Misaki
         {
             base.HPAttack();
 
-            // 攻撃中ならリターン
+            // HP攻撃中ならリターン
             if (animState == AnimState.E_Attack) return;
 
-            // アニメーション状態を攻撃中にする
+            // アニメーション状態をHP攻撃中にする
             animState = AnimState.E_Attack;
-
-            // 武器のステートを変更
-            attackScript.SetAttackState = AttackState.E_HPAttack;
 
             // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
             if (startIdle) startIdle = false;
 
+            // 攻撃の所有者を自分にする
+            attackScript.SetOwnOwner = this;
+
             // 対応アニメーションを再生
             anim.SetTrigger("At_HAttack");
-            // ヒットしたら相手のAddHPDamegeを呼び出す
         }
 
         public override void HPHitReaction()
@@ -129,8 +148,14 @@ namespace Misaki
             // アニメーション状態を攻撃中にする
             animState = AnimState.E_HitReaction;
 
-            // ランダムに決めた小怯みアニメーションを再生
+            // エフェクトを生成する
+            InstantiateEffect(hpEffect, effectPos);
+
+            // 怯みアニメーションを再生
             anim.SetTrigger("At_LargeHit");
+
+            // テキストを変更する
+            textHP.text = string.Format("{0:0}", parameter.hp);
         }
 
         public override void Move()
@@ -163,21 +188,89 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
+        public void OnTriggerEnter(Collider col)
+        {
+            // コライダーがぶつかった場所を格納する
+            if (col.CompareTag(Tags.EnemyWepon.ToString()))
+            {
+                Vector3 hitPos = col.ClosestPointOnBounds(this.transform.position);
+                effectPos = hitPos;
+            }
+        }
+
+        /// <summary>
+        /// ブレイブ攻撃開始時の関数
+        /// </summary>
+        /// <param name="motionValue">攻撃モーション値</param>
+        public void BeginBraveAttack(float motionValue)
+        {
+            // 武器のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            attackScript.SetAttackState = AttackState.E_BraveAttack;
+            attackScript.SetBraveAttack = motionValue * attack;
+            attackScript.ClearHitObj();
+        }
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// </summary>
+        public void BiginHPAttack()
+        {
+            // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            attackScript.SetAttackState = AttackState.E_HPAttack;
+            attackScript.SetHPAttack = brave;
+            attackScript.ClearHitObj();
+        }
+
         /// <summary>
         /// 攻撃終了時の関数
         /// </summary>
-        public void AttackEnd()
+        public void EndAttack()
         {
+            // 武器のステートを変更し、ヒットオブジェクトリストをリセットする
             attackScript.SetAttackState = AttackState.E_None;
+            attackScript.ClearHitObj();
         }
 
         /// <summary>
         /// アニメーション終了時の関数
         /// </summary>
-        public void AnimEnd()
+        public void EndAnim()
         {
             animState = default;
+            anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
             anim.SetTrigger("At_Idle");
+        }
+
+        /// <summary>
+        /// 自分のブレイブ攻撃が当たった時の関数
+        /// </summary>
+        /// <param name="obtainBrave">取得したブレイブ</param>
+        public void HitBraveAttack(float obtainBrave)
+        {
+            // ブレイブを加算する
+            parameter.brave += obtainBrave;
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+        }
+
+        /// <summary>
+        /// 自分のHP攻撃が当たった時の関数
+        /// </summary>
+        public void HitHPAttack()
+        {
+            // ブレイブを0にする
+            parameter.brave = 0;
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+            // ブレイブ状態をリジェネ状態にする
+            braveState = BraveState.E_Regenerate;
+        }
+
+        public void Shockwave()
+        {
+
         }
 
         /// -------public関数------- ///
@@ -197,7 +290,7 @@ namespace Misaki
         private void Start()
         {
             // コンストラクタを呼び出し
-            parameter = new Parameter(hp, brave, speed, attack);
+            parameter = new Parameter(hp, brave, regenerateSpeed, breakSpeed, speed, attack);
 
             // コンポーネントを取得
             con ??= GetComponent<CharacterController>();
@@ -254,6 +347,9 @@ namespace Misaki
                 // カメラを追従させる
                 TrackingCamera();
             }
+
+            // リジェネ処理を行う
+            RegenerateBrave();
         }
 
         private void OnDestroy()
@@ -319,25 +415,6 @@ namespace Misaki
         }
 
         /// <summary>
-        /// 待機アニメーション時の向きを矯正する関数
-        /// </summary>
-        private void StraighteningDirection()
-        {
-            if (anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle" && !startIdle)
-            {
-                // 待機アニメーションに遷移したときの向き矯正
-                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y + reviseIdleDir, 0);
-                startIdle = true;
-                animState = AnimState.E_Idle;
-            }
-            else if (animState == AnimState.E_Attack && startIdle)
-            {
-                // 待機アニメーションから別のアニメーションに遷移した時の向き矯正
-                //transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y - reviseIdleDir, 0);
-            }
-        }
-
-        /// <summary>
         /// カメラを追従させる関数
         /// </summary>
         private void TrackingCamera()
@@ -371,34 +448,40 @@ namespace Misaki
             }
         }
 
-        //　キャラクターが他のゲームオブジェクトにぶつかったら
-        public void OnControllerColliderHit(ControllerColliderHit col)
+        /// <summary>
+        /// ブレイブを徐々に回復する関数
+        /// </summary>
+        private void RegenerateBrave()
         {
-            //　ぶつかった相手がEnWeponタグを持つ相手だったら
-            if (col.gameObject.tag == Tags.EnemyWepon.ToString())
+            // 通常状態の場合はリターン
+            // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
+            // ブレイク状態の場合はbrakSpeed秒掛けて回復
+            if (braveState == BraveState.E_Default) return;
+            else if (braveState == BraveState.E_Regenerate) parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
+            else parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
+
+            // ブレイブ値がブレイブ基準値以上まで回復したら回復を止める
+            if (parameter.brave >= parameter.standardBrave)
             {
-                /*
-                //　ぶつかった相手のRigidbodyコンポーネントを取得
-                Rigidbody rigid = col.transform.GetComponent<Rigidbody>();
-                //　Rigidbodyを持っていなかったらAddComponentで取り付ける
-                if (rigid == null)
-                {
-                    //　まったく関係ないが自作のスクリプトを取り付けてみる
-                    col.gameObject.AddComponent<AddComponentTest>();
-                    //　ジェネリクス版
-                    rigid = col.gameObject.AddComponent<Rigidbody>() as Rigidbody;
-                    //　文字列で指定版
-                    //				rigid = col.gameObject.AddComponent ("Rigidbody") as Rigidbody;
-                    //　typeof使用版
-                    //				rigid = col.gameObject.AddComponent(typeof(Rigidbody)) as Rigidbody;
-                    //　constraintsのX、Y、Z軸で移動し、回転しないようにする
-                    rigid.constraints = ~RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
-                }
-                //　Rigidbodyに力を加える
-                rigid.AddForce(transform.forward * power);
-                */
+                parameter.brave = parameter.standardBrave;
+                braveState = BraveState.E_Default;
             }
+            
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
+
+        /// <summary>
+        /// 被ダメージエフェクトを生成する関数
+        /// </summary>
+        /// <param name="effect">生成するエフェクト</param>
+        /// <param name="pos">エフェクト生成位置</param>
+        private void InstantiateEffect(GameObject effect, Vector3 pos)
+        {
+            GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
+            Task.Run(() => Destroy(newEffect, 5));
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -428,15 +511,20 @@ namespace Misaki
         /// ------private変数------- ///
 
         private bool startIdle = false; // 待機アニメーションがスタートしているか
+
         [SerializeField] private bool isEnemy = false;
+
+        private int attackPhase = 0; // 攻撃の段階 コンボのn段目
+
+        private float gravity = 10f; // 重力
 
         // 初期パラメータ
         [SerializeField] private float hp = 1000;
         [SerializeField] private float brave = 100;
+        [SerializeField] private float regenerateSpeed = 3;
+        [SerializeField] private float breakSpeed = 10;
         [SerializeField] private float speed = 10;
-        [SerializeField] private float attack = 10;
-
-        private float gravity = 10f; // 重力
+        [SerializeField] private float attack = 100;
 
         private string[] overrideClips; // 差し替えたいアニメーションクリップ名
 
@@ -445,8 +533,12 @@ namespace Misaki
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
         private Vector3 startPos; // 初期位置
+        private Vector3 effectPos; // エフェクト表示位置
+        private Vector3 knockbackVelocity = Vector3.zero; // ノックバック距離
 
         private AnimState animState; // アニメーションの状態変数
+
+        private BraveState braveState; // ブレイブの状態変数
 
         [Header("小怯みアニメーション")]
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
@@ -454,6 +546,9 @@ namespace Misaki
         [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
+        [SerializeField] private GameObject braveEffect; // 被ブレイブ攻撃のエフェクト
+        [SerializeField] private GameObject hpEffect; // 被HP攻撃のエフェクト
+        [SerializeField] private GameObject shockwave; // HP攻撃のエフェクト
 
         private CharacterController con; // CharacterController変数
 
