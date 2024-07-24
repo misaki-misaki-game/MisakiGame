@@ -1,3 +1,4 @@
+using System.Collections;
 namespace Misaki
 {
     public interface IBattle
@@ -55,12 +56,12 @@ namespace Misaki
         /// <summary>
         /// ブレイブ攻撃を受けた際のリアクション関数
         /// </summary>
-        void BraveHitReaction();
+        IEnumerator BraveHitReaction();
 
         /// <summary>
         /// HP攻撃を受けた際のリアクション関数
         /// </summary>
-        void HPHitReaction();
+        IEnumerator HPHitReaction();
 
         /// -------public関数------- ///
         #endregion

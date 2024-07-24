@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Threading.Tasks;
 namespace Misaki
 {
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
@@ -42,8 +42,15 @@ namespace Misaki
         /// <summary>
         /// ブレイブ攻撃を受けた際のリアクション関数
         /// </summary>
-        public virtual void BraveHitReaction()
+        public virtual IEnumerator BraveHitReaction()
         {
+            // アニメーション状態を被ダメージ中にする
+            animState = AnimState.E_HitReaction;
+
+            // ヒットした位置を特定するまで待ってからエフェクトを生成する
+            yield return new WaitUntil(() => ishit);
+            InstantiateEffect(braveDamageEffect, effectPos);
+            ishit = false;
         }
 
         /// <summary>
@@ -77,8 +84,15 @@ namespace Misaki
         /// <summary>
         /// HP攻撃を受けた際のリアクション関数
         /// </summary>
-        public virtual void HPHitReaction()
+        public virtual IEnumerator HPHitReaction()
         {
+            // アニメーション状態を攻撃中にする
+            animState = AnimState.E_HitReaction;
+
+            // ヒットした位置を特定するまで待ってからエフェクトを生成する
+            yield return new WaitUntil(() => ishit);
+            InstantiateEffect(hpDamageEffect, effectPos);
+            ishit = false;
         }
 
         /// <summary>
@@ -94,7 +108,27 @@ namespace Misaki
         #region protected関数
         /// -----protected関数------ ///
 
+        /// <summary>
+        /// エフェクトを生成する関数
+        /// </summary>
+        /// <param name="effect">生成するエフェクト</param>
+        /// <param name="pos">エフェクト生成位置</param>
+        protected void InstantiateEffect(GameObject effect, Vector3 pos)
+        {
+            GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
+            Task.Run(() => Destroy(newEffect, 5));
+        }
 
+        protected void OnTriggerEnter(Collider col)
+        {
+            // コライダーがぶつかった場所を格納する
+            if (col.CompareTag(Tags.EnemyWepon.ToString()))
+            {
+                Vector3 hitPos = col.ClosestPointOnBounds(transform.position);
+                effectPos = new Vector3(hitPos.x, adjustEffectYPos, hitPos.z);
+                ishit= true;
+            }
+        }
 
         /// -----protected関数------ ///
         #endregion
@@ -156,13 +190,15 @@ namespace Misaki
                 speed = initialSpeed;
                 attack= initialAttack;
             }
-        } 
+        }
 
         /// -------public変数------- ///
         #endregion
 
         #region protected変数
         /// -----protected変数------ ///
+        
+        protected AnimState animState; // アニメーションの状態変数
 
         protected Animator anim; // Animator変数
 
@@ -174,7 +210,14 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private bool ishit = false; // ヒットしたかどうか
 
+        [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
+
+        private Vector3 effectPos; // エフェクト表示位置
+
+        [SerializeField] private GameObject braveDamageEffect; // 被ブレイブ攻撃のエフェクト
+        [SerializeField] private GameObject hpDamageEffect; // 被HP攻撃のエフェクト
 
         /// ------private変数------- ///
         #endregion

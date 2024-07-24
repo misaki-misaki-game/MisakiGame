@@ -9,6 +9,7 @@ using UnityEditor;
 using TMPro;
 using System.Threading.Tasks;
 using static UnityEditor.PlayerSettings;
+using UnityEngine.Events;
 
 namespace Misaki
 {
@@ -24,7 +25,7 @@ namespace Misaki
             base.ReceiveBraveDamage(damage);
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
-            BraveHitReaction();
+            StartCoroutine(BraveHitReaction());
         }
 
         public override void ReceiveHPDamage(float brave)
@@ -32,7 +33,7 @@ namespace Misaki
             base.ReceiveHPDamage(brave);
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
-            HPHitReaction();
+            StartCoroutine(HPHitReaction());
         }
 
         public override void Born()
@@ -50,7 +51,7 @@ namespace Misaki
             {
                 anim.SetTrigger("At_BAttack");
             }
-            else if (animState != AnimState.E_Idle&&animState != AnimState.E_Move) return;
+            else if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
             // アニメーション状態をブレイブ攻撃中にする
             animState = AnimState.E_Attack;
@@ -65,15 +66,9 @@ namespace Misaki
             anim.SetTrigger("At_BAttack");
         }
 
-        public override void BraveHitReaction()
+        public override IEnumerator BraveHitReaction()
         {
-            base.BraveHitReaction();
-
-            // アニメーション状態を被ダメージ中にする
-            animState = AnimState.E_HitReaction;
-
-            // エフェクトを生成する
-            InstantiateEffect(braveEffect, effectPos);
+            StartCoroutine(base.BraveHitReaction());
 
             // ランダムに決めた小怯みアニメーションを再生
             int rnd = Random.Range(0, smallHitClip.Length);
@@ -90,8 +85,10 @@ namespace Misaki
             if (parameter.brave <= 0)
             {
                 parameter.brave = 0;
-                braveState = BraveState.E_Break; 
+                braveState = BraveState.E_Break;
             }
+
+            yield return null;
         }
 
         public override void Dead()
@@ -141,21 +138,17 @@ namespace Misaki
             anim.SetTrigger("At_HAttack");
         }
 
-        public override void HPHitReaction()
+        public override IEnumerator HPHitReaction()
         {
             base.HPHitReaction();
-
-            // アニメーション状態を攻撃中にする
-            animState = AnimState.E_HitReaction;
-
-            // エフェクトを生成する
-            InstantiateEffect(hpEffect, effectPos);
 
             // 怯みアニメーションを再生
             anim.SetTrigger("At_LargeHit");
 
             // テキストを変更する
             textHP.text = string.Format("{0:0}", parameter.hp);
+
+            yield return null;
         }
 
         public override void Move()
@@ -186,16 +179,6 @@ namespace Misaki
 
             // Move は指定したベクトルだけ移動させる命令
             con.Move(moveDirection * Time.deltaTime);
-        }
-
-        public void OnTriggerEnter(Collider col)
-        {
-            // コライダーがぶつかった場所を格納する
-            if (col.CompareTag(Tags.EnemyWepon.ToString()))
-            {
-                Vector3 hitPos = col.ClosestPointOnBounds(this.transform.position);
-                effectPos = hitPos;
-            }
         }
 
         /// <summary>
@@ -268,17 +251,11 @@ namespace Misaki
             braveState = BraveState.E_Regenerate;
         }
 
-        public void Shockwave()
-        {
-
-        }
-
         /// -------public関数------- ///
         #endregion
 
         #region protected関数
         /// -----protected関数------ ///
-
 
 
         /// -----protected関数------ ///
@@ -471,17 +448,6 @@ namespace Misaki
             textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
-        /// <summary>
-        /// 被ダメージエフェクトを生成する関数
-        /// </summary>
-        /// <param name="effect">生成するエフェクト</param>
-        /// <param name="pos">エフェクト生成位置</param>
-        private void InstantiateEffect(GameObject effect, Vector3 pos)
-        {
-            GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
-            Task.Run(() => Destroy(newEffect, 5));
-        }
-
         /// ------private関数------- ///
         #endregion
 
@@ -514,8 +480,6 @@ namespace Misaki
 
         [SerializeField] private bool isEnemy = false;
 
-        private int attackPhase = 0; // 攻撃の段階 コンボのn段目
-
         private float gravity = 10f; // 重力
 
         // 初期パラメータ
@@ -533,10 +497,7 @@ namespace Misaki
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
         private Vector3 startPos; // 初期位置
-        private Vector3 effectPos; // エフェクト表示位置
         private Vector3 knockbackVelocity = Vector3.zero; // ノックバック距離
-
-        private AnimState animState; // アニメーションの状態変数
 
         private BraveState braveState; // ブレイブの状態変数
 
@@ -546,8 +507,6 @@ namespace Misaki
         [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
-        [SerializeField] private GameObject braveEffect; // 被ブレイブ攻撃のエフェクト
-        [SerializeField] private GameObject hpEffect; // 被HP攻撃のエフェクト
         [SerializeField] private GameObject shockwave; // HP攻撃のエフェクト
 
         private CharacterController con; // CharacterController変数
