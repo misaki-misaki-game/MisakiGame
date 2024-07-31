@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 namespace Misaki
 {
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
@@ -56,7 +57,9 @@ namespace Misaki
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-            InstantiateEffect(EffectManager.braveDamageEffect, effectPos);
+
+            PoolManager effect = EffectManager.braveDamageEffectPool;
+            effect.GetGameObject(EffectManager.braveDamageEffect, effectPos, transform);
             ishit = false;
         }
 
@@ -112,12 +115,14 @@ namespace Misaki
         /// </summary>
         public virtual IEnumerator HPHitReaction()
         {
-            // アニメーション状態を攻撃中にする
+            // アニメーション状態を被ダメージ中にする
             animState = AnimState.E_HitReaction;
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-            //InstantiateEffect(hpDamageEffect, effectPos);
+
+            PoolManager effect = EffectManager.hpDamageEffectPool;
+            effect.GetGameObject(EffectManager.hpDamageEffect, effectPos, transform);
             ishit = false;
         }
 
@@ -222,18 +227,6 @@ namespace Misaki
             base.Awake();
         }
 
-        /// <summary>
-        /// エフェクトを生成する関数
-        /// </summary>
-        /// <param name="effect">生成するエフェクト</param>
-        /// <param name="pos">エフェクト生成位置</param>
-        protected void InstantiateEffect(GameObject effect, Vector3 pos)
-        {
-            //GetGameObject
-            //GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
-            //Task.Run(() => Destroy(newEffect, 5));
-        }
-
         protected void OnTriggerEnter(Collider col)
         {
             // コライダーがぶつかった場所を格納する
@@ -323,8 +316,6 @@ namespace Misaki
         protected Parameter parameter; // パラメーター変数
 
         [SerializeField] protected AttackScript attackScript; // 自身の武器の攻撃スクリプト
-
-        protected EffectManager effectManager; // エフェクトマネージャー変数
 
         /// -----protected変数------ ///
         #endregion

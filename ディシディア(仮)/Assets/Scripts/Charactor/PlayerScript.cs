@@ -98,7 +98,7 @@ namespace Misaki
 
         public override IEnumerator HPHitReaction()
         {
-            base.HPHitReaction();
+            StartCoroutine(base.HPHitReaction());
 
             // 怯みアニメーションを再生
             anim.SetTrigger("At_LargeHit");

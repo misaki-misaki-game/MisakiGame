@@ -25,8 +25,8 @@ namespace Misaki
             hpDamageEffect = hpDamage;
 
             // 各エフェクトのプールを生成する
-            braveDamageEffectPool = new GameObject("EffectPool").AddComponent<PoolManager>();
-            hpDamageEffectPool = new GameObject("EffectPool").AddComponent<PoolManager>();
+            braveDamageEffectPool = new GameObject("BraveDamageEffectPool").AddComponent<PoolManager>();
+            hpDamageEffectPool = new GameObject("HPDamageEffectPool").AddComponent<PoolManager>();
             braveDamageEffectPool.InitializePool(poolDefaultCapacity, poolMaxSize, braveDamageEffect);
             hpDamageEffectPool.InitializePool(poolDefaultCapacity, poolMaxSize, hpDamageEffect);
         }
@@ -51,11 +51,11 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
-        static public GameObject braveDamageEffect; // 被ブレイブ攻撃のエフェクト
-        static public GameObject hpDamageEffect; // 被HP攻撃のエフェクト
+        public static GameObject braveDamageEffect; // 被ブレイブ攻撃のエフェクト
+        public static GameObject hpDamageEffect; // 被HP攻撃のエフェクト
 
-        static public PoolManager braveDamageEffectPool; // 非ブレイブダメージ時のエフェクトプール
-        static public PoolManager hpDamageEffectPool; // 非HPダメージ時のエフェクトプール
+        public static PoolManager braveDamageEffectPool; // 非ブレイブダメージ時のエフェクトプール
+        public static PoolManager hpDamageEffectPool; // 非HPダメージ時のエフェクトプール
 
         /// -------public変数------- ///
         #endregion

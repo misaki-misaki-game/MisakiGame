@@ -80,7 +80,7 @@ namespace Misaki
 
         private EffectCallback[] effectCallbacks; // エフェクトコールバック配列
 
-        private PoolManager objectPool; // プールマネージャー
+        [SerializeField] private PoolManager objectPool; // プールマネージャー
 
         /// ------private変数------- ///
         #endregion

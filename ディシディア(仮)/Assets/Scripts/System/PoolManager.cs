@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -20,10 +19,10 @@ namespace Misaki
         /// <returns></returns>
         public GameObject GetGameObject(GameObject prefab, Vector3 position, Transform parent)
         {
-            
             Prefab = prefab; // 指定のオブジェクトをプレハブに代入
 
             GameObject obj = pool.Get(); // オブジェクトプールからオブジェクトを取り出す
+            obj.GetComponent<PooledEffectObject>().SetPoolManager = this;
 
             obj.transform.SetParent(parent); // 親オブジェクトを代入
 
@@ -53,9 +52,8 @@ namespace Misaki
         /// <param name="obj">プール化したいオブジェクト</param>
         public void InitializePool(int defaultCapacity, int maxSize, GameObject obj = null)
         {
+            // プールを生成
             pool = new ObjectPool<GameObject>(OnCreatePooledObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, false, defaultCapacity, maxSize);
-
-            if (obj) for (int i = 0; i < defaultCapacity; i++) Instantiate(obj);
         }
 
         /// -------public関数------- ///
@@ -87,7 +85,7 @@ namespace Misaki
         /// <param name="obj">指定のオブジェクト</param>
         private void OnGetFromPool(GameObject obj)
         {
-            Task.Run(() => obj.SetActive(true)); // オブジェクトを表示する
+            obj.SetActive(true); // オブジェクトを表示する
         }
 
         /// <summary>
@@ -96,7 +94,7 @@ namespace Misaki
         /// <param name="obj">指定のオブジェクト</param>
         private void OnReleaseToPool(GameObject obj)
         {
-            Task.Run(() => obj.SetActive(false)); // オブジェクトを非表示にする
+            obj.SetActive(false); // オブジェクトを非表示にする
         }
 
         /// <summary>
@@ -105,7 +103,7 @@ namespace Misaki
         /// <param name="obj">指定のオブジェクト</param>
         private void OnDestroyPooledObject(GameObject obj)
         {
-            Task.Run(()=> Destroy(obj)); // オブジェクトを破壊する
+            Destroy(obj); // オブジェクトを破壊する
         }
 
         /// ------private関数------- ///

@@ -51,7 +51,7 @@ namespace Misaki
         private void CalcBrave(Collider col)
         {
             // エネミータグかつヒットオブジェクトリストに入っていなければ
-            if (col.tag == Tags.Enemy.ToString() && !ChackInHit(col.gameObject))
+            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("Brave攻撃が敵に当たった" + braveAttack);
           
@@ -73,7 +73,7 @@ namespace Misaki
         {
             // エネミータグかつヒットオブジェクトリストに入っていなければ
             // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
-            if (col.tag == Tags.Enemy.ToString() && !ChackInHit(col.gameObject))
+            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("HP攻撃が敵に当たった");
                 hitObj.Add(col.gameObject);
