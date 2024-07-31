@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4573448735651022}
   - component: {fileID: 198618377285316618}
   - component: {fileID: 199761440681089244}
+  - component: {fileID: 3281842457767683380}
   m_Layer: 0
   m_Name: Star_A
   m_TagString: Untagged
@@ -42,8 +43,8 @@ ParticleSystem:
   m_GameObject: {fileID: 1289528672394720}
   serializedVersion: 8
   lengthInSec: 1
-  simulationSpeed: 1
-  stopAction: 0
+  simulationSpeed: 1.3
+  stopAction: 3
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
@@ -4900,6 +4901,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3281842457767683380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289528672394720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1459862227383078
 GameObject:
   m_ObjectHideFlags: 0
@@ -4909,13 +4922,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4571727128055394}
+  - component: {fileID: 2721303048546973051}
   m_Layer: 0
   m_Name: Star_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4571727128055394
 Transform:
   m_ObjectHideFlags: 0
@@ -4933,6 +4947,18 @@ Transform:
   - {fileID: 4573448735651022}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2721303048546973051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459862227383078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc75691c1ce00784db5c25cacc345bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1817713915847664
 GameObject:
   m_ObjectHideFlags: 0
@@ -4944,6 +4970,7 @@ GameObject:
   - component: {fileID: 4582961573584184}
   - component: {fileID: 198532680956653226}
   - component: {fileID: 199475210524781420}
+  - component: {fileID: 6813990762814833742}
   m_Layer: 0
   m_Name: Light
   m_TagString: Untagged
@@ -4975,8 +5002,8 @@ ParticleSystem:
   m_GameObject: {fileID: 1817713915847664}
   serializedVersion: 8
   lengthInSec: 1
-  simulationSpeed: 1
-  stopAction: 0
+  simulationSpeed: 1.3
+  stopAction: 3
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
@@ -9833,3 +9860,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &6813990762814833742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817713915847664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

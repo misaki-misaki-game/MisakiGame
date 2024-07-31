@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4093475545087404}
   - component: {fileID: 198097850111067526}
   - component: {fileID: 199221559248935504}
+  - component: {fileID: 3609999746691706890}
   m_Layer: 0
   m_Name: Light
   m_TagString: Untagged
@@ -4900,6 +4901,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3609999746691706890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1058586981728692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1265979705418710
 GameObject:
   m_ObjectHideFlags: 0
@@ -4911,6 +4924,7 @@ GameObject:
   - component: {fileID: 4290295471232876}
   - component: {fileID: 198578896622907030}
   - component: {fileID: 199114718874567490}
+  - component: {fileID: 2237762795848222511}
   m_Layer: 0
   m_Name: Star_B
   m_TagString: Untagged
@@ -9800,6 +9814,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &2237762795848222511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265979705418710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1500378020736912
 GameObject:
   m_ObjectHideFlags: 0
@@ -9809,13 +9835,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4304763869332708}
+  - component: {fileID: 4577795477773467862}
   m_Layer: 0
   m_Name: Star_B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4304763869332708
 Transform:
   m_ObjectHideFlags: 0
@@ -9833,3 +9860,15 @@ Transform:
   - {fileID: 4290295471232876}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4577795477773467862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500378020736912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc75691c1ce00784db5c25cacc345bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

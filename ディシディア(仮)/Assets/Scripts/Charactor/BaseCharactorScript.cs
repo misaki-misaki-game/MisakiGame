@@ -56,7 +56,7 @@ namespace Misaki
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-            InstantiateEffect(braveDamageEffect, effectPos);
+            InstantiateEffect(EffectManager.braveDamageEffect, effectPos);
             ishit = false;
         }
 
@@ -117,7 +117,7 @@ namespace Misaki
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-            InstantiateEffect(hpDamageEffect, effectPos);
+            //InstantiateEffect(hpDamageEffect, effectPos);
             ishit = false;
         }
 
@@ -217,6 +217,11 @@ namespace Misaki
         #region protected関数
         /// -----protected関数------ ///
 
+        protected override void Awake()
+        {
+            base.Awake();
+        }
+
         /// <summary>
         /// エフェクトを生成する関数
         /// </summary>
@@ -224,8 +229,9 @@ namespace Misaki
         /// <param name="pos">エフェクト生成位置</param>
         protected void InstantiateEffect(GameObject effect, Vector3 pos)
         {
-            GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
-            Task.Run(() => Destroy(newEffect, 5));
+            //GetGameObject
+            //GameObject newEffect = Instantiate(effect, pos, Quaternion.identity, this.transform);
+            //Task.Run(() => Destroy(newEffect, 5));
         }
 
         protected void OnTriggerEnter(Collider col)
@@ -244,7 +250,6 @@ namespace Misaki
 
         #region private関数
         /// ------private関数------- ///
-
 
 
         /// ------private関数------- ///
@@ -319,6 +324,8 @@ namespace Misaki
 
         [SerializeField] protected AttackScript attackScript; // 自身の武器の攻撃スクリプト
 
+        protected EffectManager effectManager; // エフェクトマネージャー変数
+
         /// -----protected変数------ ///
         #endregion
 
@@ -331,8 +338,6 @@ namespace Misaki
 
         private Vector3 effectPos; // エフェクト表示位置
 
-        [SerializeField] private GameObject braveDamageEffect; // 被ブレイブ攻撃のエフェクト
-        [SerializeField] private GameObject hpDamageEffect; // 被HP攻撃のエフェクト
 
         /// ------private変数------- ///
         #endregion

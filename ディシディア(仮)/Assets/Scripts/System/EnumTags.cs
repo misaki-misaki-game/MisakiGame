@@ -10,4 +10,5 @@ public enum Tags
     PlayerWepon = 7,
     EnemyWepon = 8,
     Enemy = 9,
+    GameManager = 10,
 }

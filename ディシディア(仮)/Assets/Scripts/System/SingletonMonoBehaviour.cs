@@ -19,10 +19,12 @@ namespace Misaki
             get
             {
                 // instanceがnullならTクラスをヒエラルキー上から探す　無ければエラー
-                instance ??= (T)FindObjectOfType(typeof(T));
-                Debug.Assert(instance == null, typeof(T) + "をアタッチしているGameObjectがありません");
-
-                return instance; // 探したinstanceを返す
+                if (instance == null)
+                {
+                    instance = (T)FindObjectOfType(typeof(T));
+                    Debug.Assert(instance != null, typeof(T) + "をアタッチしているGameObjectがありません");
+                }
+                return instance;
             }
         }
 

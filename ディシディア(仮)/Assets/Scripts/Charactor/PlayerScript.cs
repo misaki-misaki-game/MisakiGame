@@ -211,8 +211,8 @@ namespace Misaki
                 Cursor.lockState = CursorLockMode.Locked;
 
                 key ??= Keyboard.current; // 現在のキーボード情報を取得
-                                          // Actionスクリプトのインスタンス生成
-                playerInputs = new PlayerInputs();
+
+                playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
 
                 // Actionイベント登録
                 playerInputs.Player.Move.started += OnMove;
