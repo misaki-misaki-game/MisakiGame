@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Misaki
 {
@@ -36,8 +33,26 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        /// <summary>
+        /// コライダーを用いた当たり判定関数
+        /// </summary>
+        /// <param name="col">ヒットしたコライダー</param>
         private void OnTriggerEnter(Collider col)
         {
+            // ステートによって処理を変える
+            if (attack == AttackState.E_BraveAttack) CalcBrave(col);
+            else if (attack == AttackState.E_HPAttack) CalcHP(col);
+        }
+
+        /// <summary>
+        /// パーティクルシステムを用いた当たり判定関数
+        /// </summary>
+        /// <param name="other">ヒットしたコライダー</param>
+        private void OnParticleCollision(GameObject other)
+        {
+            // ヒットしたオブジェクトのコライダーを取得する
+            Collider col = other.GetComponent<Collider>();
+
             // ステートによって処理を変える
             if (attack == AttackState.E_BraveAttack) CalcBrave(col);
             else if (attack == AttackState.E_HPAttack) CalcHP(col);

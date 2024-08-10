@@ -5,12 +5,7 @@ using Cinemachine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using Unity.VisualScripting;
-using UnityEditor;
 using TMPro;
-using System.Threading.Tasks;
-using static UnityEditor.PlayerSettings;
-using UnityEngine.Events;
-using static Misaki.BaseCharactorScript;
 
 namespace Misaki
 {
@@ -48,6 +43,8 @@ namespace Misaki
         public override IEnumerator BraveHitReaction()
         {
             StartCoroutine(base.BraveHitReaction());
+
+            con.Move((-transform.forward * 0.1f));
 
             // ランダムに決めた小怯みアニメーションを再生
             int rnd = Random.Range(0, smallHitClip.Length);
@@ -90,6 +87,9 @@ namespace Misaki
 
         public override void HPAttack()
         {
+            // HP攻撃中ならリターン
+            if (animState == AnimState.E_Attack) return;
+
             base.HPAttack();
 
             // 対応アニメーションを再生
@@ -99,6 +99,8 @@ namespace Misaki
         public override IEnumerator HPHitReaction()
         {
             StartCoroutine(base.HPHitReaction());
+
+            con.Move((-transform.forward * 1f));
 
             // 怯みアニメーションを再生
             anim.SetTrigger("At_LargeHit");
@@ -111,7 +113,11 @@ namespace Misaki
 
         public override void Move()
         {
+            if (!startIdle) return;
+
             base.Move();
+            // 待機状態でなければリターン
+
             // 攻撃中・戦闘不能中はリターン
             if (animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
 
@@ -202,6 +208,7 @@ namespace Misaki
             con ??= GetComponent<CharacterController>();
             anim ??= GetComponent<Animator>();
             animState = default; // アニメーション状態をなにもしていないに変更
+            startIdle = true;
 
             if (!isEnemy)
             {
@@ -410,7 +417,6 @@ namespace Misaki
         [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
-        [SerializeField] private GameObject shockwave; // HP攻撃のエフェクト
 
         private CharacterController con; // CharacterController変数
 

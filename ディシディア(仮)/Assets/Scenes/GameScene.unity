@@ -179,7 +179,6 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 8259dbcd4101ae447b3fb736cc407ebd, type: 2}
   overrideController: {fileID: 0}
   plCamera: {fileID: 2120917785}
-  shockwave: {fileID: 1714681308540598, guid: 40ef87a8c1d7372448d6ce2115961caa, type: 3}
   textHP: {fileID: 972522255}
   textBrave: {fileID: 1528976704}
 --- !u!143 &16213636
@@ -256,6 +255,8 @@ MonoBehaviour:
   braveDamage: {fileID: 1459862227383078, guid: 88b4ade0d8f70ba44b57266ecedb3112,
     type: 3}
   hpDamage: {fileID: 1500378020736912, guid: a53f386e99b516046a11b2b668c1777f, type: 3}
+  hpShockWave: {fileID: 1714681308540598, guid: 40ef87a8c1d7372448d6ce2115961caa,
+    type: 3}
   poolDefaultCapacity: 10
   poolMaxSize: 10
 --- !u!1 &148148416
@@ -1773,7 +1774,6 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 8259dbcd4101ae447b3fb736cc407ebd, type: 2}
   overrideController: {fileID: 0}
   plCamera: {fileID: 781147741}
-  shockwave: {fileID: 0}
   textHP: {fileID: 772192702}
   textBrave: {fileID: 1445615596}
 --- !u!4 &1396283092 stripped
@@ -1948,7 +1948,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100272, guid: 3fa7e78f8230bbc4aa653b2c7921db90, type: 3}
       propertyPath: m_Name
-      value: Misaki_win_humanoid
+      value: Misaki_win_humanoida
       objectReference: {fileID: 0}
     - target: {fileID: 100272, guid: 3fa7e78f8230bbc4aa653b2c7921db90, type: 3}
       propertyPath: m_Layer

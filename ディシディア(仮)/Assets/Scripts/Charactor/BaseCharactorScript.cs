@@ -1,8 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 namespace Misaki
 {
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
@@ -97,9 +94,6 @@ namespace Misaki
         /// </summary>
         public virtual void HPAttack()
         {
-            // HP攻撃中ならリターン
-            if (animState == AnimState.E_Attack) return;
-
             // アニメーション状態をHP攻撃中にする
             animState = AnimState.E_Attack;
 
@@ -135,6 +129,7 @@ namespace Misaki
 
         /// <summary>
         /// ブレイブ攻撃開始時の関数
+        /// 自身の武器で攻撃する場合
         /// </summary>
         /// <param name="motionValue">攻撃モーション値</param>
         public void BeginBraveAttack(float motionValue)
@@ -146,7 +141,24 @@ namespace Misaki
         }
 
         /// <summary>
+        /// ブレイブ攻撃開始時の関数
+        /// 遠距離攻撃する場合
+        /// </summary>
+        /// <param name="motionValue">攻撃モーション値</param>
+        /// <param name="bullet">遠距離攻撃のアタックスクリプト</param>
+        public void BeginBraveBullet(float motionValue, AttackScript bullet)
+        {
+            bulletAttackScript = bullet; // アタックスクリプトを取得
+
+            // 弾のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            bulletAttackScript.SetAttackState = AttackState.E_BraveAttack;
+            bulletAttackScript.ClearHitObj();
+            bulletAttackScript.SetBraveAttack = motionValue * parameter.attack;
+        }
+
+        /// <summary>
         /// HP攻撃開始時の関数
+        /// 自身の武器で攻撃する場合
         /// </summary>
         public void BiginHPAttack()
         {
@@ -154,6 +166,27 @@ namespace Misaki
             attackScript.SetAttackState = AttackState.E_HPAttack;
             attackScript.SetHPAttack = parameter.brave;
             attackScript.ClearHitObj();
+        }
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// 自身の武器で攻撃する場合
+        /// </summary>
+        /// <param name="bullet">遠距離攻撃のアタックスクリプト</param>
+
+        public void BiginHPBullet(/*AttackScript bullet*/)
+        {
+            // 衝撃波を生成し、そのアタックスクリプトを取得
+            PoolManager effect = EffectManager.hpShockWaveEffectPool;
+            GameObject obj = effect.GetGameObject(EffectManager.hpShockWaveEffect, transform.position, transform);
+            bulletAttackScript = obj.GetComponentInChildren<AttackScript>();
+
+            // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            // アタックスクリプトの所有者を自分にする
+            bulletAttackScript.SetOwnOwner = this;
+            bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
+            bulletAttackScript.SetHPAttack = parameter.brave;
+            bulletAttackScript.ClearHitObj();
         }
 
         /// <summary>
@@ -172,6 +205,7 @@ namespace Misaki
         public virtual void EndAnim()
         {
             animState = default;
+            startIdle = true;
         }
 
         /// <summary>
@@ -315,6 +349,7 @@ namespace Misaki
 
         protected Parameter parameter; // パラメーター変数
 
+        protected AttackScript bulletAttackScript; // 遠距離攻撃スクリプト
         [SerializeField] protected AttackScript attackScript; // 自身の武器の攻撃スクリプト
 
         /// -----protected変数------ ///
