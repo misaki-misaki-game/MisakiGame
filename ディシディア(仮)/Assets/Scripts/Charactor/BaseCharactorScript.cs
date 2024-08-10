@@ -10,20 +10,29 @@ namespace Misaki
         /// -------public関数------- ///
 
         /// <summary>
-        /// ブレイブ値へダメージを与える関数
+        /// ブレイブ値へのダメージを受け取る関数
         /// </summary>
-        public void ReceiveBraveDamage(float damage)
+        /// <param name="damage">ブレイブダメージ値</param>
+        /// <param name="direction">攻撃された方向</param>
+        public void ReceiveBraveDamage(float damage, Vector3 direction)
         {
+            // キャラクターの向きを指定の向きに変える
+            transform.LookAt(transform.position + direction);
+
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
             StartCoroutine(BraveHitReaction());
         }
 
         /// <summary>
-        /// HP値へダメージを与える関数
+        /// HP値へのダメージを受け取る関数
         /// </summary>
-        public void ReceiveHPDamage(float brave)
+        /// <param name="brave">HPダメージ値</param>
+        public void ReceiveHPDamage(float brave, Vector3 direction)
         {
+            // キャラクターの向きを指定の向きに変える
+            transform.LookAt(transform.position + direction);
+
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
             StartCoroutine(HPHitReaction());
@@ -51,6 +60,9 @@ namespace Misaki
         {
             // アニメーション状態を被ダメージ中にする
             animState = AnimState.E_HitReaction;
+
+            // ノックバック距離を代入
+            knockBackDistance = 1f;
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
@@ -97,9 +109,6 @@ namespace Misaki
             // アニメーション状態をHP攻撃中にする
             animState = AnimState.E_Attack;
 
-            // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
-            if (startIdle) startIdle = false;
-
             // 攻撃の所有者を自分にする
             attackScript.SetOwnOwner = this;
         }
@@ -111,6 +120,9 @@ namespace Misaki
         {
             // アニメーション状態を被ダメージ中にする
             animState = AnimState.E_HitReaction;
+
+            // ノックバック距離を代入
+            knockBackDistance = 3f;
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
@@ -125,6 +137,8 @@ namespace Misaki
         /// </summary>
         public virtual void Move()
         {
+            // アニメーション状態を移動中にする
+            animState = AnimState.E_Move;
         }
 
         /// <summary>
@@ -205,7 +219,6 @@ namespace Misaki
         public virtual void EndAnim()
         {
             animState = default;
-            startIdle = true;
         }
 
         /// <summary>
@@ -248,6 +261,21 @@ namespace Misaki
                 parameter.brave = parameter.standardBrave;
                 braveState = BraveState.E_Default;
             }
+        }
+
+        /// <summary>
+        /// ノックバック開始関数
+        /// </summary>
+        public virtual void BiginKnockBack()
+        {
+        }
+
+        /// <summary>
+        /// ノックバック終了関数
+        /// </summary>
+        public virtual void EndKnockBack()
+        {
+            
         }
 
         /// -------public関数------- ///
@@ -339,7 +367,7 @@ namespace Misaki
         #region protected変数
         /// -----protected変数------ ///
 
-        protected bool startIdle = false; // 待機アニメーションがスタートしているか
+        protected float knockBackDistance; // ノックバック距離
 
         protected AnimState animState; // アニメーションの状態変数
 

@@ -69,10 +69,13 @@ namespace Misaki
             if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("Brave攻撃が敵に当たった" + braveAttack);
+
+                // 所有者の向きを取得
+                Vector3 dir = -ownOwner.transform.forward;
           
                 // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
                 hitObj.Add(col.gameObject);
-                col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack);
+                col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack,dir);
 
                 // 与えたブレイブを自身の所有者に渡す
                 ownOwner.HitBraveAttack(braveAttack);
@@ -91,8 +94,12 @@ namespace Misaki
             if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("HP攻撃が敵に当たった");
+
+                // 所有者の向きを取得
+                Vector3 dir = -ownOwner.transform.forward;
+
                 hitObj.Add(col.gameObject);
-                col.GetComponent<PlayerScript>().ReceiveHPDamage(hpAttack);
+                col.GetComponent<PlayerScript>().ReceiveHPDamage(hpAttack, dir);
 
                 // 所有者のブレイブを0にしてリジェネを開始する
                 ownOwner.HitHPAttack();

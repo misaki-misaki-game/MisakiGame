@@ -30,9 +30,6 @@ namespace Misaki
             // アニメーション状態をブレイブ攻撃中にする
             animState = AnimState.E_Attack;
 
-            // startIdleをfalseにして攻撃アクションが終了後Move()関数を動かすようにする
-            if (startIdle) startIdle = false;
-
             // 攻撃の所有者を自分にする
             attackScript.SetOwnOwner = this;
 
@@ -43,8 +40,6 @@ namespace Misaki
         public override IEnumerator BraveHitReaction()
         {
             StartCoroutine(base.BraveHitReaction());
-
-            con.Move((-transform.forward * 0.1f));
 
             // ランダムに決めた小怯みアニメーションを再生
             int rnd = Random.Range(0, smallHitClip.Length);
@@ -100,8 +95,6 @@ namespace Misaki
         {
             StartCoroutine(base.HPHitReaction());
 
-            con.Move((-transform.forward * 1f));
-
             // 怯みアニメーションを再生
             anim.SetTrigger("At_LargeHit");
 
@@ -113,13 +106,10 @@ namespace Misaki
 
         public override void Move()
         {
-            if (!startIdle) return;
-
-            base.Move();
-            // 待機状態でなければリターン
-
             // 攻撃中・戦闘不能中はリターン
             if (animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
+
+            base.Move();
 
             // 移動速度を取得 
             float spd = parameter.speed;//Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : normalSpeed;
@@ -149,6 +139,7 @@ namespace Misaki
         {
             base.EndAnim();
             anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
+            anim.ResetTrigger("At_HAttack"); // HP攻撃の入力状況保持を消す
             anim.SetTrigger("At_Idle"); // 待機状態に移動する
         }
 
@@ -186,6 +177,24 @@ namespace Misaki
             textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
+        /// <summary>
+        /// ノックバック関数
+        /// </summary>
+        public override void BiginKnockBack()
+        {
+            // ノックバックしていなければリターン
+            //if (!isKnockBack) return;
+            if (animState != AnimState.E_HitReaction) return;
+
+            con.Move(-transform.forward * knockBackDistance * Time.deltaTime);
+
+        }
+
+        public override void EndKnockBack()
+        {
+            base.EndAnim();
+        }
+
         /// -------public関数------- ///
         #endregion
 
@@ -208,7 +217,6 @@ namespace Misaki
             con ??= GetComponent<CharacterController>();
             anim ??= GetComponent<Animator>();
             animState = default; // アニメーション状態をなにもしていないに変更
-            startIdle = true;
 
             if (!isEnemy)
             {
@@ -261,6 +269,9 @@ namespace Misaki
                 // カメラを追従させる
                 TrackingCamera();
             }
+
+            // ノックバック処理を行う
+            BiginKnockBack();
 
             // リジェネ処理を行う
             RegenerateBrave();
@@ -409,7 +420,6 @@ namespace Misaki
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
         private Vector3 startPos; // 初期位置
-        private Vector3 knockbackVelocity = Vector3.zero; // ノックバック距離
 
         [Header("小怯みアニメーション")]
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];

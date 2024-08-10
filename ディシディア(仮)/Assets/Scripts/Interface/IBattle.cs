@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEngine;
 namespace Misaki
 {
     public interface IBattle
@@ -11,12 +12,16 @@ namespace Misaki
         /// <summary>
         /// ブレイブ値へのダメージを受け取る関数
         /// </summary>
-        void ReceiveBraveDamage(float damage);
+        /// <param name="damage">ブレイブダメージ値</param>
+        /// <param name="direction">攻撃された方向</param>
+        void ReceiveBraveDamage(float damage, Vector3 direction);
 
         /// <summary>
         /// HP値へのダメージを受け取る関数
         /// </summary>
-        void ReceiveHPDamage(float damage);
+        /// <param name="brave">HPダメージ値</param>
+        /// <param name="direction">攻撃された方向</param>
+        void ReceiveHPDamage(float brave, Vector3 direction);
 
         /// <summary>
         /// 生まれる関数
@@ -93,6 +98,16 @@ namespace Misaki
         /// ブレイブを徐々に回復する関数
         /// </summary>
         void RegenerateBrave();
+
+        /// <summary>
+        /// ノックバック開始関数
+        /// </summary>
+        void BiginKnockBack();
+
+        /// <summary>
+        /// ノックバック終了関数
+        /// </summary>
+        void EndKnockBack();
 
         /// -------public関数------- ///
         #endregion
