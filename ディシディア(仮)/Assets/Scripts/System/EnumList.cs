@@ -11,6 +11,8 @@ public enum AnimState
     E_Attack = 2, // ブレイブ攻撃中
     E_HitReaction = 3, // 被ダメージ中
     E_Dead = 4, // 戦闘不能中
+    E_Guard = 5, // 防御中
+    E_Dodge = 6, // 回避中
     E_None = default // なにもしていない
 }
 
@@ -35,7 +37,8 @@ public enum DamageState
 {
     E_Default = 0, // 通常状態
     E_SuperArmor = 1, // スーパーアーマー状態
-    E_Invincible = 2 // 無敵状態
+    E_Invincible = 2, // 無敵状態
+    E_Guard = 3 // 防御状態
 }
 
 /// -------public変数------- ///

@@ -14,7 +14,8 @@ namespace Misaki
         /// </summary>
         /// <param name="damage">ブレイブダメージ値</param>
         /// <param name="direction">攻撃された方向</param>
-        void ReceiveBraveDamage(float damage, Vector3 direction);
+        /// <returns>防御が成功しているかどうか</returns>
+        bool ReceiveBraveDamage(float damage, Vector3 direction);
 
         /// <summary>
         /// HP値へのダメージを受け取る関数
@@ -128,6 +129,11 @@ namespace Misaki
         /// 被ダメージの状態をリセットする関数
         /// </summary>
         void ResetDamageState();
+
+        /// <summary>
+        /// 防御を受けた際のリアクション関数
+        /// </summary>
+        void GuardReaction();
 
         /// -------public関数------- ///
         #endregion

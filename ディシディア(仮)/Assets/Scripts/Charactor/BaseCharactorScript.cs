@@ -14,10 +14,13 @@ namespace Misaki
         /// </summary>
         /// <param name="damage">ブレイブダメージ値</param>
         /// <param name="direction">攻撃された方向</param>
-        public void ReceiveBraveDamage(float damage, Vector3 direction)
+        /// <returns>防御が成功しているかどうか</returns>
+        public bool ReceiveBraveDamage(float damage, Vector3 direction)
         {
-            // 無敵時間中ならリターン
-            if (damageState == DamageState.E_Invincible) return;
+            // 無敵時間中ならfalseをリターン
+            // 防御中ならtrueをリターン
+            if (damageState == DamageState.E_Invincible) return false;
+            else if (damageState == DamageState.E_Guard) return true;
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
@@ -26,6 +29,9 @@ namespace Misaki
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
             StartCoroutine(BraveHitReaction());
+
+            // falseをリターン
+            return false;
         }
 
         /// <summary>
@@ -94,10 +100,7 @@ namespace Misaki
         /// </summary>
         public virtual void Dodge()
         {
-            // 回避中は無敵
-
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_Dodge");
+            animState = AnimState.E_Dodge;
         }
 
         /// <summary>
@@ -105,8 +108,8 @@ namespace Misaki
         /// </summary>
         public virtual void Guard()
         {
-            // anim
-            // 防御中はダメージ軽減か無敵
+            animState = AnimState.E_Guard;
+            damageState = DamageState.E_Guard;
         }
 
         /// <summary>
@@ -317,6 +320,15 @@ namespace Misaki
         public void ResetDamageState()
         {
             damageState = default;
+        }
+
+        /// <summary>
+        /// 防御を受けた際のリアクション関数
+        /// </summary>
+        public virtual void GuardReaction()
+        {
+            // アニメーション状態を被ダメージ中にする
+            animState = AnimState.E_HitReaction;
         }
 
         /// -------public関数------- ///

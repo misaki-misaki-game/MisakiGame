@@ -47,8 +47,7 @@ namespace Misaki
             {
                 // ランダムに決めた小怯みアニメーションを再生
                 int rnd = Random.Range(0, smallHitClip.Length);
-                AllocateMotion("SmallHit01", smallHitClip[rnd]);
-                anim.SetTrigger("At_SmallHit");
+                SmallHitReaction(rnd);
             }
 
             // テキストを変更する
@@ -76,13 +75,22 @@ namespace Misaki
 
         public override void Dodge()
         {
-            base.Dodge();
+            // 待機・移動中以外はリターン
+            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
+            base.Dodge();
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Dodge");
         }
 
         public override void Guard()
         {
+            // 待機・移動中以外はリターン
+            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+
             base.Guard();
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Guard");
         }
 
         public override void HPAttack()
@@ -111,8 +119,8 @@ namespace Misaki
 
         public override void Move()
         {
-            // 被ダメージ中・攻撃中・戦闘不能中はリターン
-            if (animState == AnimState.E_HitReaction || animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
+            // 待機・移動中以外はリターン
+            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
             base.Move();
 
@@ -198,6 +206,15 @@ namespace Misaki
             base.EndAnim();
         }
 
+        /// <summary>
+        /// 防御を受けた際のリアクション関数
+        /// </summary>
+        public override void GuardReaction()
+        {
+            base.GuardReaction();
+            SmallHitReaction(0);
+        }
+
         /// -------public関数------- ///
         #endregion
 
@@ -238,6 +255,8 @@ namespace Misaki
                 playerInputs.Player.Move.canceled += OnMove;
                 playerInputs.Player.BAttack.started += OnBAttack;
                 playerInputs.Player.HAttack.started += OnHAttack;
+                playerInputs.Player.Guard.started += OnGuard;
+                playerInputs.Player.Dodge.started += OnDodge;
 
                 // playerInputsを起動
                 playerInputs.Enable();
@@ -326,7 +345,22 @@ namespace Misaki
         {
             HPAttack();
         }
-
+        /// <summary>
+        /// 防御のコールバック登録関数
+        /// </summary>
+        /// <param name="context"></param>
+        private void OnGuard(InputAction.CallbackContext context)
+        {
+            Guard();
+        }
+        /// <summary>
+        /// 回避のコールバック登録関数
+        /// </summary>
+        /// <param name="context"></param>
+        private void OnDodge(InputAction.CallbackContext context)
+        {
+            Dodge();
+        }
         /// <summary>
         /// キーボードの接続チェック関数
         /// </summary>
@@ -374,6 +408,16 @@ namespace Misaki
             {
                 anim.Play(layerInfo[i].fullPathHash, i, layerInfo[i].normalizedTime);
             }
+        }
+
+        /// <summary>
+        /// 小怯みモーションを再生する関数
+        /// </summary>
+        /// <param name="rnd">指定の小怯みモーション</param>
+        private void SmallHitReaction(int rnd)
+        {
+            AllocateMotion("SmallHit01", smallHitClip[rnd]);
+            anim.SetTrigger("At_SmallHit");
         }
 
         /// ------private関数------- ///

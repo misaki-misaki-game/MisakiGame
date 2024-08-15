@@ -108,7 +108,14 @@ namespace Misaki
           
                 // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
                 hitObj.Add(col.gameObject);
-                col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack,dir);
+
+                // 防御が成功していたら攻撃側のひるみが発生
+                if (col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack, dir))
+                {
+                    // 防御ひるみ関数を呼び出し
+                    ownOwner.GuardReaction();
+                    return;
+                }
 
                 // 与えたブレイブを自身の所有者に渡す
                 ownOwner.HitBraveAttack(braveAttack);
