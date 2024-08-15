@@ -20,7 +20,8 @@ namespace Misaki
         {
             base.BraveAttack();
 
-            // ブレイブ攻撃中ならリターン
+            // ブレイブ攻撃中ならコンボを出す
+            // 待機・移動中以外ならリターン
             if (animState == AnimState.E_Attack)
             {
                 anim.SetTrigger("At_BAttack");
@@ -41,10 +42,14 @@ namespace Misaki
         {
             StartCoroutine(base.BraveHitReaction());
 
-            // ランダムに決めた小怯みアニメーションを再生
-            int rnd = Random.Range(0, smallHitClip.Length);
-            AllocateMotion("SmallHit01", smallHitClip[rnd]);
-            anim.SetTrigger("At_SmallHit");
+            // 被ダメージ状態がスーパーアーマーでなければ
+            if (damageState != DamageState.E_SuperArmor)
+            {
+                // ランダムに決めた小怯みアニメーションを再生
+                int rnd = Random.Range(0, smallHitClip.Length);
+                AllocateMotion("SmallHit01", smallHitClip[rnd]);
+                anim.SetTrigger("At_SmallHit");
+            }
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -106,8 +111,8 @@ namespace Misaki
 
         public override void Move()
         {
-            // 攻撃中・戦闘不能中はリターン
-            if (animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
+            // 被ダメージ中・攻撃中・戦闘不能中はリターン
+            if (animState == AnimState.E_HitReaction || animState == AnimState.E_Attack || animState == AnimState.E_Dead) return;
 
             base.Move();
 
@@ -182,8 +187,6 @@ namespace Misaki
         /// </summary>
         public override void BiginKnockBack()
         {
-            // ノックバックしていなければリターン
-            //if (!isKnockBack) return;
             if (animState != AnimState.E_HitReaction) return;
 
             con.Move(-transform.forward * knockBackDistance * Time.deltaTime);

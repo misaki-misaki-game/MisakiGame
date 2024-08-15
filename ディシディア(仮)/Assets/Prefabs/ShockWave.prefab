@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 198798914852134490}
   - component: {fileID: 199160094486441874}
   - component: {fileID: 4627388597254575443}
+  - component: {fileID: 3502563795441309646}
   - component: {fileID: 7905475394458272198}
   - component: {fileID: 8370216525384230482}
   m_Layer: 8
@@ -3689,14 +3690,14 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     range: {x: 0, y: 1}
   CollisionModule:
-    enabled: 1
+    enabled: 0
     serializedVersion: 4
     type: 1
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
-    multiplyColliderForceByCollisionAngle: 1
+    multiplyColliderForceByCollisionAngle: 0
     m_Planes:
     - {fileID: 0}
     - {fileID: 0}
@@ -3707,7 +3708,7 @@ ParticleSystem:
     m_Dampen:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -3760,7 +3761,7 @@ ParticleSystem:
     m_Bounce:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -3864,7 +3865,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     minKillSpeed: 0
-    maxKillSpeed: 10000
+    maxKillSpeed: 10000000
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
@@ -3880,17 +3881,12 @@ ParticleSystem:
     serializedVersion: 2
     inside: 0
     outside: 0
-    enter: 0
+    enter: 2
     exit: 0
-    colliderQueryMode: 0
+    colliderQueryMode: 2
     radiusScale: 1
     primitives:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 5169597083460457195, guid: 685f18383cb39104480dfd5642d8454a, type: 3}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -4924,6 +4920,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3502563795441309646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172851387647780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6816d053d70684041abd1f66eeb2f4bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7905475394458272198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4936,6 +4944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a3627fd9e67443bfab3dd43fd9fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  particle: {fileID: 198798914852134490}
 --- !u!136 &8370216525384230482
 CapsuleCollider:
   m_ObjectHideFlags: 0

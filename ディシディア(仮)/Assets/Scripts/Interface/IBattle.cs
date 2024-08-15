@@ -109,6 +109,26 @@ namespace Misaki
         /// </summary>
         void EndKnockBack();
 
+        /// <summary>
+        /// ダメージエフェクトを発生させる許可を出す関数
+        /// </summary>
+        void CanDamageEffect();
+
+        /// <summary>
+        /// 無敵時間開始関数
+        /// </summary>
+        void BiginInvincible();
+
+        /// <summary>
+        /// スーパーアーマー開始関数
+        /// </summary>
+        void BiginSuperArmor();
+
+        /// <summary>
+        /// 被ダメージの状態をリセットする関数
+        /// </summary>
+        void ResetDamageState();
+
         /// -------public関数------- ///
         #endregion
 

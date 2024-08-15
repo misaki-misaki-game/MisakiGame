@@ -30,6 +30,14 @@ public enum BraveState
     E_Break = 2 // ブレイク状態
 }
 
+// 被ダメージの状態
+public enum DamageState
+{
+    E_Default = 0, // 通常状態
+    E_SuperArmor = 1, // スーパーアーマー状態
+    E_Invincible = 2 // 無敵状態
+}
+
 /// -------public変数------- ///
 #endregion
 

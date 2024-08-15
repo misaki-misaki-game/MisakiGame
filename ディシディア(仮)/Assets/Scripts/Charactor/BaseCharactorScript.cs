@@ -16,8 +16,12 @@ namespace Misaki
         /// <param name="direction">攻撃された方向</param>
         public void ReceiveBraveDamage(float damage, Vector3 direction)
         {
-            // キャラクターの向きを指定の向きに変える
+            // 無敵時間中ならリターン
+            if (damageState == DamageState.E_Invincible) return;
+
+            // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
+            effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
@@ -30,8 +34,12 @@ namespace Misaki
         /// <param name="brave">HPダメージ値</param>
         public void ReceiveHPDamage(float brave, Vector3 direction)
         {
-            // キャラクターの向きを指定の向きに変える
+            // 無敵時間中ならリターン
+            if (damageState == DamageState.E_Invincible) return;
+
+            // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
+            effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
 
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
@@ -191,8 +199,10 @@ namespace Misaki
         public void BiginHPBullet(/*AttackScript bullet*/)
         {
             // 衝撃波を生成し、そのアタックスクリプトを取得
+            effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
+
             PoolManager effect = EffectManager.hpShockWaveEffectPool;
-            GameObject obj = effect.GetGameObject(EffectManager.hpShockWaveEffect, transform.position, transform);
+            GameObject obj = effect.GetGameObject(EffectManager.hpShockWaveEffect, effectPos, transform);
             bulletAttackScript = obj.GetComponentInChildren<AttackScript>();
 
             // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
@@ -275,7 +285,38 @@ namespace Misaki
         /// </summary>
         public virtual void EndKnockBack()
         {
-            
+        }
+
+        /// <summary>
+        /// ダメージエフェクトを発生させる許可を出す関数
+        /// </summary>
+        public void CanDamageEffect()
+        {
+            ishit = true;
+        }
+
+        /// <summary>
+        /// 無敵時間開始関数
+        /// </summary>
+        public void BiginInvincible()
+        {
+            damageState = DamageState.E_Invincible;
+        }
+
+        /// <summary>
+        /// スーパーアーマー開始関数
+        /// </summary>
+        public void BiginSuperArmor()
+        {
+            damageState = DamageState.E_SuperArmor;
+        }
+
+        /// <summary>
+        /// 被ダメージの状態をリセットする関数
+        /// </summary>
+        public void ResetDamageState()
+        {
+            damageState = default;
         }
 
         /// -------public関数------- ///
@@ -287,17 +328,13 @@ namespace Misaki
         protected override void Awake()
         {
             base.Awake();
+            effectPos = new Vector3(0, adjustEffectYPos, 0);
         }
 
         protected void OnTriggerEnter(Collider col)
         {
-            // コライダーがぶつかった場所を格納する
-            if (col.CompareTag(Tags.EnemyWepon.ToString()))
-            {
-                Vector3 hitPos = col.ClosestPointOnBounds(transform.position);
-                effectPos = new Vector3(hitPos.x, adjustEffectYPos, hitPos.z);
-                ishit= true;
-            }
+            // 攻撃を受けたことを確認する
+            if (col.CompareTag(Tags.EnemyWepon.ToString())) CanDamageEffect();
         }
 
         /// -----protected関数------ ///
@@ -372,6 +409,8 @@ namespace Misaki
         protected AnimState animState; // アニメーションの状態変数
 
         protected BraveState braveState; // ブレイブの状態変数
+
+        protected DamageState damageState; // 被ダメージの状態
 
         protected Animator anim; // Animator変数
 

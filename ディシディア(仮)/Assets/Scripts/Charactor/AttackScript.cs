@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Misaki
 {
-    // 自動的にコンポーネントを追加 MeshFilter,MeshRendererを追加
+    // 自動的にコンポーネントを追加 CapsuleColliderを追加
     [RequireComponent(typeof(CapsuleCollider))]
     public partial class AttackScript : MonoBehaviour
     {
@@ -45,7 +45,7 @@ namespace Misaki
         }
 
         /// <summary>
-        /// パーティクルシステムを用いた当たり判定関数
+        /// パーティクルシステムのコライダーを用いた当たり判定関数
         /// </summary>
         /// <param name="other">ヒットしたコライダー</param>
         private void OnParticleCollision(GameObject other)
@@ -53,9 +53,42 @@ namespace Misaki
             // ヒットしたオブジェクトのコライダーを取得する
             Collider col = other.GetComponent<Collider>();
 
+            //　イベントの取得
+            particle.GetCollisionEvents(other, collisionEventList);
+
+            //　衝突した位置を取得し、ダメージスクリプトを呼び出す
+            foreach (var collisionEvent in collisionEventList)
+            {
+                Vector3 pos = collisionEvent.intersection;
+                col.GetComponent<PlayerScript>().CanDamageEffect();
+            }
+
             // ステートによって処理を変える
             if (attack == AttackState.E_BraveAttack) CalcBrave(col);
             else if (attack == AttackState.E_HPAttack) CalcHP(col);
+        }
+
+        /// <summary>
+        /// パーティクルシステムのトリガーを用いた当たり判定関数
+        /// </summary>
+        private void OnParticleTrigger()
+        {
+            // Triggerで設定したコライダーを全て検索
+            for (int i = 0; i < particle.trigger.colliderCount; i++)
+            {
+                // コライダーを取得
+                Collider col = particle.trigger.GetCollider(i).GetComponent<Collider>();
+
+                // コライダーがnullで無ければ、処理を開始
+                if (col != null)
+                {
+                    col.GetComponent<PlayerScript>().CanDamageEffect();
+
+                    // ステートによって処理を変える
+                    if (attack == AttackState.E_BraveAttack) CalcBrave(col);
+                    else if (attack == AttackState.E_HPAttack) CalcHP(col);
+                }
+            }
         }
 
         /// <summary>
@@ -148,6 +181,10 @@ namespace Misaki
         private float hpAttack = 0; // HP値
 
         private AttackState attack = default; // 攻撃の種類
+
+        private List<ParticleCollisionEvent> collisionEventList = new List<ParticleCollisionEvent>(); // コリジョンイベントリスト
+
+        [SerializeField] private ParticleSystem particle; // パーティクルシステム
 
         private List<GameObject> hitObj = new List<GameObject>(); // ヒットしたオブジェクト格納用リスト
 
