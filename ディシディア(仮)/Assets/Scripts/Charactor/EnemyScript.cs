@@ -9,7 +9,7 @@ using TMPro;
 
 namespace Misaki
 {
-    public partial class PlayerScript : BaseCharactorScript
+    public partial class EnemyScript : BaseCharactorScript
     {
         /// --------関数一覧-------- ///
 
@@ -425,7 +425,7 @@ namespace Misaki
 
         /// --------関数一覧-------- ///
     }
-    public partial class PlayerScript
+    public partial class EnemyScript
     {
         /// --------変数一覧-------- ///
 
