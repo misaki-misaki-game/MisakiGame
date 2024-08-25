@@ -110,7 +110,7 @@ namespace Misaki
                 hitObj.Add(col.gameObject);
 
                 // 防御が成功していたら攻撃側のひるみが発生
-                if (col.GetComponent<PlayerScript>().ReceiveBraveDamage(braveAttack, dir))
+                if (col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir))
                 {
                     // 防御ひるみ関数を呼び出し
                     ownOwner.GuardReaction();
@@ -139,7 +139,7 @@ namespace Misaki
                 Vector3 dir = -ownOwner.transform.forward;
 
                 hitObj.Add(col.gameObject);
-                col.GetComponent<PlayerScript>().ReceiveHPDamage(hpAttack, dir);
+                col.GetComponent<BaseCharactorScript>().ReceiveHPDamage(hpAttack, dir);
 
                 // 所有者のブレイブを0にしてリジェネを開始する
                 ownOwner.HitHPAttack();

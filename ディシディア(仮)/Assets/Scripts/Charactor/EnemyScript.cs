@@ -1,14 +1,15 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using Unity.VisualScripting;
 using TMPro;
+using UnityEngine.AI;
 
 namespace Misaki
 {
+    // 自動的にコンポーネントを追加 NavMeshAgent Rigidbody CapsuleCollider
+    [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CapsuleCollider))]
     public partial class EnemyScript : BaseCharactorScript
     {
         /// --------関数一覧-------- ///
@@ -122,30 +123,28 @@ namespace Misaki
             // 待機・移動中以外はリターン
             if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
-            base.Move();
+            // 自身とターゲットの距離を取得
+            float distance = Vector3.Distance(transform.position, target.position);
 
-            // 移動速度を取得 
-            float spd = parameter.speed;//Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : normalSpeed;
+            // 距離が設定した停止距離より大きいなら
+            if (distance > agent.stoppingDistance)
+            {
+                base.Move(); // 移動中に変更
 
-            // カメラの向きを基準にした正面方向のベクトル
-            Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+                // 行先を設定し、そこに移動
+                agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
+                float speed = agent.velocity.magnitude; // 速度ベクトルの長さ(速度)を取得
+                anim.SetFloat("Af_Running", speed); // 移動のアニメーション開始
+            }
+            // 距離が設定した停止距離以下なら
+            else
+            {
+                animState = AnimState.E_Idle; // 待機中に変更
 
-            // 前後左右の入力（WASDキー）から、移動のためのベクトルを計算
-            Vector3 moveZ = cameraForward * moveInputValue.y * spd;  //　前後（カメラ基準）　 
-            Vector3 moveX = Camera.main.transform.right * moveInputValue.x * spd; // 左右（カメラ基準）
+                agent.ResetPath(); // 経路を削除して移動しないようにする
+                anim.SetFloat("Af_Running", 0f); // 待機のアニメーション開始
 
-            // 移動距離計算と重力計算
-            moveDirection.y -= gravity * Time.deltaTime;
-            moveDirection = moveZ + moveX + new Vector3(0, moveDirection.y, 0);
-
-            // 移動のアニメーション
-            anim.SetFloat("Af_Running", (moveZ + moveX).magnitude);
-
-            // プレイヤーの向きを入力の向きに変更　
-            transform.LookAt(transform.position + moveZ + moveX);
-
-            // Move は指定したベクトルだけ移動させる命令
-            con.Move(moveDirection * Time.deltaTime);
+            }
         }
 
         public override void EndAnim()
@@ -196,7 +195,7 @@ namespace Misaki
         public override void BiginKnockBack()
         {
             if (animState != AnimState.E_HitReaction) return;
-            con.Move(-transform.forward * knockBackDistance * Time.deltaTime);
+            rigid.AddForce(-transform.forward * knockBackDistance * Time.deltaTime);
 
         }
 
@@ -221,21 +220,17 @@ namespace Misaki
         #region protected関数
         /// -----protected関数------ ///
 
-
-        /// -----protected関数------ ///
-        #endregion
-
-        #region private関数
-        /// ------private関数------- ///
-
-        private void Start()
+        protected virtual void Start()
         {
             // コンストラクタを呼び出し
             parameter = new Parameter(hp, brave, regenerateSpeed, breakSpeed, speed, attack);
 
             // コンポーネントを取得
-            con ??= GetComponent<CharacterController>();
             anim ??= GetComponent<Animator>();
+            agent ??= GetComponent<NavMeshAgent>(); // ナビメッシュエージェントを取得
+            rigid ??= GetComponent<Rigidbody>(); // リギッドボディ
+            col ??=GetComponent<CapsuleCollider>() ; // コライダー
+
             animState = default; // アニメーション状態をなにもしていないに変更
 
             if (!isEnemy)
@@ -262,7 +257,6 @@ namespace Misaki
                 playerInputs.Enable();
 
                 startPos = transform.position; // 初期位置を取得
-                cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
 
             overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
@@ -278,19 +272,21 @@ namespace Misaki
             Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
         }
 
+        /// -----protected関数------ ///
+        #endregion
+
+        #region private関数
+        /// ------private関数------- ///
+
         private void Update()
         {
             if (!isEnemy)
             {
                 // キーボードチェック
                 CheckKeyBoard();
-
-                // 移動関数
-                Move();
-
-                // カメラを追従させる
-                TrackingCamera();
             }
+            // 移動関数
+            Move();
 
             // ノックバック処理を行う
             BiginKnockBack();
@@ -377,14 +373,6 @@ namespace Misaki
         }
 
         /// <summary>
-        /// カメラを追従させる関数
-        /// </summary>
-        private void TrackingCamera()
-        {
-            plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
-        }
-
-        /// <summary>
         /// 指定のアニメーションクリップを差し替える関数
         /// </summary>
         /// <param name="name">アニメーションクリップの名称</param>
@@ -420,6 +408,12 @@ namespace Misaki
             anim.SetTrigger("At_SmallHit");
         }
 
+
+        private void LateUpdate()
+        {
+            ui.transform.rotation = Camera.main.transform.rotation;
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -440,7 +434,47 @@ namespace Misaki
         #region protected変数
         /// -----protected変数------ ///
 
+        [SerializeField] protected bool isEnemy = true;
 
+        protected float gravity = 10f; // 重力
+
+        Rigidbody rigid; // リギッドボディ
+        CapsuleCollider col; // コライダー
+
+        // 初期パラメータ
+        [SerializeField] protected float hp = 1000;
+        [SerializeField] protected float brave = 100;
+        [SerializeField] protected float regenerateSpeed = 3;
+        [SerializeField] protected float breakSpeed = 10;
+        [SerializeField] protected float speed = 10;
+        [SerializeField] protected float attack = 100;
+
+        protected string[] overrideClips; // 差し替えたいアニメーションクリップ名
+
+        protected Vector2 moveInputValue; // 入力した値
+
+        protected Vector3 moveDirection = Vector3.zero; // 移動した位置
+        protected Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
+        protected Vector3 startPos; // 初期位置
+
+        [SerializeField] protected Transform target; // ターゲット
+
+        protected NavMeshAgent agent; // ナビゲーションエージェント変数
+
+        [Header("小怯みアニメーション")]
+        [SerializeField] protected AnimationClip[] smallHitClip = new AnimationClip[3];
+
+        [SerializeField] protected AnimatorOverrideController overrideController; // Animator上書き用変数
+
+        protected Keyboard key; // Keyboard変数
+
+        protected PlayerInputs playerInputs; // InputSystemから生成したスクリプト
+
+        [SerializeField] protected GameObject ui; // エネミーのUI
+
+        // HPとBrave値の表示テキスト
+        [SerializeField] protected TextMeshProUGUI textHP;
+        [SerializeField] protected TextMeshProUGUI textBrave;
 
         /// -----protected変数------ ///
         #endregion
@@ -448,42 +482,7 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        [SerializeField] private bool isEnemy = false;
 
-        private float gravity = 10f; // 重力
-
-        // 初期パラメータ
-        [SerializeField] private float hp = 1000;
-        [SerializeField] private float brave = 100;
-        [SerializeField] private float regenerateSpeed = 3;
-        [SerializeField] private float breakSpeed = 10;
-        [SerializeField] private float speed = 10;
-        [SerializeField] private float attack = 100;
-
-        private string[] overrideClips; // 差し替えたいアニメーションクリップ名
-
-        private Vector2 moveInputValue; // 入力した値
-
-        private Vector3 moveDirection = Vector3.zero; // 移動した位置
-        private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
-        private Vector3 startPos; // 初期位置
-
-        [Header("小怯みアニメーション")]
-        [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
-
-        [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
-
-        [SerializeField] private GameObject plCamera; // PLのカメラ
-
-        private CharacterController con; // CharacterController変数
-
-        private Keyboard key; // Keyboard変数
-
-        private PlayerInputs playerInputs; // InputSystemから生成したスクリプト
-
-        // HPとBrave値の表示テキスト
-        [SerializeField] private TextMeshProUGUI textHP;
-        [SerializeField] private TextMeshProUGUI textBrave;
 
         /// ------private変数------- ///
         #endregion

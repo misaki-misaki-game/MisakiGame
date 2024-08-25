@@ -1,14 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using Unity.VisualScripting;
 using TMPro;
 
 namespace Misaki
 {
+    // 自動的にコンポーネントを追加 CharacterControllerを追加
+    [RequireComponent(typeof(CharacterController))]
     public partial class PlayerScript : BaseCharactorScript
     {
         /// --------関数一覧-------- ///
