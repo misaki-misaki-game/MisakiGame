@@ -72,8 +72,8 @@ namespace Misaki
         /// </summary>
         public virtual IEnumerator BraveHitReaction()
         {
-            // アニメーション状態を被ダメージ中にする
-            animState = AnimState.E_HitReaction;
+            // スーパーアーマーでなければ、アニメーション状態を被ダメージ中にする
+            if (damageState != DamageState.E_SuperArmor) animState = AnimState.E_HitReaction;
 
             // ノックバック距離を代入
             knockBackDistance = 1f;

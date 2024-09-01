@@ -419,6 +419,19 @@ namespace Misaki
             anim.SetTrigger("At_SmallHit");
         }
 
+        void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            // エネミーが移動中にぶつかるとエネミーの上にのってしまうので
+            // 乗らないようにプレイヤーを後ろに下げる
+            if (hit.collider.tag == "Enemy")
+            {
+                // 衝突時にプレイヤーを敵から押し戻す
+                Vector3 pushBack = hit.normal * 0.01f; // 0.01fは距離、必要に応じて調整
+                CharacterController controller = GetComponent<CharacterController>();
+                controller.Move(pushBack);
+            }
+        }
+
         /// ------private関数------- ///
         #endregion
 

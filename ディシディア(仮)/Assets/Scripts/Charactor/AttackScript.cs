@@ -82,7 +82,7 @@ namespace Misaki
                 // コライダーがnullで無ければ、処理を開始
                 if (col != null)
                 {
-                    col.GetComponent<PlayerScript>().CanDamageEffect();
+                    col.GetComponent<BaseCharactorScript>().CanDamageEffect();
 
                     // ステートによって処理を変える
                     if (attack == AttackState.E_BraveAttack) CalcBrave(col);
