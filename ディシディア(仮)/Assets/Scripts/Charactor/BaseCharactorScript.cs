@@ -1,5 +1,9 @@
+using Misaki;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Animations;
 namespace Misaki
 {
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
@@ -65,6 +69,14 @@ namespace Misaki
         /// </summary>
         public virtual void BraveAttack()
         {
+            // アニメーション状態をブレイブ攻撃中にする
+            animState = AnimState.E_Attack;
+
+            // 攻撃の所有者を自分にする
+            for (int i = 0; i < attackScripts.Count; i++)
+            {
+                attackScripts[i].SetOwnOwner = this;
+            }
         }
 
         /// <summary>
@@ -121,7 +133,10 @@ namespace Misaki
             animState = AnimState.E_Attack;
 
             // 攻撃の所有者を自分にする
-            attackScript.SetOwnOwner = this;
+            for (int i = 0; i < attackScripts.Count; i++)
+            {
+                attackScripts[i].SetOwnOwner = this;
+            }
         }
 
         /// <summary>
@@ -160,9 +175,12 @@ namespace Misaki
         public void BeginBraveAttack(float motionValue)
         {
             // 武器のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_BraveAttack;
-            attackScript.ClearHitObj();
-            attackScript.SetBraveAttack = motionValue * parameter.attack;
+            for (int i = 0; i < attackScripts.Count; i++)
+            {
+                attackScripts[i].SetAttackState = AttackState.E_BraveAttack;
+                attackScripts[i].ClearHitObj();
+                attackScripts[i].SetBraveAttack = motionValue * parameter.attack;
+            }
         }
 
         /// <summary>
@@ -188,9 +206,12 @@ namespace Misaki
         public void BiginHPAttack()
         {
             // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_HPAttack;
-            attackScript.SetHPAttack = parameter.brave;
-            attackScript.ClearHitObj();
+            for (int i = 0; i < attackScripts.Count; i++)
+            {
+                attackScripts[i].SetAttackState = AttackState.E_HPAttack;
+                attackScripts[i].SetHPAttack = parameter.brave;
+                attackScripts[i].ClearHitObj();
+            }
         }
 
         /// <summary>
@@ -222,8 +243,11 @@ namespace Misaki
         public void EndAttack()
         {
             // 武器のステートを変更し、ヒットオブジェクトリストをリセットする
-            attackScript.SetAttackState = AttackState.E_None;
-            attackScript.ClearHitObj();
+            for (int i = 0; i < attackScripts.Count; i++)
+            {
+                attackScripts[i].SetAttackState = AttackState.E_None;
+                attackScripts[i].ClearHitObj();
+            }
         }
 
         /// <summary>
@@ -231,7 +255,10 @@ namespace Misaki
         /// </summary>
         public virtual void EndAnim()
         {
-            animState = default;
+            animState = AnimState.E_Idle; // 待機中に変更
+            anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
+            anim.ResetTrigger("At_HAttack"); // HP攻撃の入力状況保持を消す
+            anim.SetTrigger("At_Idle"); // 待機状態に移動する
         }
 
         /// <summary>
@@ -343,10 +370,34 @@ namespace Misaki
             effectPos = new Vector3(0, adjustEffectYPos, 0);
         }
 
+        protected virtual void Start()
+        {
+            // コンストラクタを呼び出し
+            parameter = new Parameter(hp, brave, regenerateSpeed, breakSpeed, speed, attack);
+
+            // コンポーネントを取得
+            anim ??= GetComponent<Animator>();
+            animState = default; // アニメーション状態をなにもしていないに変更
+
+            Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
+
+            attackScripts = new List<AttackScript>(attackScriptList[0].attackScriptGroup); // アタックスクリプトリストを初期化
+        }
+
         protected void OnTriggerEnter(Collider col)
         {
             // 攻撃を受けたことを確認する
             if (col.CompareTag(Tags.EnemyWepon.ToString())) CanDamageEffect();
+        }
+
+        /// <summary>
+        /// 小怯みモーションを再生する関数
+        /// </summary>
+        /// <param name="rnd">指定の小怯みモーション</param>
+        protected void SmallHitReaction(int rnd)
+        {
+            anim.SetInteger("Ai_SmallHit" , rnd);
+            anim.SetTrigger("At_SmallHit");
         }
 
         /// -----protected関数------ ///
@@ -410,6 +461,22 @@ namespace Misaki
             }
         }
 
+        /// <summary>
+        /// アタックスクリプト配列を複数持つリスト
+        /// </summary>
+        [System.Serializable]
+        public class AttackScriptList
+        {
+            // コンストラクタ
+            public AttackScriptList(AttackScript[] script)
+            {
+                attackScriptGroup = script;
+            }
+
+            // リスト変数
+            public AttackScript[] attackScriptGroup;
+        }
+
         /// -------public変数------- ///
         #endregion
 
@@ -418,7 +485,7 @@ namespace Misaki
 
         protected float knockBackDistance; // ノックバック距離
 
-        protected AnimState animState; // アニメーションの状態変数
+        [SerializeField] protected AnimState animState; // アニメーションの状態変数
 
         protected BraveState braveState; // ブレイブの状態変数
 
@@ -429,7 +496,9 @@ namespace Misaki
         protected Parameter parameter; // パラメーター変数
 
         protected AttackScript bulletAttackScript; // 遠距離攻撃スクリプト
-        [SerializeField] protected AttackScript attackScript; // 自身の武器の攻撃スクリプト
+        [SerializeField] protected List<AttackScript> attackScripts; // 自身の武器の攻撃スクリプト
+        [Header("必ずアニメーションで呼び出したいAttackListと同じにすること")]
+        [SerializeField] protected List<AttackScriptList> attackScriptList = new List<AttackScriptList>(); // 攻撃スクリプトリスト
 
         /// -----protected変数------ ///
         #endregion
@@ -439,10 +508,16 @@ namespace Misaki
 
         private bool ishit = false; // ヒットしたかどうか
 
+        // 初期パラメータ
+        [SerializeField] private float hp = 1000;
+        [SerializeField] private float brave = 100;
+        [SerializeField] private float regenerateSpeed = 3;
+        [SerializeField] private float breakSpeed = 10;
+        [SerializeField] private float speed = 10;
+        [SerializeField] private float attack = 100;
         [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
 
         private Vector3 effectPos; // エフェクト表示位置
-
 
         /// ------private変数------- ///
         #endregion
@@ -458,3 +533,4 @@ namespace Misaki
         /// --------変数一覧-------- ///
     }
 }
+

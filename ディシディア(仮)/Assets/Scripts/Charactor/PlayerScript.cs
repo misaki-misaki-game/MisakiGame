@@ -3,6 +3,7 @@ using UnityEngine;
 using Cinemachine;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections.Generic;
 
 namespace Misaki
 {
@@ -17,8 +18,6 @@ namespace Misaki
 
         public override void BraveAttack()
         {
-            base.BraveAttack();
-
             // ブレイブ攻撃中ならコンボを出す
             // 待機・移動中以外ならリターン
             if (animState == AnimState.E_Attack)
@@ -27,11 +26,7 @@ namespace Misaki
             }
             else if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
-            // アニメーション状態をブレイブ攻撃中にする
-            animState = AnimState.E_Attack;
-
-            // 攻撃の所有者を自分にする
-            attackScript.SetOwnOwner = this;
+            base.BraveAttack();
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_BAttack");
@@ -150,9 +145,6 @@ namespace Misaki
         public override void EndAnim()
         {
             base.EndAnim();
-            anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
-            anim.ResetTrigger("At_HAttack"); // HP攻撃の入力状況保持を消す
-            anim.SetTrigger("At_Idle"); // 待機状態に移動する
         }
 
         /// <summary>
@@ -196,13 +188,15 @@ namespace Misaki
         {
             if (animState != AnimState.E_HitReaction) return;
             con.Move(-transform.forward * knockBackDistance * Time.deltaTime);
-
         }
 
+        /// <summary>
+        /// ノックバック終了関数
+        /// </summary>
         public override void EndKnockBack()
         {
             base.EndAnim();
-            knockBackDistance = 0;
+            knockBackDistance = 0; // ノックバック距離を0にする
         }
 
         /// <summary>
@@ -211,7 +205,10 @@ namespace Misaki
         public override void GuardReaction()
         {
             base.GuardReaction();
-            SmallHitReaction(0);
+
+            // ランダムに小怯みモーションを発生させる
+            int rnd = Random.Range(0, smallHitClip.Length);
+            SmallHitReaction(rnd);
         }
 
         /// -------public関数------- ///
@@ -227,15 +224,12 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
-        private void Start()
+        protected override void Start()
         {
-            // コンストラクタを呼び出し
-            parameter = new Parameter(hp, brave, regenerateSpeed, breakSpeed, speed, attack);
+            base.Start();
 
             // コンポーネントを取得
             con ??= GetComponent<CharacterController>();
-            anim ??= GetComponent<Animator>();
-            animState = default; // アニメーション状態をなにもしていないに変更
 
             if (!isEnemy)
             {
@@ -263,18 +257,6 @@ namespace Misaki
                 startPos = transform.position; // 初期位置を取得
                 cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
-
-            overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
-            anim.runtimeAnimatorController = overrideController; //Animatorを上書き
-            overrideClips = new string[overrideController.animationClips.Length]; // 要素数を代入
-
-            // クリップ配列に名前を代入
-            for (int i = 0; i < overrideClips.Length; i++)
-            {
-                overrideClips[i] = overrideController.animationClips[i].name;
-            }
-
-            Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
         }
 
         private void Update()
@@ -383,42 +365,6 @@ namespace Misaki
             plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
         }
 
-        /// <summary>
-        /// 指定のアニメーションクリップを差し替える関数
-        /// </summary>
-        /// <param name="name">アニメーションクリップの名称</param>
-        /// <param name="clip">差し替えたいクリップ</param>
-        private void AllocateMotion(string name, AnimationClip clip)
-        {
-            // アニメーションステートを取得
-            AnimatorStateInfo[] layerInfo = new AnimatorStateInfo[anim.layerCount];
-            for (int i = 0; i < anim.layerCount; i++)
-            {
-                layerInfo[i] = anim.GetCurrentAnimatorStateInfo(i);
-            }
-
-            // AnimationClipを差し替えて、強制的にアップデート
-            // ステートがリセットされる
-            overrideController[name] = clip;
-            anim.Rebind();
-
-            // ステートを戻す
-            for (int i = 0; i < anim.layerCount; i++)
-            {
-                anim.Play(layerInfo[i].fullPathHash, i, layerInfo[i].normalizedTime);
-            }
-        }
-
-        /// <summary>
-        /// 小怯みモーションを再生する関数
-        /// </summary>
-        /// <param name="rnd">指定の小怯みモーション</param>
-        private void SmallHitReaction(int rnd)
-        {
-            AllocateMotion("SmallHit01", smallHitClip[rnd]);
-            anim.SetTrigger("At_SmallHit");
-        }
-
         void OnControllerColliderHit(ControllerColliderHit hit)
         {
             // エネミーが移動中にぶつかるとエネミーの上にのってしまうので
@@ -464,16 +410,6 @@ namespace Misaki
 
         private float gravity = 10f; // 重力
 
-        // 初期パラメータ
-        [SerializeField] private float hp = 1000;
-        [SerializeField] private float brave = 100;
-        [SerializeField] private float regenerateSpeed = 3;
-        [SerializeField] private float breakSpeed = 10;
-        [SerializeField] private float speed = 10;
-        [SerializeField] private float attack = 100;
-
-        private string[] overrideClips; // 差し替えたいアニメーションクリップ名
-
         private Vector2 moveInputValue; // 入力した値
 
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
@@ -482,8 +418,6 @@ namespace Misaki
 
         [Header("小怯みアニメーション")]
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
-
-        [SerializeField] private AnimatorOverrideController overrideController; // Animator上書き用変数
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
 

@@ -99,7 +99,7 @@ namespace Misaki
         private void CalcBrave(Collider col)
         {
             // エネミータグかつヒットオブジェクトリストに入っていなければ
-            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
+            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject) || col.CompareTag(Tags.Player.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("Brave攻撃が敵に当たった" + braveAttack);
 

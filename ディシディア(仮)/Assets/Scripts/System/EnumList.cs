@@ -13,7 +13,7 @@ public enum AnimState
     E_Dead = 4, // í“¬•s”\’†
     E_Guard = 5, // –hŒä’†
     E_Dodge = 6, // ‰ñ”ğ’†
-    E_None = default // ‚È‚É‚à‚µ‚Ä‚¢‚È‚¢
+    //E_None = default // ‚È‚É‚à‚µ‚Ä‚¢‚È‚¢
 }
 
 // UŒ‚‚Ìí—Ş

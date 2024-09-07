@@ -1,8 +1,10 @@
 using System.Collections;
-using UnityEngine;
-using UnityEngine.InputSystem;
+using System.Collections.Generic;
+using System.Xml;
 using TMPro;
+using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 namespace Misaki
 {
@@ -19,21 +21,10 @@ namespace Misaki
 
         public override void BraveAttack()
         {
-            base.BraveAttack();
-
-            // ブレイブ攻撃中ならコンボを出す
             // 待機・移動中以外ならリターン
-            if (animState == AnimState.E_Attack)
-            {
-                anim.SetTrigger("At_BAttack");
-            }
-            else if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
-            // アニメーション状態をブレイブ攻撃中にする
-            animState = AnimState.E_Attack;
-
-            // 攻撃の所有者を自分にする
-            attackScript.SetOwnOwner = this;
+            base.BraveAttack();
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_BAttack");
@@ -133,6 +124,7 @@ namespace Misaki
 
                 // 行先を設定し、そこに移動
                 agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
+                agent.isStopped = false; // 移動開始
                 float speed = agent.velocity.magnitude; // 速度ベクトルの長さ(速度)を取得
                 anim.SetFloat("Af_Running", speed); // 移動のアニメーション開始
             }
@@ -141,18 +133,16 @@ namespace Misaki
             {
                 animState = AnimState.E_Idle; // 待機中に変更
 
-                agent.ResetPath(); // 経路を削除して移動しないようにする
+                agent.velocity = Vector3.zero; // 速度ベクトルを0に変更
+                agent.isStopped = true; // 移動停止
                 anim.SetFloat("Af_Running", 0f); // 待機のアニメーション開始
-
             }
         }
 
         public override void EndAnim()
         {
             base.EndAnim();
-            anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
-            anim.ResetTrigger("At_HAttack"); // HP攻撃の入力状況保持を消す
-            anim.SetTrigger("At_Idle"); // 待機状態に移動する
+            GetAttackPattern();
         }
 
         /// <summary>
@@ -196,7 +186,6 @@ namespace Misaki
         {
             if (animState != AnimState.E_HitReaction) return;
             rigid.AddForce(-transform.forward * knockBackDistance * Time.deltaTime);
-
         }
 
         public override void EndKnockBack()
@@ -220,18 +209,17 @@ namespace Misaki
         #region protected関数
         /// -----protected関数------ ///
 
-        protected virtual void Start()
+        protected override void Start()
         {
-            // コンストラクタを呼び出し
-            parameter = new Parameter(hp, brave, regenerateSpeed, breakSpeed, speed, attack);
+            base.Start();
 
             // コンポーネントを取得
-            anim ??= GetComponent<Animator>();
             agent ??= GetComponent<NavMeshAgent>(); // ナビメッシュエージェントを取得
             rigid ??= GetComponent<Rigidbody>(); // リギッドボディ
             col ??=GetComponent<CapsuleCollider>() ; // コライダー
 
-            animState = default; // アニメーション状態をなにもしていないに変更
+            // ナビメッシュエージェントのスピードを初期化
+            agent.speed = parameter.speed;
 
             if (!isEnemy)
             {
@@ -259,17 +247,88 @@ namespace Misaki
                 startPos = transform.position; // 初期位置を取得
             }
 
-            overrideController = new AnimatorOverrideController(anim.runtimeAnimatorController); // インスタンス生成 上書きしたいAnimatorを代入
-            anim.runtimeAnimatorController = overrideController; //Animatorを上書き
-            overrideClips = new string[overrideController.animationClips.Length]; // 要素数を代入
-
-            // クリップ配列に名前を代入
-            for (int i = 0; i < overrideClips.Length; i++)
+            // 攻撃パターンの辞書を初期化
+            foreach (AttackDictionary dict in attackList)
             {
-                overrideClips[i] = overrideController.animationClips[i].name;
+                attackDict.Add(dict.attackPattern, dict.attackRate);
             }
 
-            Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
+            // 攻撃IDをランダムに決める
+            GetAttackPattern();
+        }
+
+        protected void GetAttackPattern()
+        {
+            // 攻撃IDの抽選
+            attackID = Choose();
+
+            // 攻撃までの待機時間を抽選
+            idleTime = Random.Range(1.5f, 4);
+
+            // IDによってモーションを変える
+            if(attackID < braveAttackClip.Length) BraveAttackSetUP(attackID);
+            else HPAttackSetUP(attackID - braveAttackClip.Length);
+        }
+
+        protected int Choose()
+        {
+            // 確率の合計値を格納
+            float total = 0;
+
+            // 攻撃パターン辞書から攻撃発生率を合計する
+            foreach (KeyValuePair<int, float> elem in attackDict)
+            {
+                total += elem.Value;
+            }
+
+            // Random.valueでは0から1までのfloat値を返すので
+            // そこにドロップ率の合計を掛ける
+            float randomPoint = Random.value * total;
+
+            // randomPointの位置に該当するキーを返す
+            foreach (KeyValuePair<int, float> elem in attackDict)
+            {
+                // 発生率の高いものから順に比較する
+                // 低ければ該当するキー(ID)を返す
+                if (randomPoint < elem.Value)
+                {
+                    return elem.Key;
+                }
+                // 高ければランダムポイントから発生率を引いて次の発生率と比較する
+                else
+                {
+                    randomPoint -= elem.Value;
+                }
+            }
+            // 100の場合は0を返す
+            return 0;
+        }
+
+        /// <summary>
+        /// ブレイブ攻撃モーションを設定する関数
+        /// </summary>
+        protected void BraveAttackSetUP(int rnd)
+        {
+            // ブレイブ攻撃状態に変更
+            attackState = AttackState.E_BraveAttack;
+
+            // アニメーションを選択
+            anim.SetInteger("Ai_BAttack", rnd);
+
+            // 使用するアタックスクリプトリストを変更
+            attackScripts = new List<AttackScript>(attackScriptList[rnd].attackScriptGroup);
+        }
+
+        /// <summary>
+        /// HP攻撃モーションを設定する関数
+        /// </summary>
+        protected void HPAttackSetUP(int rnd)
+        {
+            // HP攻撃状態に変更
+            attackState = AttackState.E_HPAttack;
+
+            // アニメーションを選択
+            anim.SetInteger("Ai_HAttack", rnd);
         }
 
         /// -----protected関数------ ///
@@ -287,6 +346,13 @@ namespace Misaki
             }
             // 移動関数
             Move();
+
+            // 攻撃許可かつ待機中または移動中なら
+            if (CanAttack())
+            {
+                if (attackState == AttackState.E_BraveAttack) BraveAttack();
+                else if (attackState == AttackState.E_HPAttack) HPAttack();
+            }
 
             // ノックバック処理を行う
             BiginKnockBack();
@@ -373,41 +439,20 @@ namespace Misaki
         }
 
         /// <summary>
-        /// 指定のアニメーションクリップを差し替える関数
+        /// 攻撃の許可を出す関数
         /// </summary>
-        /// <param name="name">アニメーションクリップの名称</param>
-        /// <param name="clip">差し替えたいクリップ</param>
-        private void AllocateMotion(string name, AnimationClip clip)
+        /// <returns>trueが出たら攻撃開始</returns>
+        private bool CanAttack()
         {
-            // アニメーションステートを取得
-            AnimatorStateInfo[] layerInfo = new AnimatorStateInfo[anim.layerCount];
-            for (int i = 0; i < anim.layerCount; i++)
-            {
-                layerInfo[i] = anim.GetCurrentAnimatorStateInfo(i);
-            }
+            // 待機時間を減らす
+            idleTime -= Time.deltaTime;
 
-            // AnimationClipを差し替えて、強制的にアップデート
-            // ステートがリセットされる
-            overrideController[name] = clip;
-            anim.Rebind();
+            // 待機時間が0以下になったらtrueを返す
+            // まだの場合はfalseを返す
+            if (idleTime <= 0 && animState == AnimState.E_Idle) return true;
 
-            // ステートを戻す
-            for (int i = 0; i < anim.layerCount; i++)
-            {
-                anim.Play(layerInfo[i].fullPathHash, i, layerInfo[i].normalizedTime);
-            }
+            return false;
         }
-
-        /// <summary>
-        /// 小怯みモーションを再生する関数
-        /// </summary>
-        /// <param name="rnd">指定の小怯みモーション</param>
-        private void SmallHitReaction(int rnd)
-        {
-            AllocateMotion("SmallHit01", smallHitClip[rnd]);
-            anim.SetTrigger("At_SmallHit");
-        }
-
 
         private void LateUpdate()
         {
@@ -426,7 +471,22 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
+        /// <summary>
+        /// アタックスクリプト配列を複数持つリスト
+        /// </summary>
+        [System.Serializable]
+        public class AttackDictionary
+        {
+            // コンストラクタ
+            public AttackDictionary(int pattern, float rate)
+            {
+                attackPattern = pattern;
+                attackRate = rate;
+            }
 
+            public int attackPattern; // 攻撃パターン
+            public float attackRate; // 攻撃の発生率
+        }
 
         /// -------public変数------- ///
         #endregion
@@ -435,21 +495,6 @@ namespace Misaki
         /// -----protected変数------ ///
 
         [SerializeField] protected bool isEnemy = true;
-
-        protected float gravity = 10f; // 重力
-
-        Rigidbody rigid; // リギッドボディ
-        CapsuleCollider col; // コライダー
-
-        // 初期パラメータ
-        [SerializeField] protected float hp = 1000;
-        [SerializeField] protected float brave = 100;
-        [SerializeField] protected float regenerateSpeed = 3;
-        [SerializeField] protected float breakSpeed = 10;
-        [SerializeField] protected float speed = 10;
-        [SerializeField] protected float attack = 100;
-
-        protected string[] overrideClips; // 差し替えたいアニメーションクリップ名
 
         protected Vector2 moveInputValue; // 入力した値
 
@@ -463,8 +508,15 @@ namespace Misaki
 
         [Header("小怯みアニメーション")]
         [SerializeField] protected AnimationClip[] smallHitClip = new AnimationClip[3];
+        [Header("ブレイブ攻撃アニメーション")]
+        [SerializeField] protected AnimationClip[] braveAttackClip = new AnimationClip[2];
+        [Header("HP攻撃アニメーション")]
+        [SerializeField] protected AnimationClip[] hpAttackClip = new AnimationClip[2];
 
-        [SerializeField] protected AnimatorOverrideController overrideController; // Animator上書き用変数
+        protected Dictionary<int, float> attackDict= new Dictionary<int, float>(); // 敵の行動パターンの辞書
+
+        [Header("必ずアニメーションで呼び出したいAttackScriptListと同じにすること")]
+        [SerializeField] protected List<AttackDictionary> attackList; // 攻撃パターンリスト
 
         protected Keyboard key; // Keyboard変数
 
@@ -482,7 +534,17 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private bool canAttack; // 攻撃フラグ
 
+        [SerializeField] private int attackID; // 攻撃ID
+
+        private float idleTime; // 攻撃までの待機時間
+
+        private Rigidbody rigid; // リギッドボディ
+
+        private CapsuleCollider col; // コライダー
+
+        private AttackState attackState; // 攻撃の種類
 
         /// ------private変数------- ///
         #endregion
