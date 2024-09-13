@@ -119,7 +119,7 @@ namespace Misaki
             base.Move();
 
             // 移動速度を取得 
-            float spd = parameter.speed;//Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : normalSpeed;
+            float spd = parameter.speed;
 
             // カメラの向きを基準にした正面方向のベクトル
             Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
@@ -195,7 +195,7 @@ namespace Misaki
         /// </summary>
         public override void EndKnockBack()
         {
-            base.EndAnim();
+            //base.EndAnim();
             knockBackDistance = 0; // ノックバック距離を0にする
         }
 

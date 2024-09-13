@@ -113,7 +113,6 @@ namespace Misaki
         {
             // 待機・移動中以外はリターン
             if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
-
             // 自身とターゲットの距離を取得
             float distance = Vector3.Distance(transform.position, target.position);
 

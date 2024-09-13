@@ -32,14 +32,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412038493066216360}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.52, y: 1.52, z: 1.52}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5292430907790350081}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &870411179426623218
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -4838,7 +4838,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a3627fd9e67443bfab3dd43fd9fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hpAttack: 0
+  attack: 0
   particle: {fileID: 870411179426623218}
+  hitObj: []
+  ownOwner: {fileID: 0}
 --- !u!114 &6860119323408036804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4851,6 +4855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6816d053d70684041abd1f66eeb2f4bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitTarget: 9
 --- !u!1 &8846930463539584315
 GameObject:
   m_ObjectHideFlags: 0
@@ -4865,7 +4870,7 @@ GameObject:
   - component: {fileID: 3980134075744156801}
   m_Layer: 8
   m_Name: Ground ring
-  m_TagString: EnemyWepon
+  m_TagString: PlayerWepon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

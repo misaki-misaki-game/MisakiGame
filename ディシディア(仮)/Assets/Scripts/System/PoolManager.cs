@@ -17,7 +17,7 @@ namespace Misaki
         /// <param name="position">指定したい位置</param>
         /// <param name="rotation">指定したい向き</param>
         /// <returns></returns>
-        public GameObject GetGameObject(GameObject prefab, Vector3 position, Transform parent)
+        public GameObject GetGameObject(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent)
         {
             Prefab = prefab; // 指定のオブジェクトをプレハブに代入
 
@@ -29,7 +29,7 @@ namespace Misaki
             // トランスフォームを代入
             Transform tf = obj.transform;
             tf.position = position;
-            //tf.rotation = rotation;
+            tf.rotation = rotation;
 
             return obj; // 返す
         }

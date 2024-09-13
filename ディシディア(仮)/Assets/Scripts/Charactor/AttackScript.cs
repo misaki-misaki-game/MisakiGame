@@ -78,6 +78,8 @@ namespace Misaki
             {
                 // コライダーを取得
                 Collider col = particle.trigger.GetCollider(i).GetComponent<Collider>();
+                if (tag == Tags.PlayerWepon.ToString() && !col.CompareTag(Tags.Enemy.ToString())) return;
+                if (tag == Tags.EnemyWepon.ToString() && !col.CompareTag(Tags.Player.ToString())) return;
 
                 // コライダーがnullで無ければ、処理を開始
                 if (col != null)
@@ -131,7 +133,7 @@ namespace Misaki
         {
             // エネミータグかつヒットオブジェクトリストに入っていなければ
             // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
-            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject))
+            if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject) || col.CompareTag(Tags.Player.ToString()) && !ChackInHit(col.gameObject))
             {
                 Debug.Log("HP攻撃が敵に当たった");
 

@@ -32,7 +32,7 @@ namespace Misaki
             var trigger = ps.trigger;
 
             // タグで特定のオブジェクトのコライダーを自動取得
-            GameObject target = GameObject.FindWithTag(Tags.Enemy.ToString());
+            GameObject target = GameObject.FindWithTag(hitTarget.ToString());
             if (target != null)
             {
                 Collider col = target.GetComponent<Collider>();
@@ -71,7 +71,7 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-
+        [SerializeField] private Tags hitTarget; // ヒットする目標
 
         /// ------private変数------- ///
         #endregion

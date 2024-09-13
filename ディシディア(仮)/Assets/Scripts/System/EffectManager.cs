@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Misaki
@@ -20,21 +22,18 @@ namespace Misaki
         protected override void Awake()
         {
             base.Awake();
-            // static変数に代入　インスペクター上にstatic変数が表示されないため
-            braveDamageEffect = braveDamage;
-            hpDamageEffect = hpDamage;
-            hpShockWaveEffect = hpShockWave;
-
-            // 遠距離攻撃のアタックスクリプトを代入
-            hpShockWaveAttack = hpShockWaveEffect.GetComponentInChildren<AttackScript>();
 
             // 各エフェクトのプールを生成する
-            braveDamageEffectPool = new GameObject("BraveDamageEffectPool").AddComponent<PoolManager>();
-            hpDamageEffectPool = new GameObject("HPDamageEffectPool").AddComponent<PoolManager>();
-            hpShockWaveEffectPool = new GameObject("HPShockWaveEffectPool").AddComponent<PoolManager>();
-            braveDamageEffectPool.InitializePool(poolDefaultCapacity, poolMaxSize, braveDamageEffect);
-            hpDamageEffectPool.InitializePool(poolDefaultCapacity, poolMaxSize, hpDamageEffect);
-            hpShockWaveEffectPool.InitializePool(poolDefaultCapacity, poolMaxSize, hpShockWaveEffect);
+            effectGroups = new EffectGroup[effectObjects.Length]; // エフェクトの種類数の要素数で初期化
+            EffectName name; // オブジェクトプール名を指定するために生成
+            for (int i = 0; i<effectObjects.Length; i++)
+            {
+                name = (EffectName)i; // オブジェクトプール名を代入
+                effectGroups[i] = new EffectGroup(); // インスタンス生成
+                effectGroups[i].effect = effectObjects[i]; // エフェクトを代入
+                effectGroups[i].pool= new GameObject(name.ToString() + "Pool").AddComponent<PoolManager>(); // オブジェクトプールをヒエラルキー上に生成
+                effectGroups[i].pool.InitializePool(poolDefaultCapacity, poolMaxSize, effectGroups[i].effect); // オブジェクトプールを初期化
+            }
         }
 
         /// -----protected関数------ ///
@@ -57,15 +56,15 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
-        public static GameObject braveDamageEffect; // 被ブレイブダメージのエフェクト
-        public static GameObject hpDamageEffect; // 被HPダメージのエフェクト
-        public static GameObject hpShockWaveEffect; // HP攻撃のエフェクト
+        public static EffectGroup[] effectGroups; // エフェクトグループ配列
 
-        public static PoolManager braveDamageEffectPool; // 非ブレイブダメージ時のエフェクトプール
-        public static PoolManager hpDamageEffectPool; // 非HPダメージ時のエフェクトプール
-        public static PoolManager hpShockWaveEffectPool; // HP攻撃のエフェクトプール
-
-        public static AttackScript hpShockWaveAttack; // HP攻撃のアタックスクリプト
+        // エフェクトグループ
+        public class EffectGroup
+        {
+            public PoolManager pool; // プールマネージャー変数
+            public GameObject effect; // エフェクト変数
+            public GameObject effectPos; // エフェクト発生位置変数
+        }
 
         /// -------public変数------- ///
         #endregion
@@ -81,10 +80,8 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        [Header("エフェクトを入れてください")]
-        [SerializeField] private GameObject braveDamage; // 被ブレイブダメージのエフェクト
-        [SerializeField] private GameObject hpDamage; // 被HPダメージのエフェクト
-        [SerializeField] private GameObject hpShockWave; // HP攻撃のエフェクト
+        [Header("エフェクトを入れてください"), SerializeField, EnumIndex(typeof(EffectName))]
+        private GameObject[] effectObjects; // エフェクト配列
 
         [SerializeField] private int poolDefaultCapacity; // オブジェクトプールのデフォルト容量
         [SerializeField] private int poolMaxSize; // オブジェクトプールの最大容量

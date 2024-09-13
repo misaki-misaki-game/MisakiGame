@@ -41,6 +41,16 @@ public enum DamageState
     E_Guard = 3 // –hŒäó‘Ô
 }
 
+public enum EffectName
+{
+    braveDamageEffect = 0,
+    hpDamageEffect = 1,
+    hpShockWaveEffect = 2,
+    hpFireBreath = 3,
+    hpBomb1 = 4,
+    hpBomb2 = 5
+}
+
 /// -------public•Ï”------- ///
 #endregion
 

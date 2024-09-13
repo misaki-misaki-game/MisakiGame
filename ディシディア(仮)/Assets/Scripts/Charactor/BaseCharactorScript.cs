@@ -2,8 +2,7 @@ using Misaki;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Playables;
-using UnityEngine.Animations;
+
 namespace Misaki
 {
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
@@ -28,7 +27,7 @@ namespace Misaki
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
-            effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
+            //effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
@@ -49,7 +48,7 @@ namespace Misaki
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
-            effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
+            //effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
 
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
@@ -92,9 +91,7 @@ namespace Misaki
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-
-            PoolManager effect = EffectManager.braveDamageEffectPool;
-            effect.GetGameObject(EffectManager.braveDamageEffect, effectPos, transform);
+            GenerateEffect(EffectName.braveDamageEffect);
             ishit = false;
         }
 
@@ -152,9 +149,7 @@ namespace Misaki
 
             // ヒットした位置を特定するまで待ってからエフェクトを生成する
             yield return new WaitUntil(() => ishit);
-
-            PoolManager effect = EffectManager.hpDamageEffectPool;
-            effect.GetGameObject(EffectManager.hpDamageEffect, effectPos, transform);
+            GenerateEffect(EffectName.hpDamageEffect);
             ishit = false;
         }
 
@@ -216,17 +211,34 @@ namespace Misaki
 
         /// <summary>
         /// HP攻撃開始時の関数
-        /// 自身の武器で攻撃する場合
+        /// 遠距離で攻撃する場合
         /// </summary>
-        /// <param name="bullet">遠距離攻撃のアタックスクリプト</param>
-
-        public void BiginHPBullet(/*AttackScript bullet*/)
+        /// <param name="effectName">エフェクト名</param>
+        public void BiginHPBullet(EffectName effectName)
         {
-            // 衝撃波を生成し、そのアタックスクリプトを取得
+            // エフェクトを生成し、そのアタックスクリプトを取得
             effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
+            GameObject obj = GenerateEffect(effectName);
+            bulletAttackScript = obj.GetComponentInChildren<AttackScript>();
 
-            PoolManager effect = EffectManager.hpShockWaveEffectPool;
-            GameObject obj = effect.GetGameObject(EffectManager.hpShockWaveEffect, effectPos, transform);
+            // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            // アタックスクリプトの所有者を自分にする
+            bulletAttackScript.SetOwnOwner = this;
+            bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
+            bulletAttackScript.SetHPAttack = parameter.brave;
+            bulletAttackScript.ClearHitObj();
+        }
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// 遠距離で攻撃する場合
+        /// </summary>
+        /// <param name="effectName">エフェクト名</param>
+        /// <param name="effectPos">エフェクト生成場所</param>
+        public void BiginHPBullet(EffectName effectName, GameObject effectPos)
+        {
+            // エフェクトを生成し、そのアタックスクリプトを取得
+            GameObject obj = GenerateEffect(effectName, effectPos);
             bulletAttackScript = obj.GetComponentInChildren<AttackScript>();
 
             // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
@@ -387,7 +399,8 @@ namespace Misaki
         protected void OnTriggerEnter(Collider col)
         {
             // 攻撃を受けたことを確認する
-            if (col.CompareTag(Tags.EnemyWepon.ToString())) CanDamageEffect();
+            if (col.CompareTag(Tags.EnemyWepon.ToString())&&tag==Tags.Player.ToString()||
+                col.CompareTag(Tags.PlayerWepon.ToString()) && tag == Tags.Enemy.ToString()) CanDamageEffect();
         }
 
         /// <summary>
@@ -398,6 +411,30 @@ namespace Misaki
         {
             anim.SetInteger("Ai_SmallHit" , rnd);
             anim.SetTrigger("At_SmallHit");
+        }
+
+        /// <summary>
+        /// エフェクトを生成する関数
+        /// </summary>
+        /// <param name="effectName">生成するエフェクト名</param>
+        /// <returns>オブジェクト型</returns>
+        protected GameObject GenerateEffect(EffectName effectName)
+        {
+            int num = (int)effectName; // エフェクト名をint型に変更
+            PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
+            return effect.GetGameObject(EffectManager.effectGroups[num].effect, effectPositions[num].transform.position, effectPositions[num].transform.rotation, effectPositions[num].transform); // プールマネージャーからエフェクトをとりだす
+        }
+
+        /// <summary>
+        /// エフェクトを生成する関数
+        /// </summary>
+        /// <param name="effectName">生成するエフェクト名</param>
+        /// <param name="effectPos">生成する場所</param>
+        protected GameObject GenerateEffect(EffectName effectName, GameObject effectPos)
+        {
+            int num = (int)effectName; // エフェクト名をint型に変更
+            PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
+            return effect.GetGameObject(EffectManager.effectGroups[num].effect, effectPos.transform.position, effectPos.transform.rotation, effectPos.transform); // プールマネージャーからエフェクトをとりだす
         }
 
         /// -----protected関数------ ///
@@ -499,6 +536,9 @@ namespace Misaki
         [SerializeField] protected List<AttackScript> attackScripts; // 自身の武器の攻撃スクリプト
         [Header("必ずアニメーションで呼び出したいAttackListと同じにすること")]
         [SerializeField] protected List<AttackScriptList> attackScriptList = new List<AttackScriptList>(); // 攻撃スクリプトリスト
+
+        [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
+        private GameObject[] effectPositions; // エフェクト発生位置配列
 
         /// -----protected変数------ ///
         #endregion

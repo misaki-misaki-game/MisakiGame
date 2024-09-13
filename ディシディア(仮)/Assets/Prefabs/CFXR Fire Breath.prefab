@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1012527154846524}
   - component: {fileID: 1741693452841693106}
   - component: {fileID: 6444008267442161146}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Point Light
-  m_TagString: Untagged
+  m_TagString: EnemyWepon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -132,12 +132,12 @@ GameObject:
   - component: {fileID: 762352654476923557}
   - component: {fileID: 3378452259938227296}
   - component: {fileID: 1738006705543857138}
-  - component: {fileID: 6235800921313400195}
   - component: {fileID: 6421263654344986183}
   - component: {fileID: 3481210328701053342}
-  m_Layer: 0
+  - component: {fileID: 1081223188884289040}
+  m_Layer: 9
   m_Name: CFXR Fire Breath
-  m_TagString: Untagged
+  m_TagString: EnemyWepon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -175,7 +175,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -3795,8 +3795,8 @@ ParticleSystem:
     outside: 0
     enter: 2
     exit: 0
-    colliderQueryMode: 0
-    radiusScale: 1
+    colliderQueryMode: 2
+    radiusScale: 3.71
     primitives:
     - {fileID: 0}
   SubModule:
@@ -4953,14 +4953,14 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 3.1075
-  m_Height: 5.0078325
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.6897656, z: 1.6875}
+  m_Radius: 0.41
+  m_Height: 3.77
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 2.1}
 --- !u!114 &1738006705543857138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4974,18 +4974,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particle: {fileID: 8891297334280618237}
---- !u!114 &6235800921313400195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8764043878647920493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6816d053d70684041abd1f66eeb2f4bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6421263654344986183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5011,6 +4999,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectPool: {fileID: 0}
+--- !u!114 &1081223188884289040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8764043878647920493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6816d053d70684041abd1f66eeb2f4bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitTarget: 5
 --- !u!1 &8764373218812076563
 GameObject:
   m_ObjectHideFlags: 0
@@ -5023,9 +5024,9 @@ GameObject:
   - component: {fileID: 8891649225594186379}
   - component: {fileID: 8890274778108708459}
   - component: {fileID: 2541709552249164784}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Smoke
-  m_TagString: Untagged
+  m_TagString: EnemyWepon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5055,12 +5056,12 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 3
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -9599,9 +9600,9 @@ GameObject:
   - component: {fileID: 8891797935737724255}
   - component: {fileID: 8890567755997494583}
   - component: {fileID: 4092979102652637606}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Small flames
-  m_TagString: Untagged
+  m_TagString: EnemyWepon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9636,7 +9637,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0

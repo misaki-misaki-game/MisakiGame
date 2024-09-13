@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Misaki
 {
@@ -9,7 +11,52 @@ namespace Misaki
         #region public関数
         /// -------public関数------- ///
 
+        /// <summary>
+        /// ボムを設置する関数
+        /// </summary>
+        public void BombsSetup()
+        {
+            int attempts = 0; // 試行回数
+            int bombCount = 0; // ボム格納回数
 
+            // ボムリストに3つボムが格納されるまでループ
+            while (bombCount < bombMax)
+            {
+                // 無限ループ防止
+                attempts++;
+                if (attempts > 100) break;
+
+                // ランダムな値を代入
+                int randomIndex = Random.Range(0, bombPos.Length);
+
+                // 重複を避け、ボムリストに格納
+                if (!bombHashSet.Contains(randomIndex))
+                {
+                    bombHashSet.Add(randomIndex);
+                    bombs.Add(bombPos[randomIndex]);
+                    bombCount++;
+                }
+            }
+
+            // ボムリストの場所にエフェクトを生成
+            foreach (GameObject pos in bombs)
+            {
+                Debug.Log("ボムを生成");
+                GameObject bombEffect1 = GenerateEffect(EffectName.hpBomb1, pos);
+                StartCoroutine(BombTimer(pos, bombEffect1));
+            }
+
+            // ボムリストをリセット
+            bombs.Clear();
+        }
+
+        /// <summary>
+        /// ボム生成処理をリセットする関数
+        /// </summary>
+        public void ResetBomb()
+        {
+            bombHashSet.Clear();
+        }
 
         /// -------public関数------- ///
         #endregion
@@ -20,6 +67,7 @@ namespace Misaki
         protected override void Start()
         {
             base.Start();
+            InitializeBombPos();
             BiginSuperArmor();
         }
 
@@ -29,7 +77,26 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        /// <summary>
+        /// ボム関係の初期化関数
+        /// </summary>
+        private void InitializeBombPos()
+        {
+            // ボムの場所を初期化
+            bombPos = new GameObject[bombsField.transform.childCount];
+            for (int i = 0; i < bombPos.Length; i++) bombPos[i] = bombsField.transform.GetChild(i).gameObject;
+        }
 
+        /// <summary>
+        /// ボムを起爆させる関数
+        /// </summary>
+        private IEnumerator BombTimer(GameObject effectPos, GameObject bombEffect1)
+        {
+            // ボムを起爆するまで待ってからエフェクトを生成する
+            yield return new WaitForSeconds(bombTime);
+            EffectManager.effectGroups[(int)EffectName.hpBomb1].pool.ReleaseGameObject(bombEffect1);
+            BiginHPBullet(EffectName.hpBomb2, effectPos);
+        }
 
         /// ------private関数------- ///
         #endregion
@@ -59,19 +126,26 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        [SerializeField] private int bombMax; // ボムをセットできる上限
+        private HashSet<int> bombHashSet = new HashSet<int>(); // ボム抽選のハッシュセット
 
+        [SerializeField] private float bombTime; // ボムが爆発するまでの時間
+
+        private GameObject[] bombPos; // ボムの設置場所配列
+        private List<GameObject> bombs = new List<GameObject>(); // ボムリスト
+        [SerializeField] private GameObject bombsField; // ボムのフィールド
 
         /// ------private変数------- ///
         #endregion
 
         #region プロパティ
         /// -------プロパティ------- ///
-    
-    
-    
+
+
+
         /// -------プロパティ------- ///
         #endregion
-    
+
         /// --------変数一覧-------- ///
     }
 }
