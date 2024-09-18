@@ -1,0 +1,34 @@
+{
+    "name": "TitleInputs",
+    "maps": [
+        {
+            "name": "Title",
+            "id": "05d9cb20-8a41-4e6d-9a1c-ab176eb6c8b2",
+            "actions": [
+                {
+                    "name": "Start",
+                    "type": "Button",
+                    "id": "d2eb85b0-eabd-4994-8e39-90c7b727d9f4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4067a0c5-5e42-4a0b-9e5c-011c00368b7b",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Start",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

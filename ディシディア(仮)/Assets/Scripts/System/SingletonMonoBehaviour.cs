@@ -45,8 +45,8 @@ namespace Misaki
                 Destroy(this.gameObject);
                 return;
             }
-            // このオブジェクトをシーンしても消さないようにする
-            DontDestroyOnLoad(this.gameObject);
+            // trueならこのオブジェクトをシーンしても消さないようにする
+            if(isDontDestroy) DontDestroyOnLoad(this.gameObject);
         }
 
         /// -----protected関数------ ///
@@ -86,6 +86,8 @@ namespace Misaki
         /// ------private変数------- ///
 
         private static T instance; // インスタンス変数
+
+        [SerializeField] bool isDontDestroy; // DontDestroyに設定するかどうか
 
         /// ------private変数------- ///
         #endregion

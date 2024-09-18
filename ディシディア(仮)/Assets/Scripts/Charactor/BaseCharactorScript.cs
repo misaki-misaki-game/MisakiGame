@@ -1,4 +1,3 @@
-using Misaki;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,14 +19,13 @@ namespace Misaki
         /// <returns>防御が成功しているかどうか</returns>
         public bool ReceiveBraveDamage(float damage, Vector3 direction)
         {
-            // 無敵時間中ならfalseをリターン
+            // 無敵時間中または戦闘不能中ならfalseをリターン
             // 防御中ならtrueをリターン
-            if (damageState == DamageState.E_Invincible) return false;
+            if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return false;
             else if (damageState == DamageState.E_Guard) return true;
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
-            transform.LookAt(transform.position + direction);
-            //effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
+            if(damageState!=DamageState.E_SuperArmor) transform.LookAt(transform.position + direction);
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
@@ -43,12 +41,11 @@ namespace Misaki
         /// <param name="brave">HPダメージ値</param>
         public void ReceiveHPDamage(float brave, Vector3 direction)
         {
-            // 無敵時間中ならリターン
-            if (damageState == DamageState.E_Invincible) return;
+            // 無敵時間中または戦闘不能中ならリターン
+            if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return;
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
-            //effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
 
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
@@ -100,8 +97,11 @@ namespace Misaki
         /// </summary>
         public virtual void Dead()
         {
+            // アニメーション状態を戦闘不能にする
+            animState = AnimState.E_Dead;
+
             // 対応アニメーションを再生
-            anim.SetTrigger("At_Death");
+            anim.SetTrigger("At_Dead");
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace Misaki
         protected void OnTriggerEnter(Collider col)
         {
             // 攻撃を受けたことを確認する
-            if (col.CompareTag(Tags.EnemyWepon.ToString())&&tag==Tags.Player.ToString()||
+            if (col.CompareTag(Tags.EnemyWepon.ToString()) && tag == Tags.Player.ToString() ||
                 col.CompareTag(Tags.PlayerWepon.ToString()) && tag == Tags.Enemy.ToString()) CanDamageEffect();
         }
 
@@ -537,9 +537,6 @@ namespace Misaki
         [Header("必ずアニメーションで呼び出したいAttackListと同じにすること")]
         [SerializeField] protected List<AttackScriptList> attackScriptList = new List<AttackScriptList>(); // 攻撃スクリプトリスト
 
-        [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
-        private GameObject[] effectPositions; // エフェクト発生位置配列
-
         /// -----protected変数------ ///
         #endregion
 
@@ -558,6 +555,9 @@ namespace Misaki
         [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
 
         private Vector3 effectPos; // エフェクト表示位置
+
+        [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
+        private GameObject[] effectPositions; // エフェクト発生位置配列
 
         /// ------private変数------- ///
         #endregion

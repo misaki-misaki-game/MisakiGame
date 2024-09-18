@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 namespace Misaki
@@ -10,6 +12,14 @@ namespace Misaki
 
         #region public関数
         /// -------public関数------- ///
+
+        public override void Dead()
+        {
+            onDragonDead.OnNext(Unit.Default);  // イベントを発行
+            onDragonDead.OnCompleted();  // イベント終了
+
+            base.Dead();
+        }
 
         /// <summary>
         /// ボムを設置する関数
@@ -27,7 +37,7 @@ namespace Misaki
                 if (attempts > 100) break;
 
                 // ランダムな値を代入
-                int randomIndex = Random.Range(0, bombPos.Length);
+                int randomIndex = UnityEngine.Random.Range(0, bombPos.Length);
 
                 // 重複を避け、ボムリストに格納
                 if (!bombHashSet.Contains(randomIndex))
@@ -57,6 +67,8 @@ namespace Misaki
         {
             bombHashSet.Clear();
         }
+
+        public IObservable<Unit> OnDragonDead => onDragonDead; // ドラゴンが戦闘不能になった際に監視者に通知
 
         /// -------public関数------- ///
         #endregion
@@ -134,6 +146,8 @@ namespace Misaki
         private GameObject[] bombPos; // ボムの設置場所配列
         private List<GameObject> bombs = new List<GameObject>(); // ボムリスト
         [SerializeField] private GameObject bombsField; // ボムのフィールド
+
+        private Subject<Unit> onDragonDead = new Subject<Unit>(); // 戦闘不能イベントのためのSubject
 
         /// ------private変数------- ///
         #endregion

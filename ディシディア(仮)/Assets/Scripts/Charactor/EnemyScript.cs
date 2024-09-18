@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
@@ -100,8 +99,16 @@ namespace Misaki
         {
             StartCoroutine(base.HPHitReaction());
 
-            // 怯みアニメーションを再生
-            anim.SetTrigger("At_LargeHit");
+            if (parameter.hp > 0)
+            {
+                // 怯みアニメーションを再生
+                anim.SetTrigger("At_LargeHit");
+            }
+            else
+            {
+                Debug.Log(parameter.hp);
+                Dead();
+            }
 
             // テキストを変更する
             textHP.text = string.Format("{0:0}", parameter.hp);
@@ -113,6 +120,7 @@ namespace Misaki
         {
             // 待機・移動中以外はリターン
             if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+
             // 自身とターゲットの距離を取得
             float distance = Vector3.Distance(transform.position, target.position);
 
@@ -133,7 +141,7 @@ namespace Misaki
                 animState = AnimState.E_Idle; // 待機中に変更
 
                 agent.velocity = Vector3.zero; // 速度ベクトルを0に変更
-                agent.isStopped = true; // 移動停止
+                //agent.isStopped = true; // 移動停止
                 anim.SetFloat("Af_Running", 0f); // 待機のアニメーション開始
             }
         }
@@ -189,7 +197,6 @@ namespace Misaki
 
         public override void EndKnockBack()
         {
-            base.EndAnim();
             knockBackDistance = 0;
         }
 
@@ -220,32 +227,6 @@ namespace Misaki
             // ナビメッシュエージェントのスピードを初期化
             agent.speed = parameter.speed;
 
-            if (!isEnemy)
-            {
-                // マウスを固定する気はない
-                // マウスカーソルを非表示にし、位置を固定
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-
-                key ??= Keyboard.current; // 現在のキーボード情報を取得
-
-                playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
-
-                // Actionイベント登録
-                playerInputs.Player.Move.started += OnMove;
-                playerInputs.Player.Move.performed += OnMove;
-                playerInputs.Player.Move.canceled += OnMove;
-                playerInputs.Player.BAttack.started += OnBAttack;
-                playerInputs.Player.HAttack.started += OnHAttack;
-                playerInputs.Player.Guard.started += OnGuard;
-                playerInputs.Player.Dodge.started += OnDodge;
-
-                // playerInputsを起動
-                playerInputs.Enable();
-
-                startPos = transform.position; // 初期位置を取得
-            }
-
             // 攻撃パターンの辞書を初期化
             foreach (AttackDictionary dict in attackList)
             {
@@ -254,6 +235,10 @@ namespace Misaki
 
             // 攻撃IDをランダムに決める
             GetAttackPattern();
+
+            // テキストを変更する
+            textHP.text = string.Format("{0:0}", parameter.hp);
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
         protected void GetAttackPattern()
@@ -338,11 +323,9 @@ namespace Misaki
 
         private void Update()
         {
-            if (!isEnemy)
-            {
-                // キーボードチェック
-                CheckKeyBoard();
-            }
+            // タイトル画面ならリターン
+            if (GameManager.GetGameState == GameState.Title) return;
+
             // 移動関数
             Move();
 
@@ -358,83 +341,6 @@ namespace Misaki
 
             // リジェネ処理を行う
             RegenerateBrave();
-        }
-
-        private void OnDestroy()
-        {
-            // 自身でインスタンス化したActionクラスはIDisposableを実装しているので、
-            // 必ずDisposeする必要がある
-            playerInputs?.Dispose();
-        }
-
-        private void OnEnable()
-        {
-            // オブジェクトがアクティブになった時にplayerInputsを起動
-            playerInputs?.Enable();
-        }
-
-        private void OnDisable()
-        {
-            // オブジェクトが非アクティブになった時にplayerInputsを停止
-            playerInputs?.Dispose();
-        }
-
-        /// <summary>
-        /// 移動のコールバック登録関数
-        /// </summary>
-        /// <param name="context"></param>
-        private void OnMove(InputAction.CallbackContext context)
-        {
-            // Moveアクションの入力取得
-            moveInputValue = context.ReadValue<Vector2>();
-        }
-
-        /// <summary>
-        /// ブレイブ攻撃のコールバック登録関数
-        /// </summary>
-        /// <param name="context"></param>
-        private void OnBAttack(InputAction.CallbackContext context)
-        {
-            BraveAttack();
-        }
-
-        /// <summary>
-        /// HP攻撃のコールバック登録関数
-        /// </summary>
-        /// <param name="context"></param>
-        private void OnHAttack(InputAction.CallbackContext context)
-        {
-            HPAttack();
-        }
-        /// <summary>
-        /// 防御のコールバック登録関数
-        /// </summary>
-        /// <param name="context"></param>
-        private void OnGuard(InputAction.CallbackContext context)
-        {
-            Guard();
-        }
-        /// <summary>
-        /// 回避のコールバック登録関数
-        /// </summary>
-        /// <param name="context"></param>
-        private void OnDodge(InputAction.CallbackContext context)
-        {
-            Dodge();
-        }
-        /// <summary>
-        /// キーボードの接続チェック関数
-        /// </summary>
-        private void CheckKeyBoard()
-        {
-            // キーボード接続チェック
-            if (key == null)
-            {
-                // キーボードが接続されていないと
-                // Keyboard.currentがnullになる
-                Debug.LogError("キーボードが接続されていません");
-                return;
-            }
         }
 
         /// <summary>

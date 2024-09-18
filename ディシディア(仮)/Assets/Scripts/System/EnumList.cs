@@ -13,7 +13,6 @@ public enum AnimState
     E_Dead = 4, // 戦闘不能中
     E_Guard = 5, // 防御中
     E_Dodge = 6, // 回避中
-    //E_None = default // なにもしていない
 }
 
 // 攻撃の種類
@@ -41,6 +40,7 @@ public enum DamageState
     E_Guard = 3 // 防御状態
 }
 
+// エフェクトの名称
 public enum EffectName
 {
     braveDamageEffect = 0,
@@ -49,6 +49,13 @@ public enum EffectName
     hpFireBreath = 3,
     hpBomb1 = 4,
     hpBomb2 = 5
+}
+
+// ゲームの状態
+public enum GameState
+{
+    Title = 0,
+    InGame = 1
 }
 
 /// -------public変数------- ///

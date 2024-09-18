@@ -140,6 +140,7 @@ namespace Misaki
                 // 所有者の向きを取得
                 Vector3 dir = -ownOwner.transform.forward;
 
+                // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
                 hitObj.Add(col.gameObject);
                 col.GetComponent<BaseCharactorScript>().ReceiveHPDamage(hpAttack, dir);
 

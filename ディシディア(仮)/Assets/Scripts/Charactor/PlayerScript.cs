@@ -1,9 +1,9 @@
 using System.Collections;
 using UnityEngine;
-using Cinemachine;
 using UnityEngine.InputSystem;
 using TMPro;
-using System.Collections.Generic;
+using System;
+using UniRx;
 
 namespace Misaki
 {
@@ -40,7 +40,7 @@ namespace Misaki
             if (damageState != DamageState.E_SuperArmor)
             {
                 // ランダムに決めた小怯みアニメーションを再生
-                int rnd = Random.Range(0, smallHitClip.Length);
+                int rnd = UnityEngine.Random.Range(0, smallHitClip.Length);
                 SmallHitReaction(rnd);
             }
 
@@ -62,9 +62,10 @@ namespace Misaki
 
         public override void Dead()
         {
-            base.Dead();
+            onPlayerDead.OnNext(Unit.Default);  // イベントを発行
+            onPlayerDead.OnCompleted();  // イベント終了
 
-            // ゲームオーバーにする
+            base.Dead();
         }
 
         public override void Dodge()
@@ -102,8 +103,15 @@ namespace Misaki
         {
             StartCoroutine(base.HPHitReaction());
 
-            // 怯みアニメーションを再生
-            anim.SetTrigger("At_LargeHit");
+            if (parameter.hp > 0)
+            {
+                // 怯みアニメーションを再生
+                anim.SetTrigger("At_LargeHit");
+            }
+            else
+            {
+                Dead();
+            }
 
             // テキストを変更する
             textHP.text = string.Format("{0:0}", parameter.hp);
@@ -195,7 +203,6 @@ namespace Misaki
         /// </summary>
         public override void EndKnockBack()
         {
-            //base.EndAnim();
             knockBackDistance = 0; // ノックバック距離を0にする
         }
 
@@ -207,22 +214,17 @@ namespace Misaki
             base.GuardReaction();
 
             // ランダムに小怯みモーションを発生させる
-            int rnd = Random.Range(0, smallHitClip.Length);
+            int rnd = UnityEngine.Random.Range(0, smallHitClip.Length);
             SmallHitReaction(rnd);
         }
+
+        public IObservable<Unit> OnPlayerDead => onPlayerDead; // プレイヤーが戦闘不能になった際に監視者に通知
 
         /// -------public関数------- ///
         #endregion
 
         #region protected関数
         /// -----protected関数------ ///
-
-
-        /// -----protected関数------ ///
-        #endregion
-
-        #region private関数
-        /// ------private関数------- ///
 
         protected override void Start()
         {
@@ -242,7 +244,7 @@ namespace Misaki
 
                 playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
 
-                // Actionイベント登録
+                // イベント登録
                 playerInputs.Player.Move.started += OnMove;
                 playerInputs.Player.Move.performed += OnMove;
                 playerInputs.Player.Move.canceled += OnMove;
@@ -251,16 +253,32 @@ namespace Misaki
                 playerInputs.Player.Guard.started += OnGuard;
                 playerInputs.Player.Dodge.started += OnDodge;
 
-                // playerInputsを起動
-                playerInputs.Enable();
-
                 startPos = transform.position; // 初期位置を取得
                 cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
+
+            // テキストを変更する
+            textHP.text = string.Format("{0:0}", parameter.hp);
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
+
+        /// -----protected関数------ ///
+        #endregion
+
+        #region private関数
+        /// ------private関数------- ///
 
         private void Update()
         {
+            // タイトル画面ならリターン
+            if (GameManager.GetGameState == GameState.Title) return;
+            // インゲーム画面に遷移したらアクションマップを設定する
+            else if (GameManager.GetGameState == GameState.InGame && !isInGame)
+            {
+                playerInputs.Enable();
+                isInGame = true;
+            }
+
             if (!isEnemy)
             {
                 // キーボードチェック
@@ -295,7 +313,7 @@ namespace Misaki
 
         private void OnDisable()
         {
-            // オブジェクトが非アクティブになった時にplayerInputsを停止
+            // オブジェクトが非アクティブになった時にplayerInputを停止
             playerInputs?.Dispose();
         }
 
@@ -326,6 +344,7 @@ namespace Misaki
         {
             HPAttack();
         }
+
         /// <summary>
         /// 防御のコールバック登録関数
         /// </summary>
@@ -334,6 +353,7 @@ namespace Misaki
         {
             Guard();
         }
+
         /// <summary>
         /// 回避のコールバック登録関数
         /// </summary>
@@ -342,6 +362,7 @@ namespace Misaki
         {
             Dodge();
         }
+
         /// <summary>
         /// キーボードの接続チェック関数
         /// </summary>
@@ -365,14 +386,14 @@ namespace Misaki
             plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
         }
 
-        void OnControllerColliderHit(ControllerColliderHit hit)
+        private void OnControllerColliderHit(ControllerColliderHit hit)
         {
             // エネミーが移動中にぶつかるとエネミーの上にのってしまうので
             // 乗らないようにプレイヤーを後ろに下げる
             if (hit.collider.tag == "Enemy")
             {
                 // 衝突時にプレイヤーを敵から押し戻す
-                Vector3 pushBack = hit.normal * 0.01f; // 0.01fは距離、必要に応じて調整
+                Vector3 pushBack = hit.normal * positioning;
                 CharacterController controller = GetComponent<CharacterController>();
                 controller.Move(pushBack);
             }
@@ -406,9 +427,11 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private bool isInGame = false; // インゲーム中かどうか
         [SerializeField] private bool isEnemy = false;
 
         private float gravity = 10f; // 重力
+        [SerializeField] private float positioning = 0.2f;
 
         private Vector2 moveInputValue; // 入力した値
 
@@ -430,6 +453,8 @@ namespace Misaki
         // HPとBrave値の表示テキスト
         [SerializeField] private TextMeshProUGUI textHP;
         [SerializeField] private TextMeshProUGUI textBrave;
+
+        private Subject<Unit> onPlayerDead = new Subject<Unit>(); // 戦闘不能イベントのためのSubject
 
         /// ------private変数------- ///
         #endregion
