@@ -143,7 +143,7 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
-        private static GameState gameState = GameState.Title; // ゲームの状態変数 
+
 
         /// -------public変数------- ///
         #endregion
@@ -160,7 +160,7 @@ namespace Misaki
         /// ------private変数------- ///
 
         [SerializeField] private float gameOverDelay = 5f; // ゲームをリセットするまでの時間
-        [SerializeField] private float breakBonus = 500; // 
+        [SerializeField] private static float breakBonus = 500; // 相手をブレイクした際のボーナスブレイブ
 
         [SerializeField] private GameObject titleUI; // タイトルのUI
         [SerializeField] private GameObject[] inGameUI; // インゲームのUI
@@ -177,11 +177,15 @@ namespace Misaki
 
         [SerializeField] private CinemachineVirtualCamera playerFollowCamera; // プレイヤーに追従するカメラ
 
+        private static GameState gameState = GameState.Title; // ゲームの状態変数 
+
         /// ------private変数------- ///
         #endregion
 
         #region プロパティ
         /// -------プロパティ------- ///
+
+        public static float GetBreakBonus { get { return breakBonus; } }
 
         public static GameState GetGameState {  get { return gameState; } }
 

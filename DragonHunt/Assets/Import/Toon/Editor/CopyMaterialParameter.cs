@@ -13,7 +13,7 @@ namespace UnityChan
 		static EditorWindow window;
 		bool _RemovedUnusedParameter = false; 
 
-		[MenuItem("CONTEXT/Material/Copy Material Parameter")]
+		[MenuItem("CONTEXT/Material/Copy Material Parameter Custom")]
 		static void Init (MenuCommand command)
 		{
 			source = (Material) command.context;

@@ -17,23 +17,42 @@ namespace Misaki
         /// </summary>
         /// <param name="damage">ブレイブダメージ値</param>
         /// <param name="direction">攻撃された方向</param>
-        /// <returns>防御が成功しているかどうか</returns>
+        /// <returns>ブレイク状態になったかどうか</returns>
         public bool ReceiveBraveDamage(float damage, Vector3 direction)
         {
             // 無敵時間中または戦闘不能中ならfalseをリターン
             // 防御中ならtrueをリターン
             if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return false;
-            else if (damageState == DamageState.E_Guard) return true;
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
-            if(damageState!=DamageState.E_SuperArmor) transform.LookAt(transform.position + direction);
+            if (damageState != DamageState.E_SuperArmor) transform.LookAt(transform.position + direction);
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
+
             StartCoroutine(BraveHitReaction());
 
-            // falseをリターン
-            return false;
+            return IsBreak();
+        }
+
+        /// <summary>
+        /// ブレイク状態になったかどうか
+        /// </summary>
+        /// <returns>ブレイク状態であればtrue</returns>
+        private bool IsBreak()
+        {
+            // 既にリジェネまたはブレイク状態ならfalseを返す
+            if (braveState != BraveState.E_Default) return false;
+
+            // ブレイブが0以下になったらブレイク状態にする
+            if (parameter.brave <= 0)
+            {
+                parameter.brave = 0;
+                braveState = BraveState.E_Break;
+                textBreak.gameObject.SetActive(true);
+                return true;
+            }
+            else return false;
         }
 
         /// <summary>
@@ -100,13 +119,6 @@ namespace Misaki
 
             // リジェネ中なら通常状態にしてリジェネを止める
             if (braveState == BraveState.E_Regenerate) braveState = BraveState.E_Default;
-
-            // ブレイブが0以下になったらブレイク状態にする
-            if (parameter.brave <= 0)
-            {
-                parameter.brave = 0;
-                braveState = BraveState.E_Break;
-            }
         }
 
         /// <summary>
@@ -189,7 +201,7 @@ namespace Misaki
             }
 
             // テキストを変更する
-            textHP.text = string.Format("{0:0}", parameter.hp);
+            textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
         }
 
         /// <summary>
@@ -316,10 +328,13 @@ namespace Misaki
         /// 自分のブレイブ攻撃が当たった時の関数
         /// </summary>
         /// <param name="obtainBrave">取得したブレイブ</param>
-        public void HitBraveAttack(float obtainBrave)
+        /// <param name="braveBreak">相手をブレイクしたかどうか</param>
+        public void HitBraveAttack(float obtainBrave, bool braveBreak)
         {
             // ブレイブを加算する
             parameter.brave += obtainBrave;
+            // ブレイクした場合はボーナスも加算する
+            if (braveBreak) parameter.brave += GameManager.GetBreakBonus;
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -357,6 +372,7 @@ namespace Misaki
             {
                 parameter.brave = parameter.standardBrave;
                 braveState = BraveState.E_Default;
+                textBreak.gameObject.SetActive(false);
             }
 
             // テキストを変更する
@@ -419,6 +435,16 @@ namespace Misaki
             animState = AnimState.E_HitReaction;
         }
 
+        /// <summary>
+        /// 防御しているかどうかを返す関数
+        /// </summary>
+        /// <returns></returns>
+        public bool IsGuard()
+        {
+            if(animState==AnimState.E_Guard) return true;
+            else return false;
+        }
+
         /// -------public関数------- ///
         #endregion
 
@@ -445,7 +471,7 @@ namespace Misaki
             attackScripts = new List<AttackScript>(attackScriptList[0].attackScriptGroup); // アタックスクリプトリストを初期化
 
             // テキストを変更する
-            textHP.text = string.Format("{0:0}", parameter.hp);
+            textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
             textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
@@ -622,8 +648,10 @@ namespace Misaki
         private GameObject[] effectPositions; // エフェクト発生位置配列
 
         // HPとBrave値の表示テキスト
-        [SerializeField] protected TextMeshProUGUI textHP; // private
-        [SerializeField] protected TextMeshProUGUI textBrave;
+        [SerializeField] private TextMeshProUGUI textHP;
+        [SerializeField] private TextMeshProUGUI textBrave;
+
+        [SerializeField] private TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
 
         /// ------private変数------- ///
         #endregion

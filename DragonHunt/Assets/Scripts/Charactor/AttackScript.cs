@@ -112,7 +112,7 @@ namespace Misaki
                 hitObj.Add(col.gameObject);
 
                 // 防御が成功していたら攻撃側のひるみが発生
-                if (col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir))
+                if (col.GetComponent<BaseCharactorScript>().IsGuard())
                 {
                     // 防御ひるみ関数を呼び出し
                     ownOwner.GuardReaction();
@@ -120,7 +120,7 @@ namespace Misaki
                 }
 
                 // 与えたブレイブを自身の所有者に渡す
-                ownOwner.HitBraveAttack(braveAttack);
+                ownOwner.HitBraveAttack(braveAttack, col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir));
             }
         }
         
