@@ -27,9 +27,6 @@ namespace Misaki
             else if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
             base.BraveAttack();
-
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_BAttack");
         }
 
         public override IEnumerator BraveHitReaction()
@@ -42,19 +39,6 @@ namespace Misaki
                 // ランダムに決めた小怯みアニメーションを再生
                 int rnd = UnityEngine.Random.Range(0, smallHitClip.Length);
                 SmallHitReaction(rnd);
-            }
-
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
-
-            // リジェネ中なら通常状態にしてリジェネを止める
-            if (braveState == BraveState.E_Regenerate) braveState = BraveState.E_Default;
-
-            // ブレイブが0以下になったらブレイク状態にする
-            if (parameter.brave <= 0)
-            {
-                parameter.brave = 0;
-                braveState = BraveState.E_Break;
             }
 
             yield return null;
@@ -74,8 +58,6 @@ namespace Misaki
             if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
             base.Dodge();
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_Dodge");
         }
 
         public override void Guard()
@@ -84,8 +66,6 @@ namespace Misaki
             if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
 
             base.Guard();
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_Guard");
         }
 
         public override void HPAttack()
@@ -94,29 +74,6 @@ namespace Misaki
             if (animState == AnimState.E_Attack) return;
 
             base.HPAttack();
-
-            // 対応アニメーションを再生
-            anim.SetTrigger("At_HAttack");
-        }
-
-        public override IEnumerator HPHitReaction()
-        {
-            StartCoroutine(base.HPHitReaction());
-
-            if (parameter.hp > 0)
-            {
-                // 怯みアニメーションを再生
-                anim.SetTrigger("At_LargeHit");
-            }
-            else
-            {
-                Dead();
-            }
-
-            // テキストを変更する
-            textHP.text = string.Format("{0:0}", parameter.hp);
-
-            yield return null;
         }
 
         public override void Move()
@@ -150,65 +107,12 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
-        public override void EndAnim()
-        {
-            base.EndAnim();
-        }
-
-        /// <summary>
-        /// 自分のブレイブ攻撃が当たった時の関数
-        /// </summary>
-        /// <param name="obtainBrave">取得したブレイブ</param>
-        public override void HitBraveAttack(float obtainBrave)
-        {
-            base.HitBraveAttack(obtainBrave);
-
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
-        }
-
-        /// <summary>
-        /// 自分のHP攻撃が当たった時の関数
-        /// </summary>
-        public override void HitHPAttack()
-        {
-            base.HitHPAttack();
-
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
-        }
-
-        /// <summary>
-        /// ブレイブを徐々に回復する関数
-        /// </summary>
-        public override void RegenerateBrave()
-        {
-            base.RegenerateBrave();
-
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
-        }
-
-        /// <summary>
-        /// ノックバック関数
-        /// </summary>
         public override void BiginKnockBack()
         {
             if (animState != AnimState.E_HitReaction) return;
             con.Move(-transform.forward * knockBackDistance * Time.deltaTime);
         }
 
-        /// <summary>
-        /// ノックバック終了関数
-        /// </summary>
-        public override void EndKnockBack()
-        {
-            knockBackDistance = 0; // ノックバック距離を0にする
-        }
-
-        /// <summary>
-        /// 防御を受けた際のリアクション関数
-        /// </summary>
         public override void GuardReaction()
         {
             base.GuardReaction();
@@ -256,19 +160,9 @@ namespace Misaki
                 startPos = transform.position; // 初期位置を取得
                 cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
-
-            // テキストを変更する
-            textHP.text = string.Format("{0:0}", parameter.hp);
-            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
-        /// -----protected関数------ ///
-        #endregion
-
-        #region private関数
-        /// ------private関数------- ///
-
-        private void Update()
+        protected override void Update()
         {
             // タイトル画面ならリターン
             if (GameManager.GetGameState == GameState.Title) return;
@@ -291,12 +185,14 @@ namespace Misaki
                 TrackingCamera();
             }
 
-            // ノックバック処理を行う
-            BiginKnockBack();
-
-            // リジェネ処理を行う
-            RegenerateBrave();
+            base.Update();
         }
+
+        /// -----protected関数------ ///
+        #endregion
+
+        #region private関数
+        /// ------private関数------- ///
 
         private void OnDestroy()
         {
@@ -449,10 +345,6 @@ namespace Misaki
         private Keyboard key; // Keyboard変数
 
         private PlayerInputs playerInputs; // InputSystemから生成したスクリプト
-
-        // HPとBrave値の表示テキスト
-        [SerializeField] private TextMeshProUGUI textHP;
-        [SerializeField] private TextMeshProUGUI textBrave;
 
         private Subject<Unit> onPlayerDead = new Subject<Unit>(); // 戦闘不能イベントのためのSubject
 

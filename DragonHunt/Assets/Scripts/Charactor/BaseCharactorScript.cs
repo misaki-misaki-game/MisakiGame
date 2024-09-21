@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace Misaki
@@ -73,6 +74,9 @@ namespace Misaki
             {
                 attackScripts[i].SetOwnOwner = this;
             }
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_BAttack");
         }
 
         /// <summary>
@@ -90,6 +94,19 @@ namespace Misaki
             yield return new WaitUntil(() => ishit);
             GenerateEffect(EffectName.braveDamageEffect);
             ishit = false;
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+
+            // リジェネ中なら通常状態にしてリジェネを止める
+            if (braveState == BraveState.E_Regenerate) braveState = BraveState.E_Default;
+
+            // ブレイブが0以下になったらブレイク状態にする
+            if (parameter.brave <= 0)
+            {
+                parameter.brave = 0;
+                braveState = BraveState.E_Break;
+            }
         }
 
         /// <summary>
@@ -110,6 +127,9 @@ namespace Misaki
         public virtual void Dodge()
         {
             animState = AnimState.E_Dodge;
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Dodge");
         }
 
         /// <summary>
@@ -119,6 +139,9 @@ namespace Misaki
         {
             animState = AnimState.E_Guard;
             damageState = DamageState.E_Guard;
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_Guard");
         }
 
         /// <summary>
@@ -134,12 +157,15 @@ namespace Misaki
             {
                 attackScripts[i].SetOwnOwner = this;
             }
+
+            // 対応アニメーションを再生
+            anim.SetTrigger("At_HAttack");
         }
 
         /// <summary>
         /// HP攻撃を受けた際のリアクション関数
         /// </summary>
-        public virtual IEnumerator HPHitReaction()
+        public IEnumerator HPHitReaction()
         {
             // アニメーション状態を被ダメージ中にする
             animState = AnimState.E_HitReaction;
@@ -151,6 +177,19 @@ namespace Misaki
             yield return new WaitUntil(() => ishit);
             GenerateEffect(EffectName.hpDamageEffect);
             ishit = false;
+
+            if (parameter.hp > 0)
+            {
+                // 怯みアニメーションを再生
+                anim.SetTrigger("At_LargeHit");
+            }
+            else
+            {
+                Dead();
+            }
+
+            // テキストを変更する
+            textHP.text = string.Format("{0:0}", parameter.hp);
         }
 
         /// <summary>
@@ -277,22 +316,28 @@ namespace Misaki
         /// 自分のブレイブ攻撃が当たった時の関数
         /// </summary>
         /// <param name="obtainBrave">取得したブレイブ</param>
-        public virtual void HitBraveAttack(float obtainBrave)
+        public void HitBraveAttack(float obtainBrave)
         {
             // ブレイブを加算する
             parameter.brave += obtainBrave;
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
         /// <summary>
         /// 自分のHP攻撃が当たった時の関数
         /// </summary>
-        public virtual void HitHPAttack()
+        public void HitHPAttack()
         {
             // ブレイブを0にする
             parameter.brave = 0;
 
             // ブレイブ状態をリジェネ状態にする
             braveState = BraveState.E_Regenerate;
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
         /// <summary>
@@ -313,6 +358,9 @@ namespace Misaki
                 parameter.brave = parameter.standardBrave;
                 braveState = BraveState.E_Default;
             }
+
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
         }
 
         /// <summary>
@@ -325,8 +373,9 @@ namespace Misaki
         /// <summary>
         /// ノックバック終了関数
         /// </summary>
-        public virtual void EndKnockBack()
+        public void EndKnockBack()
         {
+            knockBackDistance = 0; // ノックバック距離を0にする
         }
 
         /// <summary>
@@ -394,6 +443,19 @@ namespace Misaki
             Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
 
             attackScripts = new List<AttackScript>(attackScriptList[0].attackScriptGroup); // アタックスクリプトリストを初期化
+
+            // テキストを変更する
+            textHP.text = string.Format("{0:0}", parameter.hp);
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+        }
+
+        protected virtual void Update()
+        {
+            // ノックバック処理を行う
+            BiginKnockBack();
+
+            // リジェネ処理を行う
+            RegenerateBrave();
         }
 
         protected void OnTriggerEnter(Collider col)
@@ -558,6 +620,10 @@ namespace Misaki
 
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
+
+        // HPとBrave値の表示テキスト
+        [SerializeField] protected TextMeshProUGUI textHP; // private
+        [SerializeField] protected TextMeshProUGUI textBrave;
 
         /// ------private変数------- ///
         #endregion
