@@ -445,6 +445,11 @@ namespace Misaki
             else return false;
         }
 
+        public void SEPlay(SEList seClip)
+        {
+            SoundManager.SoundPlay(GetComponent<AudioSource>(), seClip);
+        }
+
         /// -------public関数------- ///
         #endregion
 

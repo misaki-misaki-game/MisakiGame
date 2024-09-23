@@ -23,7 +23,8 @@ namespace Misaki
 
             // ループするかを設定し、指定したオーディオソースでクリップを再生する
             bgmAudioSource.loop = isLoop;
-            bgmAudioSource.PlayOneShot(bgmClipArray[(int)bgmClip]);
+            bgmAudioSource.clip = bgmClipArray[(int)bgmClip];
+            bgmAudioSource.Play();
         }
 
         /// <summary>

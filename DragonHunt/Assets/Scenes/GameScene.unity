@@ -222,7 +222,7 @@ MonoBehaviour:
   poolDefaultCapacity: 0
   poolMaxSize: 0
   seClips:
-  - {fileID: 0}
+  - {fileID: 8300000, guid: 8a4a9294cfc3f8640b9c03259afd1609, type: 3}
   bgmClips:
   - {fileID: 8300000, guid: b96675a3c51343e49b5b5c8af16cdd03, type: 3}
   - {fileID: 8300000, guid: 65b3824d8a90fe24cb330bf73f3ac2dc, type: 3}
@@ -4667,6 +4667,8 @@ PlayableDirector:
     value: {fileID: 781147746}
   - key: {fileID: 5374141538687403543, guid: bfe0337c42eeb844d97b73455f2f472f, type: 2}
     value: {fileID: 7809508632551352278}
+  - key: {fileID: -1306991722892154128, guid: bfe0337c42eeb844d97b73455f2f472f, type: 2}
+    value: {fileID: 1396283097}
   m_ExposedReferences:
     m_References:
     - 3508aa0cdfbe7cb48a811fe232fc262c: {fileID: 906458166}
