@@ -49,6 +49,9 @@ namespace Misaki
             // ドラゴンの戦闘不能イベントを監視
             dragon.OnDragonDead.Subscribe(_ => { StartCoroutine(GameOverSequence(true)); })
                 .AddTo(this);  // サブスクライバーの自動解除
+
+            // タイトルのBGMを流す
+            SoundManager.SoundPlay(BGMList.E_TitleBGM, true);
         }
 
         private void OnDestroy()
@@ -88,6 +91,9 @@ namespace Misaki
             // プレイヤー追従カメラの優先度を上げて画面に表示する
             playerFollowCamera.Priority = 20;
 
+            // BGMを流す
+            SoundManager.SoundPlay(BGMList.E_OpeningBGM, true);
+
             // タイムライン終了時したらインゲームに遷移
             playableDirector.stopped += EndTimeline;
         }
@@ -99,10 +105,13 @@ namespace Misaki
         private void EndTimeline(PlayableDirector director)
         {
             // ゲームの状態をインゲームにする
-            gameState = GameState.InGame;
+            gameState = GameState.E_InGame;
 
             // インゲームUIを表示にする
             foreach(GameObject obj in inGameUI) obj.SetActive(true);
+
+            // BGMを流す
+            SoundManager.SoundPlay(BGMList.E_InGameBGM, true);
         }
 
 
@@ -110,11 +119,24 @@ namespace Misaki
         private IEnumerator GameOverSequence(bool isWon)
         {
             // 勝利または敗北UIを表示
-            if (isWon) winUI.gameObject.SetActive(true);
-            else loseUI.gameObject.SetActive(true);
+            if (isWon)
+            {
+                winUI.gameObject.SetActive(true);
+
+                // BGMを流す
+                SoundManager.SoundPlay(BGMList.E_VictoryBGM, true);
+            }
+            else
+            {
+                loseUI.gameObject.SetActive(true);
+
+                // BGMを流す
+                SoundManager.SoundPlay(BGMList.E_DefeatBGM, true);
+            }
 
             // アニメーションが完了するまで待つ
             yield return new WaitForSeconds(gameOverDelay);
+
 
             // 現在のシーンを再読み込み
             ReloadScene();
@@ -126,7 +148,7 @@ namespace Misaki
         private void ReloadScene()
         {
             // シーンをやり直す
-            gameState = GameState.Title;
+            gameState = GameState.E_Title;
             Scene currentScene = SceneManager.GetActiveScene();
             SceneManager.LoadScene(currentScene.name);
         }
@@ -177,7 +199,7 @@ namespace Misaki
 
         [SerializeField] private CinemachineVirtualCamera playerFollowCamera; // プレイヤーに追従するカメラ
 
-        private static GameState gameState = GameState.Title; // ゲームの状態変数 
+        private static GameState gameState = GameState.E_Title; // ゲームの状態変数 
 
         /// ------private変数------- ///
         #endregion

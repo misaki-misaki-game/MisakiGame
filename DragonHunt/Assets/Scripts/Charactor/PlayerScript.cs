@@ -164,9 +164,9 @@ namespace Misaki
         protected override void Update()
         {
             // タイトル画面ならリターン
-            if (GameManager.GetGameState == GameState.Title) return;
+            if (GameManager.GetGameState == GameState.E_Title) return;
             // インゲーム画面に遷移したらアクションマップを設定する
-            else if (GameManager.GetGameState == GameState.InGame && !isInGame)
+            else if (GameManager.GetGameState == GameState.E_InGame && !isInGame)
             {
                 playerInputs.Enable();
                 isInGame = true;

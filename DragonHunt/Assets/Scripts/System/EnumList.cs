@@ -54,8 +54,28 @@ public enum EffectName
 // ゲームの状態
 public enum GameState
 {
-    Title = 0,
-    InGame = 1
+    E_Title = 0,
+    E_InGame = 1
+}
+
+// BGMのリスト
+public enum BGMList
+{
+    E_TitleBGM = 0,
+    E_OpeningBGM = 1,
+    E_InGameBGM = 2,
+    E_VictoryBGM = 3,
+    E_DefeatBGM = 4
+}
+
+// SEのリスト
+public enum SEList
+{
+    E_SE = 0,
+    E_OpeningSE = 1,
+    E_InGameSE = 2,
+    E_VictorySE = 3,
+    E_DefeatSE = 4
 }
 
 /// -------public変数------- ///

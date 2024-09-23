@@ -127,7 +127,7 @@ namespace Misaki
         protected override void Update()
         {
             // タイトル画面ならリターン
-            if (GameManager.GetGameState == GameState.Title) return;
+            if (GameManager.GetGameState == GameState.E_Title) return;
 
             // 移動関数
             Move();
