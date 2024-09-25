@@ -52,6 +52,9 @@ namespace Misaki
 
             // タイトルのBGMを流す
             SoundManager.SoundPlay(BGMList.E_TitleBGM, true);
+
+            // メインカメラのトランスフォームを取得
+            mainCamera = playerFollowCamera.transform;
         }
 
         private void OnDestroy()
@@ -165,8 +168,6 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
-
-
         /// -------public変数------- ///
         #endregion
 
@@ -191,6 +192,8 @@ namespace Misaki
 
         private TitleInputs titleInputs; // InputSystemから生成したスクリプト
 
+        private static Transform mainCamera; // メインカメラのトランスフォーム
+
         [SerializeField] private PlayerScript player; // プレイヤー
 
         [SerializeField] private DragonScript dragon; // ドラゴン
@@ -210,6 +213,8 @@ namespace Misaki
         public static float GetBreakBonus { get { return breakBonus; } }
 
         public static GameState GetGameState {  get { return gameState; } }
+
+        public static Transform GetCameraTransform { get { return mainCamera; } }
 
         /// -------プロパティ------- ///
         #endregion

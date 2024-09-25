@@ -71,11 +71,15 @@ public enum BGMList
 // SEÇÃÉäÉXÉg
 public enum SEList
 {
-    E_SE = 0,
-    E_OpeningSE = 1,
-    E_InGameSE = 2,
-    E_VictorySE = 3,
-    E_DefeatSE = 4
+    E_FootstepsSE = 0,
+    E_SlashSE = 1,
+    E_GetHitSE = 2,
+    E_DragonBiteSE = 3,
+    E_DragonstepsSE = 4,
+    E_DragonFlameSE = 5,
+    E_DragonScreamSE = 6,
+    E_DragonWingSE = 7,
+    E_DragonGetHitVoiceSE = 8
 }
 
 /// -------publicïœêî------- ///

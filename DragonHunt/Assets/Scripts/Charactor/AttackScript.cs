@@ -108,7 +108,7 @@ namespace Misaki
                 // 所有者の向きを取得
                 Vector3 dir = -ownOwner.transform.forward;
           
-                // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
+                // ヒットオブジェクトリストに入れる
                 hitObj.Add(col.gameObject);
 
                 // 防御が成功していたら攻撃側のひるみが発生
@@ -119,8 +119,12 @@ namespace Misaki
                     return;
                 }
 
-                // 与えたブレイブを自身の所有者に渡す
+                // ブレイブダメージを与えて与えたブレイブを自身の所有者に渡す
                 ownOwner.HitBraveAttack(braveAttack, col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir));
+
+                // ヒットストップさせる
+                HitStopManager.hitStop.StartHitStop(ownOwner.GetAnimator, 0.1f);
+
             }
         }
         
@@ -143,6 +147,9 @@ namespace Misaki
                 // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
                 hitObj.Add(col.gameObject);
                 col.GetComponent<BaseCharactorScript>().ReceiveHPDamage(hpAttack, dir);
+
+                // ヒットストップさせる
+                HitStopManager.hitStop.StartHitStop(ownOwner.GetAnimator, 0.2f);
 
                 // 所有者のブレイブを0にしてリジェネを開始する
                 ownOwner.HitHPAttack();

@@ -30,8 +30,6 @@ namespace Misaki
 
         public override IEnumerator BraveHitReaction()
         {
-            StartCoroutine(base.BraveHitReaction());
-
             // 被ダメージ状態がスーパーアーマーでなければ
             if (damageState != DamageState.E_SuperArmor)
             {
@@ -39,6 +37,8 @@ namespace Misaki
                 int rnd = UnityEngine.Random.Range(0, smallHitClip.Length);
                 SmallHitReaction(rnd);
             }
+
+            StartCoroutine(base.BraveHitReaction());
 
             yield return null;
         }

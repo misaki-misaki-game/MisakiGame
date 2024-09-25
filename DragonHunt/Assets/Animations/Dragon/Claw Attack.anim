@@ -98613,6 +98613,13 @@ AnimationClip:
     floatParameter: 3
     intParameter: 0
     messageOptions: 0
+  - time: 0.43333334
+    functionName: SEPlay
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 7
+    messageOptions: 0
   - time: 0.6
     functionName: EndAttack
     data: 
@@ -98626,6 +98633,13 @@ AnimationClip:
     objectReferenceParameter: {fileID: 0}
     floatParameter: 3
     intParameter: 0
+    messageOptions: 0
+  - time: 0.8666667
+    functionName: SEPlay
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 7
     messageOptions: 0
   - time: 1.0666667
     functionName: EndAttack

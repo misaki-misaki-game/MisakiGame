@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Misaki
 {
+    // 自動的にコンポーネントを追加 AudioSourceを追加
+    [RequireComponent(typeof(AudioSource))]
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
     {
         /// --------関数一覧-------- ///
@@ -23,6 +25,9 @@ namespace Misaki
             // 無敵時間中または戦闘不能中ならfalseをリターン
             // 防御中ならtrueをリターン
             if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return false;
+
+            // 被攻撃SEを鳴らす
+            SoundManager.SoundPlay(GetComponent<AudioSource>(), SEList.E_GetHitSE);
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             if (damageState != DamageState.E_SuperArmor) transform.LookAt(transform.position + direction);
@@ -63,6 +68,9 @@ namespace Misaki
         {
             // 無敵時間中または戦闘不能中ならリターン
             if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return;
+
+            // 被攻撃SEを鳴らす
+            SoundManager.SoundPlay(GetComponent<AudioSource>(), SEList.E_GetHitSE);
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
             transform.LookAt(transform.position + direction);
@@ -113,6 +121,9 @@ namespace Misaki
             yield return new WaitUntil(() => ishit);
             GenerateEffect(EffectName.braveDamageEffect);
             ishit = false;
+
+            // ヒットストップさせる
+            HitStopManager.hitStop.StartHitStop(anim, 0.1f);
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -197,8 +208,12 @@ namespace Misaki
             }
             else
             {
+                // 戦闘不能にする
                 Dead();
             }
+
+            // ヒットストップさせる
+            HitStopManager.hitStop.StartHitStop(anim, 0.2f, true);
 
             // テキストを変更する
             textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
@@ -664,7 +679,7 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
 
-
+        public Animator GetAnimator { get { return anim; } }
 
         /// -------プロパティ------- ///
         #endregion
