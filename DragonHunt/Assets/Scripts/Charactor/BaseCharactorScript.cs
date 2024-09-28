@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Misaki
 {
-    // 自動的にコンポーネントを追加 AudioSourceを追加
+    // 自動的にコンポーネントを追加 AudioSource,TrailControllerを追加
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(TrailController))]
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
     {
         /// --------関数一覧-------- ///
@@ -34,6 +36,7 @@ namespace Misaki
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
+            if (parameter.brave <= 0) parameter.brave = 0;
 
             StartCoroutine(BraveHitReaction());
 
@@ -77,6 +80,7 @@ namespace Misaki
 
             // HPからdamageを引く
             parameter.hp = parameter.hp - brave;
+            FluctuationHPBar();
             StartCoroutine(HPHitReaction());
         }
 
@@ -209,6 +213,7 @@ namespace Misaki
             else
             {
                 // 戦闘不能にする
+                parameter.hp = 0;
                 Dead();
             }
 
@@ -373,7 +378,7 @@ namespace Misaki
         /// <summary>
         /// ブレイブを徐々に回復する関数
         /// </summary>
-        public virtual void RegenerateBrave()
+        public void RegenerateBrave()
         {
             // 通常状態の場合はリターン
             // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
@@ -545,6 +550,14 @@ namespace Misaki
             return effect.GetGameObject(EffectManager.effectGroups[num].effect, effectPos.transform.position, effectPos.transform.rotation, effectPos.transform); // プールマネージャーからエフェクトをとりだす
         }
 
+        /// <summary>
+        /// HPバーを増減する関数
+        /// </summary>
+        protected void FluctuationHPBar()
+        {
+            hpBar.fillAmount= parameter.hp / parameter.maxHp;
+        }
+
         /// -----protected関数------ ///
         #endregion
 
@@ -672,6 +685,8 @@ namespace Misaki
         [SerializeField] private TextMeshProUGUI textBrave;
 
         [SerializeField] private TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
+
+        [SerializeField] private Image hpBar; // HPバー
 
         /// ------private変数------- ///
         #endregion

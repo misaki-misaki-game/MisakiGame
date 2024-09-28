@@ -17,10 +17,8 @@ namespace Misaki
         /// <param name="isLoop">ループするかどうか</param>
         public static void SoundPlay(BGMList bgmClip, bool isLoop = false)
         {
-            Debug.Log(bgmAudioSource);
             // BGMが再生中の場合はBGMをストップする
             if(bgmAudioSource.isPlaying) bgmAudioSource.Stop();
-
             // ループするかを設定し、指定したオーディオソースでクリップを再生する
             bgmAudioSource.loop = isLoop;
             bgmAudioSource.clip = bgmClipArray[(int)bgmClip];
@@ -33,10 +31,9 @@ namespace Misaki
         /// <param name="audioSource">再生したオーディオソース</param>
         /// <param name="seClip">再生したオーディオクリップ</param>
         /// <param name="isLoop">ループするかどうか</param>
-        public static void SoundPlay(AudioSource audioSource, SEList seClip, bool isLoop = false)
+        public static void SoundPlay(AudioSource audioSource, SEList seClip)
         {
             // ループするかを設定し、指定したオーディオソースでクリップを再生する
-            audioSource.loop = isLoop;
             audioSource.PlayOneShot(seClipArray[(int)seClip]);
         }
 

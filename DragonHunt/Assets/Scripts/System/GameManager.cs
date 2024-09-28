@@ -127,14 +127,14 @@ namespace Misaki
                 winUI.gameObject.SetActive(true);
 
                 // BGMを流す
-                SoundManager.SoundPlay(BGMList.E_VictoryBGM, true);
+                SoundManager.SoundPlay(BGMList.E_VictoryBGM, false);
             }
             else
             {
                 loseUI.gameObject.SetActive(true);
 
                 // BGMを流す
-                SoundManager.SoundPlay(BGMList.E_DefeatBGM, true);
+                SoundManager.SoundPlay(BGMList.E_DefeatBGM, false);
             }
 
             // アニメーションが完了するまで待つ
