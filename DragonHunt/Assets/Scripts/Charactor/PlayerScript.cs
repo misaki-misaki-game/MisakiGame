@@ -185,6 +185,35 @@ namespace Misaki
             }
 
             base.Update();
+            PushOutCollider();
+        }
+
+        /// <summary>
+        /// エネミーにめり込まないようにプレイヤーを押し出す関数
+        /// </summary>
+        private void PushOutCollider()
+        {
+            // エネミーコライダー内でないならリターン
+            if (!inCollider) return;
+            CharacterController charaCon = GetComponent<CharacterController>();
+
+            // 自身に接触しているコライダーを取得
+            Collider[] colliders = Physics.OverlapSphere(transform.position, charaCon.radius);
+
+            // コライダーの位置を取得し、位置座標の逆方向にプレイヤーを押し出す
+            foreach (Collider collider in colliders)
+            {
+                if (collider.CompareTag("Enemy"))
+                {
+                    // 敵のコライダーの外に押し出す
+                    Vector3 direction = (transform.position - collider.transform.position).normalized;
+
+                    // 方向に向かって押し出す
+                    charaCon.Move(direction * positioning);
+
+                    break; // 一つ見つけたら処理を終了
+                }
+            }
         }
 
         /// -----protected関数------ ///
@@ -283,14 +312,19 @@ namespace Misaki
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            // エネミーが移動中にぶつかるとエネミーの上にのってしまうので
-            // 乗らないようにプレイヤーを後ろに下げる
             if (hit.collider.tag == "Enemy")
             {
-                // 衝突時にプレイヤーを敵から押し戻す
-                Vector3 pushBack = hit.normal * positioning;
-                CharacterController controller = GetComponent<CharacterController>();
-                controller.Move(pushBack);
+                // コライダーに乗り上げないように押し出す関数の許可を出す
+                inCollider = true;
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("Enemy"))
+            {
+                // 押し出す関数の許可を取り消す
+                inCollider = false;
             }
         }
 
@@ -322,11 +356,12 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private bool inCollider;
         private bool isInGame = false; // インゲーム中かどうか
         [SerializeField] private bool isEnemy = false;
 
         private float gravity = 10f; // 重力
-        [SerializeField] private float positioning = 0.2f;
+        [SerializeField] private float positioning = 0.1f;
 
         private Vector2 moveInputValue; // 入力した値
 

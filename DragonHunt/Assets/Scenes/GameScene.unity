@@ -3262,6 +3262,10 @@ PrefabInstance:
       propertyPath: m_CullingMode
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9500000, guid: 3fa7e78f8230bbc4aa653b2c7921db90, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 3fa7e78f8230bbc4aa653b2c7921db90, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -5768,7 +5772,7 @@ MonoBehaviour:
   textBreak: {fileID: 1087802031}
   hpBar: {fileID: 674142856}
   isEnemy: 0
-  positioning: 0.1
+  positioning: 0.15
   smallHitClip:
   - {fileID: 7400000, guid: a272263d067d2084b8ba101db069f15f, type: 2}
   - {fileID: 7400000, guid: 1a0461995b568284e9873e369ce86186, type: 2}

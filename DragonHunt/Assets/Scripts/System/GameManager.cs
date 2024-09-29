@@ -31,6 +31,12 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        protected override void Awake()
+        {
+            base.Awake();
+            Application.targetFrameRate = 60; // 60fpsに設定
+        }
+
         private void Start()
         {
             // Titleスクリプトのインスタンス生成
