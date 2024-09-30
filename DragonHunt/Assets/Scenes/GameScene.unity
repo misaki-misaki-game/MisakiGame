@@ -1402,6 +1402,107 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e4ab43c862152f499d9cd8d5a658026, type: 3}
+--- !u!1 &389129300
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 389129304}
+  - component: {fileID: 389129303}
+  - component: {fileID: 389129302}
+  - component: {fileID: 389129301}
+  m_Layer: 5
+  m_Name: DamageCanvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &389129301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389129300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &389129302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389129300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &389129303
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389129300}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &389129304
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389129300}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &394000093
 GameObject:
   m_ObjectHideFlags: 0
@@ -3989,6 +4090,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1396283099}
+    - targetCorrespondingSourceObject: {fileID: 100272, guid: 3fa7e78f8230bbc4aa653b2c7921db90,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1396283101}
   m_SourcePrefab: {fileID: 100100000, guid: 3fa7e78f8230bbc4aa653b2c7921db90, type: 3}
 --- !u!4 &732255918 stripped
 Transform:
@@ -7260,6 +7365,7 @@ MonoBehaviour:
   textBrave: {fileID: 1445615596}
   textBreak: {fileID: 1087802031}
   hpBar: {fileID: 674142856}
+  damageUI: {fileID: 1396283101}
   isEnemy: 0
   positioning: 0.15
   smallHitClip:
@@ -7419,6 +7525,29 @@ MonoBehaviour:
     - {fileID: 1568214927}
     - {fileID: 1557938380}
     - {fileID: 1071031527}
+--- !u!114 &1396283101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396283084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffb2006255e64b54fadf034a5943e19b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRadius: 100
+  viewHeightMax: 40
+  viewHeightMin: 0
+  target: {fileID: 1396283084}
+  canvas: {fileID: 389129300}
+  subCanvas: {fileID: 8585009173511462879, guid: 0c2c8aa5c793ade47977ff825a29c42a,
+    type: 3}
+  damageText: {fileID: 7311776906451147771, guid: 700473327908c7a478db587a20af5056,
+    type: 3}
+  criticalDamageText: {fileID: 7311776906451147771, guid: 3c6fe295015df1745b1b0a5f57cfde91,
+    type: 3}
 --- !u!1 &1411875608
 GameObject:
   m_ObjectHideFlags: 0
@@ -10106,6 +10235,7 @@ MonoBehaviour:
   textBrave: {fileID: 1475587279}
   textBreak: {fileID: 1657164635}
   hpBar: {fileID: 1136254059}
+  damageUI: {fileID: 7809508632551352281}
   isEnemy: 1
   target: {fileID: 1396283092}
   braveAttackClip:
@@ -10315,6 +10445,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trails: []
+--- !u!114 &7809508632551352281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7809508632541924258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffb2006255e64b54fadf034a5943e19b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRadius: 100
+  viewHeightMax: 30
+  viewHeightMin: 0
+  target: {fileID: 7809508632541924258}
+  canvas: {fileID: 389129300}
+  subCanvas: {fileID: 8585009173511462879, guid: 0c2c8aa5c793ade47977ff825a29c42a,
+    type: 3}
+  damageText: {fileID: 7311776906451147771, guid: c7bc7869d4ca592418fa2aec1f6c1e2a,
+    type: 3}
+  criticalDamageText: {fileID: 7311776906451147771, guid: c0a496c157a223044bced2f5edc8dbb1,
+    type: 3}
 --- !u!1001 &8226913475154798167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12110,6 +12263,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 7809508632551352280}
+    - targetCorrespondingSourceObject: {fileID: 6910561814561106914, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7809508632551352281}
   m_SourcePrefab: {fileID: 100100000, guid: 9f9e613086425be4b822f2ab8a124dca, type: 3}
 --- !u!114 &8325214661468252717
 MonoBehaviour:
@@ -12209,3 +12366,4 @@ SceneRoots:
   - {fileID: 1989880818}
   - {fileID: 5441932317976011433}
   - {fileID: 1227265980}
+  - {fileID: 389129304}

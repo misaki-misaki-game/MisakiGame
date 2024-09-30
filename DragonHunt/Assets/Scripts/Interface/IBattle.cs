@@ -14,8 +14,9 @@ namespace Misaki
         /// </summary>
         /// <param name="damage">ブレイブダメージ値</param>
         /// <param name="direction">攻撃された方向</param>
-        /// <returns>防御が成功しているかどうか</returns>
-        bool ReceiveBraveDamage(float damage, Vector3 direction);
+        /// <param name="isCritical">クリティカルかどうか</param>
+        /// <returns>ブレイク状態になったかどうか</returns>
+        bool ReceiveBraveDamage(float damage, Vector3 direction, bool isCritical);
 
         /// <summary>
         /// HP値へのダメージを受け取る関数

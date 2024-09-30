@@ -51,7 +51,6 @@ namespace Misaki
             // ボムリストの場所にエフェクトを生成
             foreach (GameObject pos in bombs)
             {
-                Debug.Log("ボムを生成");
                 GameObject bombEffect1 = GenerateEffect(EffectName.hpBomb1, pos);
                 StartCoroutine(BombTimer(pos, bombEffect1));
             }

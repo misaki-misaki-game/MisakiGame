@@ -98610,7 +98610,7 @@ AnimationClip:
     functionName: BeginBraveAttack
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 3
+    floatParameter: 2
     intParameter: 0
     messageOptions: 0
   - time: 0.43333334
@@ -98631,7 +98631,7 @@ AnimationClip:
     functionName: BeginBraveAttack
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 3
+    floatParameter: 2
     intParameter: 0
     messageOptions: 0
   - time: 0.8666667

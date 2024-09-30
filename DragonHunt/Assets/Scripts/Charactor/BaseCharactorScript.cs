@@ -9,6 +9,7 @@ namespace Misaki
     // 自動的にコンポーネントを追加 AudioSource,TrailControllerを追加
     [RequireComponent(typeof(AudioSource))]
     [RequireComponent(typeof(TrailController))]
+    [RequireComponent(typeof(DamageUIManager))]
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
     {
         /// --------関数一覧-------- ///
@@ -22,7 +23,7 @@ namespace Misaki
         /// <param name="damage">ブレイブダメージ値</param>
         /// <param name="direction">攻撃された方向</param>
         /// <returns>ブレイク状態になったかどうか</returns>
-        public bool ReceiveBraveDamage(float damage, Vector3 direction)
+        public bool ReceiveBraveDamage(float damage, Vector3 direction, bool isCritical)
         {
             // 無敵時間中または戦闘不能中ならfalseをリターン
             // 防御中ならtrueをリターン
@@ -37,6 +38,9 @@ namespace Misaki
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
             if (parameter.brave <= 0) parameter.brave = 0;
+
+            // ダメージを表示する
+            damageUI.PopDamageUI(damage, isCritical);
 
             StartCoroutine(BraveHitReaction());
 
@@ -240,12 +244,16 @@ namespace Misaki
         /// <param name="motionValue">攻撃モーション値</param>
         public void BeginBraveAttack(float motionValue)
         {
+            // クリティカルかどうかを判定
+            bool isCritical = IsCriticalHit();
+
             // 武器のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
             for (int i = 0; i < attackScripts.Count; i++)
             {
                 attackScripts[i].SetAttackState = AttackState.E_BraveAttack;
                 attackScripts[i].ClearHitObj();
-                attackScripts[i].SetBraveAttack = motionValue * parameter.attack;
+                attackScripts[i].SetBraveAttack = CalculateDamage(motionValue, isCritical);
+                attackScripts[i].SetCritical = isCritical;
             }
         }
 
@@ -259,10 +267,14 @@ namespace Misaki
         {
             bulletAttackScript = bullet; // アタックスクリプトを取得
 
+            // クリティカルかどうかを判定
+            bool isCritical = IsCriticalHit();
+
             // 弾のステートとブレイブ攻撃値を変更し、ヒットオブジェクトリストをリセットする
             bulletAttackScript.SetAttackState = AttackState.E_BraveAttack;
             bulletAttackScript.ClearHitObj();
-            bulletAttackScript.SetBraveAttack = motionValue * parameter.attack;
+            bulletAttackScript.SetBraveAttack = CalculateDamage(motionValue, isCritical);
+            bulletAttackScript.SetCritical = isCritical;
         }
 
         /// <summary>
@@ -564,7 +576,30 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        /// <summary>
+        /// クリティカルかどうかの判定関数
+        /// </summary>
+        /// <returns>クリティカルかどうか</returns>
+        private bool IsCriticalHit()
+        {
+            // 1/3でクリティカル
+            int random = Random.Range(0, 2);
+            if (random % 3 == 0) return true;
+            else return false;
+        }
 
+        /// <summary>
+        /// ブレイブダメージ計算関数
+        /// </summary>
+        /// <param name="motionValue">モーション値</param>
+        /// <param name="isCritical">クリティカルかどうか</param>
+        /// <returns></returns>
+        private float CalculateDamage(float motionValue, bool isCritical)
+        {
+            // モーション値*攻撃力*クリティカル倍率
+            if (isCritical) return motionValue * parameter.attack * criticalRate;
+            else return motionValue * parameter.attack;
+        }
 
         /// ------private関数------- ///
         #endregion
@@ -674,6 +709,8 @@ namespace Misaki
         [SerializeField] private float attack = 100;
         [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
 
+        private float criticalRate = 2f; // クリティカルダメージ倍率
+
         [SerializeField] private AnimState animState; // アニメーションの状態変数
 
         private Vector3 effectPos; // エフェクト表示位置
@@ -688,6 +725,8 @@ namespace Misaki
         [SerializeField] private TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
 
         [SerializeField] private Image hpBar; // HPバー
+
+        [SerializeField] private DamageUIManager damageUI;
 
         /// ------private変数------- ///
         #endregion

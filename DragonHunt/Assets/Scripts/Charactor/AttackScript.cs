@@ -103,8 +103,6 @@ namespace Misaki
             // エネミータグかつヒットオブジェクトリストに入っていなければ
             if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject) || col.CompareTag(Tags.Player.ToString()) && !ChackInHit(col.gameObject))
             {
-                Debug.Log("Brave攻撃が敵に当たった" + braveAttack);
-
                 // 所有者の向きを取得
                 Vector3 dir = -ownOwner.transform.forward;
           
@@ -120,11 +118,10 @@ namespace Misaki
                 }
 
                 // ブレイブダメージを与えて与えたブレイブを自身の所有者に渡す
-                ownOwner.HitBraveAttack(braveAttack, col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir));
+                ownOwner.HitBraveAttack(braveAttack, col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir, isCritical));
 
                 // ヒットストップさせる
                 HitStopManager.hitStop.StartHitStop(ownOwner.GetAnimator, 0.1f);
-
             }
         }
         
@@ -139,8 +136,6 @@ namespace Misaki
             // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
             if (col.CompareTag(Tags.Enemy.ToString()) && !ChackInHit(col.gameObject) || col.CompareTag(Tags.Player.ToString()) && !ChackInHit(col.gameObject))
             {
-                Debug.Log("HP攻撃が敵に当たった");
-
                 // 所有者の向きを取得
                 Vector3 dir = -ownOwner.transform.forward;
 
@@ -194,6 +189,8 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private bool isCritical; // クリティカルかどうか
+
         private float braveAttack = 0; // 攻撃値
         private float hpAttack = 0; // HP値
 
@@ -213,6 +210,9 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
     
+        // isCriticalのセッター関数
+        public bool SetCritical { set { isCritical = value; } }
+
         // braveAttackとhpAttackのセッター関数
         public float SetBraveAttack { set { braveAttack = value; } }
         public float SetHPAttack { set { hpAttack = value; } }
