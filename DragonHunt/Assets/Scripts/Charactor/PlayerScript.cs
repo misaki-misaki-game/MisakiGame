@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using System;
 using UniRx;
 
@@ -19,11 +20,11 @@ namespace Misaki
         {
             // ブレイブ攻撃中ならコンボを出す
             // 待機・移動中以外ならリターン
-            if (animState == AnimState.E_Attack)
+            if (AnimState == AnimState.E_Attack)
             {
                 anim.SetTrigger("At_BAttack");
             }
-            else if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            else if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.BraveAttack();
         }
@@ -54,7 +55,7 @@ namespace Misaki
         public override void Dodge()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.Dodge();
         }
@@ -62,7 +63,7 @@ namespace Misaki
         public override void Guard()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.Guard();
         }
@@ -70,7 +71,7 @@ namespace Misaki
         public override void HPAttack()
         {
             // HP攻撃中ならリターン
-            if (animState == AnimState.E_Attack) return;
+            if (AnimState == AnimState.E_Attack) return;
 
             base.HPAttack();
         }
@@ -78,7 +79,7 @@ namespace Misaki
         public override void Move()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.Move();
 
@@ -108,7 +109,7 @@ namespace Misaki
 
         public override void BiginKnockBack()
         {
-            if (animState != AnimState.E_HitReaction) return;
+            if (AnimState != AnimState.E_HitReaction) return;
             con.Move(-transform.forward * knockBackDistance * Time.deltaTime);
         }
 
@@ -310,6 +311,15 @@ namespace Misaki
             plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
         }
 
+        /// <summary>
+        /// 顔ウィンドウの表示を変える関数
+        /// </summary>
+        /// <param name="animState"></param>
+        private void ChangeFace(AnimState animState)
+        {
+            faceWindow.sprite = faceSprite[(int)animState];
+        }
+
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
             if (hit.collider.tag == "Enemy")
@@ -382,13 +392,26 @@ namespace Misaki
 
         private Subject<Unit> onPlayerDead = new Subject<Unit>(); // 戦闘不能イベントのためのSubject
 
+        [SerializeField] private Image faceWindow; // 顔表示ウィンドウ
+
+        [SerializeField, EnumIndex(typeof(AnimState))] private Sprite[] faceSprite; // 顔グラフィック
+
         /// ------private変数------- ///
         #endregion
 
         #region プロパティ
         /// -------プロパティ------- ///
 
-
+        protected override AnimState AnimState
+        {
+            get {return base.AnimState;} 
+            set
+            {
+                // 取得したアニメーション状態によって顔を変える
+                base.AnimState = value;
+                ChangeFace(AnimState);
+            }  
+        }
 
         /// -------プロパティ------- ///
         #endregion

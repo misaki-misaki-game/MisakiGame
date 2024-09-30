@@ -6,7 +6,7 @@ namespace Misaki
     /// MonoBehaviourに対応したシングルトンクラス
     /// （例）public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
-    public partial class SingletonMonoBehaviour<T> : DebugSetUp where T : MonoBehaviour
+    public partial class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     {
         /// --------関数一覧-------- ///
 
@@ -34,9 +34,8 @@ namespace Misaki
         #region protected関数
         /// -----protected関数------ ///
 
-        protected override void Awake()
+        protected virtual void Awake()
         {
-            base.Awake();
             // 他のGameObjectにアタッチされているか調べる
             if (this != Instance)
             {

@@ -26,7 +26,7 @@ namespace Misaki
         {
             // 無敵時間中または戦闘不能中ならfalseをリターン
             // 防御中ならtrueをリターン
-            if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return false;
+            if (damageState == DamageState.E_Invincible || AnimState == AnimState.E_Dead) return false;
 
             // 被攻撃SEを鳴らす
             SoundManager.SoundPlay(GetComponent<AudioSource>(), SEList.E_GetHitSE);
@@ -70,7 +70,7 @@ namespace Misaki
         public void ReceiveHPDamage(float brave, Vector3 direction)
         {
             // 無敵時間中または戦闘不能中ならリターン
-            if (damageState == DamageState.E_Invincible || animState == AnimState.E_Dead) return;
+            if (damageState == DamageState.E_Invincible || AnimState == AnimState.E_Dead) return;
 
             // 被攻撃SEを鳴らす
             SoundManager.SoundPlay(GetComponent<AudioSource>(), SEList.E_GetHitSE);
@@ -98,7 +98,7 @@ namespace Misaki
         public virtual void BraveAttack()
         {
             // アニメーション状態をブレイブ攻撃中にする
-            animState = AnimState.E_Attack;
+            AnimState = AnimState.E_Attack;
 
             // 攻撃の所有者を自分にする
             for (int i = 0; i < attackScripts.Count; i++)
@@ -116,7 +116,7 @@ namespace Misaki
         public virtual IEnumerator BraveHitReaction()
         {
             // スーパーアーマーでなければ、アニメーション状態を被ダメージ中にする
-            if (damageState != DamageState.E_SuperArmor) animState = AnimState.E_HitReaction;
+            if (damageState != DamageState.E_SuperArmor) AnimState = AnimState.E_HitReaction;
 
             // ノックバック距離を代入
             knockBackDistance = 1f;
@@ -142,7 +142,7 @@ namespace Misaki
         public virtual void Dead()
         {
             // アニメーション状態を戦闘不能にする
-            animState = AnimState.E_Dead;
+            AnimState = AnimState.E_Dead;
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_Dead");
@@ -153,7 +153,7 @@ namespace Misaki
         /// </summary>
         public virtual void Dodge()
         {
-            animState = AnimState.E_Dodge;
+            AnimState = AnimState.E_Dodge;
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_Dodge");
@@ -164,7 +164,7 @@ namespace Misaki
         /// </summary>
         public virtual void Guard()
         {
-            animState = AnimState.E_Guard;
+            AnimState = AnimState.E_Guard;
             damageState = DamageState.E_Guard;
 
             // 対応アニメーションを再生
@@ -177,7 +177,7 @@ namespace Misaki
         public virtual void HPAttack()
         {
             // アニメーション状態をHP攻撃中にする
-            animState = AnimState.E_Attack;
+            AnimState = AnimState.E_Attack;
 
             // 攻撃の所有者を自分にする
             for (int i = 0; i < attackScripts.Count; i++)
@@ -195,7 +195,7 @@ namespace Misaki
         public IEnumerator HPHitReaction()
         {
             // アニメーション状態を被ダメージ中にする
-            animState = AnimState.E_HitReaction;
+            AnimState = AnimState.E_HitReaction;
 
             // ノックバック距離を代入
             knockBackDistance = 3f;
@@ -230,7 +230,7 @@ namespace Misaki
         public virtual void Move()
         {
             // アニメーション状態を移動中にする
-            animState = AnimState.E_Move;
+            AnimState = AnimState.E_Move;
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Misaki
         /// </summary>
         public virtual void EndAnim()
         {
-            animState = AnimState.E_Idle; // 待機中に変更
+            AnimState = AnimState.E_Idle; // 待機中に変更
             anim.ResetTrigger("At_BAttack"); // ブレイブ攻撃の入力状況保持を消す
             anim.ResetTrigger("At_HAttack"); // HP攻撃の入力状況保持を消す
             anim.SetTrigger("At_Idle"); // 待機状態に移動する
@@ -452,7 +452,7 @@ namespace Misaki
         public virtual void GuardReaction()
         {
             // アニメーション状態を被ダメージ中にする
-            animState = AnimState.E_HitReaction;
+            AnimState = AnimState.E_HitReaction;
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace Misaki
         /// <returns></returns>
         public bool IsGuard()
         {
-            if(animState==AnimState.E_Guard) return true;
+            if(AnimState == AnimState.E_Guard) return true;
             else return false;
         }
 
@@ -489,7 +489,7 @@ namespace Misaki
 
             // コンポーネントを取得
             anim ??= GetComponent<Animator>();
-            animState = default; // アニメーション状態をなにもしていないに変更
+            AnimState = default; // アニメーション状態をなにもしていないに変更
 
             Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
 
@@ -563,6 +563,7 @@ namespace Misaki
 
         #region private関数
         /// ------private関数------- ///
+
 
 
         /// ------private関数------- ///
@@ -643,8 +644,6 @@ namespace Misaki
 
         protected float knockBackDistance; // ノックバック距離
 
-        [SerializeField] protected AnimState animState; // アニメーションの状態変数
-
         protected BraveState braveState; // ブレイブの状態変数
 
         protected DamageState damageState; // 被ダメージの状態
@@ -675,6 +674,8 @@ namespace Misaki
         [SerializeField] private float attack = 100;
         [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
 
+        [SerializeField] private AnimState animState; // アニメーションの状態変数
+
         private Vector3 effectPos; // エフェクト表示位置
 
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
@@ -695,6 +696,8 @@ namespace Misaki
         /// -------プロパティ------- ///
 
         public Animator GetAnimator { get { return anim; } }
+
+        protected virtual AnimState AnimState { get { return animState; } set { animState = value; } }
 
         /// -------プロパティ------- ///
         #endregion

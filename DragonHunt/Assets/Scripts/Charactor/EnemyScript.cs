@@ -19,7 +19,7 @@ namespace Misaki
         public override void BraveAttack()
         {
             // 待機・移動中以外ならリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.BraveAttack();
         }
@@ -27,7 +27,7 @@ namespace Misaki
         public override void Dodge()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.Dodge();
         }
@@ -35,7 +35,7 @@ namespace Misaki
         public override void Guard()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.Guard();
         }
@@ -43,7 +43,7 @@ namespace Misaki
         public override void HPAttack()
         {
             // HP攻撃中ならリターン
-            if (animState == AnimState.E_Attack) return;
+            if (AnimState == AnimState.E_Attack) return;
 
             base.HPAttack();
         }
@@ -51,10 +51,11 @@ namespace Misaki
         public override void Move()
         {
             // 待機・移動中以外はリターン
-            if (animState != AnimState.E_Idle && animState != AnimState.E_Move) return;
+            if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             // 自身とターゲットの距離を取得
             float distance = Vector3.Distance(transform.position, target.position);
+                agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
 
             // 距離が設定した停止距離より大きいなら
             if (distance > agent.stoppingDistance)
@@ -62,7 +63,6 @@ namespace Misaki
                 base.Move(); // 移動中に変更
 
                 // 行先を設定し、そこに移動
-                agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
                 agent.isStopped = false; // 移動開始
                 float speed = agent.velocity.magnitude; // 速度ベクトルの長さ(速度)を取得
                 anim.SetFloat("Af_Running", speed); // 移動のアニメーション開始
@@ -70,11 +70,17 @@ namespace Misaki
             // 距離が設定した停止距離以下なら
             else
             {
-                animState = AnimState.E_Idle; // 待機中に変更
+                AnimState = AnimState.E_Idle; // 待機中に変更
 
                 agent.velocity = Vector3.zero; // 速度ベクトルを0に変更
-                //agent.isStopped = true; // 移動停止
+                agent.isStopped = true; // 移動停止
                 anim.SetFloat("Af_Running", 0f); // 待機のアニメーション開始
+
+                // ターゲットの方向を向く（回転のみ）
+                Vector3 direction = (target.position - transform.position).normalized;
+                Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f); // スムーズに回転
+
             }
         }
 
@@ -86,7 +92,7 @@ namespace Misaki
 
         public override void BiginKnockBack()
         {
-            if (animState != AnimState.E_HitReaction) return;
+            if (AnimState != AnimState.E_HitReaction) return;
             rigid.AddForce(-transform.forward * knockBackDistance * Time.deltaTime);
         }
 
@@ -240,7 +246,7 @@ namespace Misaki
 
             // 待機時間が0以下になったらtrueを返す
             // まだの場合はfalseを返す
-            if (idleTime <= 0 && animState == AnimState.E_Idle) return true;
+            if (idleTime <= 0 && AnimState == AnimState.E_Idle) return true;
 
             return false;
         }
