@@ -37,7 +37,8 @@ public enum DamageState
     E_Default = 0, // 通常状態
     E_SuperArmor = 1, // スーパーアーマー状態
     E_Invincible = 2, // 無敵状態
-    E_Guard = 3 // 防御状態
+    E_Guard = 3, // 防御状態
+    E_Dodge = 4 // 回避状態
 }
 
 // エフェクトの名称

@@ -107,7 +107,7 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
-        public override void BiginKnockBack()
+        public override void BeginKnockBack()
         {
             if (AnimState != AnimState.E_HitReaction) return;
             con.Move(-transform.forward * knockBackDistance * Time.deltaTime);

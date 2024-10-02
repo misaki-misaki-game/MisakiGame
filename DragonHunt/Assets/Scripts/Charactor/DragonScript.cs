@@ -79,7 +79,7 @@ namespace Misaki
         {
             base.Start();
             InitializeBombPos();
-            BiginSuperArmor();
+            BeginSuperArmor();
         }
 
         /// -----protected関数------ ///
@@ -106,7 +106,7 @@ namespace Misaki
             // ボムを起爆するまで待ってからエフェクトを生成する
             yield return new WaitForSeconds(bombTime);
             EffectManager.effectGroups[(int)EffectName.hpBomb1].pool.ReleaseGameObject(bombEffect1);
-            BiginHPBullet(EffectName.hpBomb2, effectPos);
+            BeginHPBullet(EffectName.hpBomb2, effectPos);
         }
 
         /// ------private関数------- ///

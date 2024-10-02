@@ -79,7 +79,7 @@ namespace Misaki
         /// <summary>
         /// HP攻撃開始時の関数
         /// </summary>
-        void BiginHPAttack();
+        void BeginHPAttack();
 
         /// <summary>
         /// 攻撃終了時の関数
@@ -104,7 +104,7 @@ namespace Misaki
         /// <summary>
         /// ノックバック開始関数
         /// </summary>
-        void BiginKnockBack();
+        void BeginKnockBack();
 
         /// <summary>
         /// ノックバック終了関数
@@ -119,12 +119,22 @@ namespace Misaki
         /// <summary>
         /// 無敵時間開始関数
         /// </summary>
-        void BiginInvincible();
+        void BeginInvincible();
 
         /// <summary>
         /// スーパーアーマー開始関数
         /// </summary>
-        void BiginSuperArmor();
+        void BeginSuperArmor();
+
+        /// <summary>
+        /// 防御開始関数
+        /// </summary>
+        void BeginGuard();
+
+        /// <summary>
+        /// 回避開始関数
+        /// </summary>
+        void BeginDodge();
 
         /// <summary>
         /// 被ダメージの状態をリセットする関数

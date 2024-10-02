@@ -49,18 +49,35 @@ namespace Misaki
         /// <returns></returns>
         private IEnumerator HitStopCoroutine(Animator anim, float duration, bool isCameraShake = false)
         {
-            // ヒットストップの開始
-            anim.speed = 0.05f;
+            // ヒットストップ中なら処理を中断する
+            if(isHitStop) yield break;
+            isHitStop = true;
+
+            // アニメーターのスピードを保持する
+            float animSpeed = anim.speed;
+
+            // チャンスタイムではない場合
+            if (!GameManager.GetIsChanceTime)
+            {
+                // ヒットストップの開始
+                anim.speed = 0.04f;
+            }
 
             // キャラクター及びカメラを揺らす
             StartCoroutine(ShakeCoroutine(anim.transform, duration, 0.1f));
             if (isCameraShake) StartCoroutine(ShakeCameraCoroutine(2f, 6, duration));
 
-            // 指定した時間だけ停止
-            yield return new WaitForSecondsRealtime(duration);
+            // チャンスタイムではない場合
+            if (!GameManager.GetIsChanceTime)
+            {
+                // 指定した時間だけ停止
+                yield return new WaitForSecondsRealtime(duration);
 
-            // ヒットストップの終了
-            anim.speed = 1f;
+                // ヒットストップの終了
+                anim.speed = animSpeed;
+            }
+
+            isHitStop = false;
         }
 
         /// <summary>
@@ -188,7 +205,7 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-
+        private bool isHitStop = false; // ヒットストップしているかどうか
 
         /// ------private変数------- ///
         #endregion

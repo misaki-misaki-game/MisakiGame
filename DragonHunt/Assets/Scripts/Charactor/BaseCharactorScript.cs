@@ -26,7 +26,6 @@ namespace Misaki
         public bool ReceiveBraveDamage(float damage, Vector3 direction, bool isCritical)
         {
             // 無敵時間中または戦闘不能中ならfalseをリターン
-            // 防御中ならtrueをリターン
             if (damageState == DamageState.E_Invincible || AnimState == AnimState.E_Dead) return false;
 
             // 被攻撃SEを鳴らす
@@ -148,7 +147,9 @@ namespace Misaki
             // アニメーション状態を戦闘不能にする
             AnimState = AnimState.E_Dead;
 
+            // アニメーターのスピードを少しゆっくりして
             // 対応アニメーションを再生
+            anim.speed = 0.9f;
             anim.SetTrigger("At_Dead");
         }
 
@@ -169,7 +170,6 @@ namespace Misaki
         public virtual void Guard()
         {
             AnimState = AnimState.E_Guard;
-            damageState = DamageState.E_Guard;
 
             // 対応アニメーションを再生
             anim.SetTrigger("At_Guard");
@@ -281,7 +281,7 @@ namespace Misaki
         /// HP攻撃開始時の関数
         /// 自身の武器で攻撃する場合
         /// </summary>
-        public void BiginHPAttack()
+        public void BeginHPAttack()
         {
             // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
             for (int i = 0; i < attackScripts.Count; i++)
@@ -297,7 +297,7 @@ namespace Misaki
         /// 遠距離で攻撃する場合
         /// </summary>
         /// <param name="effectName">エフェクト名</param>
-        public void BiginHPBullet(EffectName effectName)
+        public void BeginHPBullet(EffectName effectName)
         {
             // エフェクトを生成し、そのアタックスクリプトを取得
             effectPos = new Vector3(transform.position.x, adjustEffectYPos, transform.position.z);
@@ -318,7 +318,7 @@ namespace Misaki
         /// </summary>
         /// <param name="effectName">エフェクト名</param>
         /// <param name="effectPos">エフェクト生成場所</param>
-        public void BiginHPBullet(EffectName effectName, GameObject effectPos)
+        public void BeginHPBullet(EffectName effectName, GameObject effectPos)
         {
             // エフェクトを生成し、そのアタックスクリプトを取得
             GameObject obj = GenerateEffect(effectName, effectPos);
@@ -414,7 +414,7 @@ namespace Misaki
         /// <summary>
         /// ノックバック開始関数
         /// </summary>
-        public virtual void BiginKnockBack()
+        public virtual void BeginKnockBack()
         {
         }
 
@@ -437,7 +437,7 @@ namespace Misaki
         /// <summary>
         /// 無敵時間開始関数
         /// </summary>
-        public void BiginInvincible()
+        public void BeginInvincible()
         {
             damageState = DamageState.E_Invincible;
         }
@@ -445,9 +445,25 @@ namespace Misaki
         /// <summary>
         /// スーパーアーマー開始関数
         /// </summary>
-        public void BiginSuperArmor()
+        public void BeginSuperArmor()
         {
             damageState = DamageState.E_SuperArmor;
+        }
+
+        /// <summary>
+        /// 防御開始関数
+        /// </summary>
+        public void BeginGuard()
+        {
+            damageState = DamageState.E_Guard;
+        }
+
+        /// <summary>
+        /// 回避開始関数
+        /// </summary>
+        public void BeginDodge()
+        {
+            damageState = DamageState.E_Dodge;
         }
 
         /// <summary>
@@ -473,10 +489,24 @@ namespace Misaki
         /// <returns></returns>
         public bool IsGuard()
         {
-            if(AnimState == AnimState.E_Guard) return true;
+            if(damageState == DamageState.E_Guard) return true;
             else return false;
         }
 
+        /// <summary>
+        /// 回避しているかどうかを返す関数
+        /// </summary>
+        /// <returns></returns>
+        public bool IsDodge()
+        {
+            if (damageState == DamageState.E_Dodge) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// SEを鳴らす関数
+        /// </summary>
+        /// <param name="seClip">SE</param>
         public void SEPlay(SEList seClip)
         {
             SoundManager.SoundPlay(GetComponent<AudioSource>(), seClip);
@@ -515,7 +545,7 @@ namespace Misaki
         protected virtual void Update()
         {
             // ノックバック処理を行う
-            BiginKnockBack();
+            BeginKnockBack();
 
             // リジェネ処理を行う
             RegenerateBrave();
@@ -583,9 +613,7 @@ namespace Misaki
         private bool IsCriticalHit()
         {
             // 1/3でクリティカル
-            int random = Random.Range(0, 2);
-            if (random % 3 == 0) return true;
-            else return false;
+            return Random.Range(0, criticalRate) == 0;
         }
 
         /// <summary>
@@ -597,7 +625,7 @@ namespace Misaki
         private float CalculateDamage(float motionValue, bool isCritical)
         {
             // モーション値*攻撃力*クリティカル倍率
-            if (isCritical) return motionValue * parameter.attack * criticalRate;
+            if (isCritical) return motionValue * parameter.attack * criticalDamageRate;
             else return motionValue * parameter.attack;
         }
 
@@ -700,6 +728,8 @@ namespace Misaki
 
         private bool ishit = false; // ヒットしたかどうか
 
+        private int criticalRate = 3; // クリティカル発生率
+
         // 初期パラメータ
         [SerializeField] private float hp = 1000;
         [SerializeField] private float brave = 100;
@@ -709,7 +739,7 @@ namespace Misaki
         [SerializeField] private float attack = 100;
         [SerializeField] private float adjustEffectYPos = 0.5f; // エフェクトのY軸補正値
 
-        private float criticalRate = 2f; // クリティカルダメージ倍率
+        private float criticalDamageRate = 2f; // クリティカルダメージ倍率
 
         [SerializeField] private AnimState animState; // アニメーションの状態変数
 
@@ -733,6 +763,8 @@ namespace Misaki
 
         #region プロパティ
         /// -------プロパティ------- ///
+
+        public int CriticalRate { get { return criticalRate; } set { criticalRate = value; } }
 
         public Animator GetAnimator { get { return anim; } }
 

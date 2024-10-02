@@ -90,7 +90,7 @@ namespace Misaki
             GetAttackPattern();
         }
 
-        public override void BiginKnockBack()
+        public override void BeginKnockBack()
         {
             if (AnimState != AnimState.E_HitReaction) return;
             rigid.AddForce(-transform.forward * knockBackDistance * Time.deltaTime);

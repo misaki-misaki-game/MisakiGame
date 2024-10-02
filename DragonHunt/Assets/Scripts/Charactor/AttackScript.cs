@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Misaki
@@ -32,6 +34,27 @@ namespace Misaki
 
         #region private関数
         /// ------private関数------- ///
+
+        private void Start()
+        {
+            // AttackScriptが生成されたことを通知
+            MessageBroker.Default.Publish(new AttackScriptCreatedMessage(this));
+        }
+
+        private void OnDestroy()
+        {
+            // AttackScriptが破棄されたことを通知
+            MessageBroker.Default.Publish(new AttackScriptDestroyedMessage(this));
+        }
+
+        /// <summary>
+        /// 回避成功時のイベント発火関数
+        /// </summary>
+        private void TriggerDodgeSuccess()
+        {
+            // 回避成功イベントを発火
+            MessageBroker.Default.Publish(new DodgeSuccessMessage());
+        }
 
         /// <summary>
         /// コライダーを用いた当たり判定関数
@@ -109,6 +132,13 @@ namespace Misaki
                 // ヒットオブジェクトリストに入れる
                 hitObj.Add(col.gameObject);
 
+                // 回避が成功していたら回避成功イベントを発火させる
+                if(col.GetComponent<BaseCharactorScript>().IsDodge())
+                {
+                    TriggerDodgeSuccess();
+                    return;
+                }
+
                 // 防御が成功していたら攻撃側のひるみが発生
                 if (col.GetComponent<BaseCharactorScript>().IsGuard())
                 {
@@ -139,8 +169,17 @@ namespace Misaki
                 // 所有者の向きを取得
                 Vector3 dir = -ownOwner.transform.forward;
 
-                // ヒットオブジェクトリストに入れて被ダメリアクションを取るように指示する
+                // ヒットオブジェクトリストに入れる
                 hitObj.Add(col.gameObject);
+
+                // 回避が成功していたら回避成功イベントを発火させる
+                if (col.GetComponent<BaseCharactorScript>().IsDodge())
+                {
+                    TriggerDodgeSuccess();
+                    return;
+                }
+
+                // 被ダメリアクションを取るように指示する
                 col.GetComponent<BaseCharactorScript>().ReceiveHPDamage(hpAttack, dir);
 
                 // ヒットストップさせる
@@ -173,7 +212,28 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
+        // アタックスクリプトが生成された際のイベントメッセージ
+        public class AttackScriptCreatedMessage
+        {
+            public AttackScript Script { get; }
+            public AttackScriptCreatedMessage(AttackScript script)
+            {
+                Script = script;
+            }
+        }
 
+        // アタックスクリプトが削除された際のイベントメッセージ
+        public class AttackScriptDestroyedMessage
+        {
+            public AttackScript Script { get; }
+            public AttackScriptDestroyedMessage(AttackScript script)
+            {
+                Script = script;
+            }
+        }
+
+        // 回避が成功した際のイベントメッセージ
+        public class DodgeSuccessMessage { }
 
         /// -------public変数------- ///
         #endregion
@@ -209,7 +269,7 @@ namespace Misaki
 
         #region プロパティ
         /// -------プロパティ------- ///
-    
+
         // isCriticalのセッター関数
         public bool SetCritical { set { isCritical = value; } }
 
