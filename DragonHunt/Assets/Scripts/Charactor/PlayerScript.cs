@@ -366,12 +366,12 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        private bool inCollider;
+        private bool inCollider; // コライダー内かどうか
         private bool isInGame = false; // インゲーム中かどうか
-        [SerializeField] private bool isEnemy = false;
+        [SerializeField] private bool isEnemy = false; // エネミーかどうか　テスト用
 
         private float gravity = 10f; // 重力
-        [SerializeField] private float positioning = 0.1f;
+        [SerializeField] private float positioning = 0.1f; // 位置調整
 
         private Vector2 moveInputValue; // 入力した値
 
@@ -383,6 +383,7 @@ namespace Misaki
         [SerializeField] private AnimationClip[] smallHitClip = new AnimationClip[3];
 
         [SerializeField] private GameObject plCamera; // PLのカメラ
+        [SerializeField] private GameObject aura; // オーラエフェクト
 
         private CharacterController con; // CharacterController変数
 
@@ -401,6 +402,8 @@ namespace Misaki
 
         #region プロパティ
         /// -------プロパティ------- ///
+
+        public GameObject GetAura {  get { return aura; } }
 
         protected override AnimState AnimState
         {

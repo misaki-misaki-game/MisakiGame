@@ -6246,6 +6246,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 4079405847603497577}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1094073347 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1936488993998635378, guid: 88b14fae91f3b5345abdc3e7a5f29793,
+    type: 3}
+  m_PrefabInstance: {fileID: 62221124}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1136254057
 GameObject:
   m_ObjectHideFlags: 0
@@ -7473,6 +7479,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 1a0461995b568284e9873e369ce86186, type: 2}
   - {fileID: 7400000, guid: 8259dbcd4101ae447b3fb736cc407ebd, type: 2}
   plCamera: {fileID: 1575927840}
+  aura: {fileID: 1094073347}
   faceWindow: {fileID: 1363986511}
   faceSprite:
   - {fileID: 21300000, guid: 445e27274b15c5b45b9b3368017e98f5, type: 3}

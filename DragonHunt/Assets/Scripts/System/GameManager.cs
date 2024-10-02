@@ -227,11 +227,10 @@ namespace Misaki
             int currentCriticalRate = player.CriticalRate;
             player.CriticalRate = 0;
 
+            // ビネットを保持して演出を変更する
             bool currentRounded = false;
             float currentIntensity = 0;
             float currentSmoothness = 0;
-
-            // ビネットを保持して演出を変更する
             if (volume.profile.TryGet(out vignette))
             {
                 currentRounded = vignette.rounded.value;
@@ -241,6 +240,9 @@ namespace Misaki
                 vignette.intensity.value = 1f;
                 vignette.smoothness.value = 1f;
             }
+
+            // オーラを出す
+            player.GetAura.SetActive(true);
 
             // 5秒間待つ
             yield return new WaitForSeconds(chanceTime);
@@ -255,6 +257,10 @@ namespace Misaki
                 vignette.intensity.value = currentIntensity;
                 vignette.smoothness.value = currentSmoothness;
             }
+
+            // オーラを消す
+            player.GetAura.SetActive(false);
+
             isChanceTime = false;
         }
 

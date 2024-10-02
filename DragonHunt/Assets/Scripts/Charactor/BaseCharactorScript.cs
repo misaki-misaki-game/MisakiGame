@@ -52,8 +52,8 @@ namespace Misaki
         /// <returns>ブレイク状態であればtrue</returns>
         private bool IsBreak()
         {
-            // 既にリジェネまたはブレイク状態ならfalseを返す
-            if (braveState != BraveState.E_Default) return false;
+            // 既にブレイク状態ならfalseを返す
+            if (braveState == BraveState.E_Break) return false;
 
             // ブレイブが0以下になったらブレイク状態にする
             if (parameter.brave <= 0)
