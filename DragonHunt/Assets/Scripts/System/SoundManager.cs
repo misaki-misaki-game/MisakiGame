@@ -30,7 +30,6 @@ namespace Misaki
         /// </summary>
         /// <param name="audioSource">再生したオーディオソース</param>
         /// <param name="seClip">再生したオーディオクリップ</param>
-        /// <param name="isLoop">ループするかどうか</param>
         public static void SoundPlay(AudioSource audioSource, SEList seClip)
         {
             // ループするかを設定し、指定したオーディオソースでクリップを再生する
@@ -121,7 +120,7 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
 
-
+        public static AudioSource GetMainAudioSource { get { return bgmAudioSource; } }
 
         /// -------プロパティ------- ///
         #endregion

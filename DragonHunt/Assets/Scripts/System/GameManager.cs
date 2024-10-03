@@ -219,6 +219,8 @@ namespace Misaki
             if (isChanceTime) yield break;
             isChanceTime = true;
 
+            SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_BeginChanceTime);
+
             // アニメーションスピードを変更
             dragon.GetAnimator.speed = 0.1f;
             player.GetAnimator.speed = 2f;
@@ -246,6 +248,8 @@ namespace Misaki
 
             // 5秒間待つ
             yield return new WaitForSeconds(chanceTime);
+
+            SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_EndChanceTime);
 
             // アニメーションスピードとクリティカル発生率,ビネットを元に戻す
             dragon.GetAnimator.speed = 1f;

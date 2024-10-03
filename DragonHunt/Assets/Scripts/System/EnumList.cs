@@ -80,7 +80,9 @@ public enum SEList
     E_DragonFlameSE = 5,
     E_DragonScreamSE = 6,
     E_DragonWingSE = 7,
-    E_DragonGetHitVoiceSE = 8
+    E_DragonGetHitVoiceSE = 8,
+    E_BeginChanceTime = 9,
+    E_EndChanceTime = 10
 }
 
 /// -------publicïœêî------- ///
