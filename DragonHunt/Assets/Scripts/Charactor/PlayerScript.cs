@@ -308,7 +308,7 @@ namespace Misaki
         /// </summary>
         private void TrackingCamera()
         {
-            plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
+            //plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
         }
 
         /// <summary>

@@ -51,13 +51,22 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "New action",
+                    "name": "LockOn",
                     "type": "Button",
                     "id": "f97e1657-cdb6-43ed-b786-af923fb502a4",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Lock",
+                    "type": "Value",
+                    "id": "b5d9ccae-2611-4062-8c14-d48427e16e28",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -174,11 +183,22 @@
                 {
                     "name": "",
                     "id": "7a9a81cb-d17b-4c38-b132-5a640b39fb6a",
-                    "path": "",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "LockOn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "55a41787-5f26-4963-a276-ff7e7b0f5a3c",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "ScaleVector2(x=0.2,y=0.2)",
+                    "groups": "",
+                    "action": "Lock",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

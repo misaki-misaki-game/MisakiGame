@@ -73,13 +73,22 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""New action"",
+                    ""name"": ""LockOn"",
                     ""type"": ""Button"",
                     ""id"": ""f97e1657-cdb6-43ed-b786-af923fb502a4"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Lock"",
+                    ""type"": ""Value"",
+                    ""id"": ""b5d9ccae-2611-4062-8c14-d48427e16e28"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -196,11 +205,22 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""7a9a81cb-d17b-4c38-b132-5a640b39fb6a"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/shift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""LockOn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""55a41787-5f26-4963-a276-ff7e7b0f5a3c"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": ""ScaleVector2(x=0.2,y=0.2)"",
+                    ""groups"": """",
+                    ""action"": ""Lock"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -216,7 +236,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_Player_HAttack = m_Player.FindAction("HAttack", throwIfNotFound: true);
         m_Player_Guard = m_Player.FindAction("Guard", throwIfNotFound: true);
         m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
-        m_Player_Newaction = m_Player.FindAction("New action", throwIfNotFound: true);
+        m_Player_LockOn = m_Player.FindAction("LockOn", throwIfNotFound: true);
+        m_Player_Lock = m_Player.FindAction("Lock", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -283,7 +304,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_HAttack;
     private readonly InputAction m_Player_Guard;
     private readonly InputAction m_Player_Dodge;
-    private readonly InputAction m_Player_Newaction;
+    private readonly InputAction m_Player_LockOn;
+    private readonly InputAction m_Player_Lock;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -293,7 +315,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @HAttack => m_Wrapper.m_Player_HAttack;
         public InputAction @Guard => m_Wrapper.m_Player_Guard;
         public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
-        public InputAction @Newaction => m_Wrapper.m_Player_Newaction;
+        public InputAction @LockOn => m_Wrapper.m_Player_LockOn;
+        public InputAction @Lock => m_Wrapper.m_Player_Lock;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -318,9 +341,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Dodge.started += instance.OnDodge;
             @Dodge.performed += instance.OnDodge;
             @Dodge.canceled += instance.OnDodge;
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
+            @LockOn.started += instance.OnLockOn;
+            @LockOn.performed += instance.OnLockOn;
+            @LockOn.canceled += instance.OnLockOn;
+            @Lock.started += instance.OnLock;
+            @Lock.performed += instance.OnLock;
+            @Lock.canceled += instance.OnLock;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -340,9 +366,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Dodge.started -= instance.OnDodge;
             @Dodge.performed -= instance.OnDodge;
             @Dodge.canceled -= instance.OnDodge;
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
+            @LockOn.started -= instance.OnLockOn;
+            @LockOn.performed -= instance.OnLockOn;
+            @LockOn.canceled -= instance.OnLockOn;
+            @Lock.started -= instance.OnLock;
+            @Lock.performed -= instance.OnLock;
+            @Lock.canceled -= instance.OnLock;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -367,6 +396,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnHAttack(InputAction.CallbackContext context);
         void OnGuard(InputAction.CallbackContext context);
         void OnDodge(InputAction.CallbackContext context);
-        void OnNewaction(InputAction.CallbackContext context);
+        void OnLockOn(InputAction.CallbackContext context);
+        void OnLock(InputAction.CallbackContext context);
     }
 }
