@@ -156,10 +156,14 @@ namespace Misaki
                 playerInputs.Player.HAttack.started += OnHAttack;
                 playerInputs.Player.Guard.started += OnGuard;
                 playerInputs.Player.Dodge.started += OnDodge;
+                playerInputs.Player.Lockon.started += OnLockon;
+                //playerInputs.Player.Look.started +=;
 
                 startPos = transform.position; // 初期位置を取得
                 cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
             }
+
+            InitializeHPUI(); // HPに数値を反映
         }
 
         protected override void Update()
@@ -289,6 +293,26 @@ namespace Misaki
         }
 
         /// <summary>
+        /// ロックオンのコールバック登録関数
+        /// </summary>
+        private void OnLockon(InputAction.CallbackContext context)
+        {
+            camerawork.Lockon();
+        }
+
+        /// <summary>
+        /// 視点移動・ロックターゲット切り替えのコールバック登録関数
+        /// </summary>
+        private void OnLook(InputAction.CallbackContext context)
+        {
+            // lookアクションの入力取得
+            lookInputValue = context.ReadValue<Vector2>();
+
+            // ロックの切り替え
+            camerawork.ChangeTarget(lookInputValue.x);
+        }
+
+        /// <summary>
         /// キーボードの接続チェック関数
         /// </summary>
         private void CheckKeyBoard()
@@ -373,7 +397,8 @@ namespace Misaki
         private float gravity = 10f; // 重力
         [SerializeField] private float positioning = 0.1f; // 位置調整
 
-        private Vector2 moveInputValue; // 入力した値
+        private Vector2 moveInputValue; // 移動入力した値
+        private Vector2 lookInputValue; // 視点入力した値
 
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
@@ -396,6 +421,8 @@ namespace Misaki
         [SerializeField] private Image faceWindow; // 顔表示ウィンドウ
 
         [SerializeField, EnumIndex(typeof(AnimState))] private Sprite[] faceSprite; // 顔グラフィック
+
+        [SerializeField] private Camerawork camerawork; // カメラワーク
 
         /// ------private変数------- ///
         #endregion

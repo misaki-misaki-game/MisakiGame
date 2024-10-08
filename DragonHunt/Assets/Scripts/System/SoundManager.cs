@@ -97,9 +97,6 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        [SerializeField] private int poolDefaultCapacity; // オブジェクトプールのデフォルト容量
-        [SerializeField] private int poolMaxSize; // オブジェクトプールの最大容量
-
         private static AudioClip[] seClipArray; // SE配列
         private static AudioClip[] bgmClipArray; // BGM配列
         [Header("SEを入れてください"), SerializeField, EnumIndex(typeof(SEList))]

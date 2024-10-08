@@ -85,6 +85,13 @@ public enum SEList
     E_EndChanceTime = 10
 }
 
+// プールするオブジェクトタイプ
+public enum PoolType
+{
+    E_Effect = 0,
+    E_DamageText = 1
+}
+
 /// -------public変数------- ///
 #endregion
 

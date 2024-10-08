@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Misaki
 {
-    // 自動的にコンポーネントを追加 AudioSource,TrailControllerを追加
+    // 自動的にコンポーネントを追加 AudioSource,TrailController,DamageUIManagerを追加
     [RequireComponent(typeof(AudioSource))]
     [RequireComponent(typeof(TrailController))]
     [RequireComponent(typeof(DamageUIManager))]
@@ -39,7 +39,7 @@ namespace Misaki
             if (parameter.brave <= 0) parameter.brave = 0;
 
             // ダメージを表示する
-            damageUI.PopDamageUI(damage, isCritical);
+            StartCoroutine(damageUI.PopDamageUI(damage, isCritical));
 
             StartCoroutine(BraveHitReaction());
 
@@ -537,6 +537,10 @@ namespace Misaki
 
             attackScripts = new List<AttackScript>(attackScriptList[0].attackScriptGroup); // アタックスクリプトリストを初期化
 
+        }
+
+        protected void InitializeHPUI()
+        {
             // テキストを変更する
             textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -577,7 +581,8 @@ namespace Misaki
         {
             int num = (int)effectName; // エフェクト名をint型に変更
             PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
-            return effect.GetGameObject(EffectManager.effectGroups[num].effect, effectPositions[num].transform.position, effectPositions[num].transform.rotation, effectPositions[num].transform); // プールマネージャーからエフェクトをとりだす
+            return effect.GetGameObject(EffectManager.effectGroups[num].effect, PoolType.E_Effect, effectPositions[num].transform.position, 
+                effectPositions[num].transform.rotation, effectPositions[num].transform); // プールマネージャーからエフェクトをとりだす
         }
 
         /// <summary>
@@ -589,7 +594,8 @@ namespace Misaki
         {
             int num = (int)effectName; // エフェクト名をint型に変更
             PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
-            return effect.GetGameObject(EffectManager.effectGroups[num].effect, effectPos.transform.position, effectPos.transform.rotation, effectPos.transform); // プールマネージャーからエフェクトをとりだす
+            return effect.GetGameObject(EffectManager.effectGroups[num].effect, PoolType.E_Effect, effectPos.transform.position, 
+                effectPos.transform.rotation, effectPos.transform); // プールマネージャーからエフェクトをとりだす
         }
 
         /// <summary>
@@ -720,6 +726,14 @@ namespace Misaki
         [Header("必ずアニメーションで呼び出したいAttackListと同じにすること")]
         [SerializeField] protected List<AttackScriptList> attackScriptList = new List<AttackScriptList>(); // 攻撃スクリプトリスト
 
+        // HPとBrave値の表示テキスト
+        [SerializeField] protected TextMeshProUGUI textHP;
+        [SerializeField] protected TextMeshProUGUI textBrave;
+
+        [SerializeField] protected TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
+
+        [SerializeField] protected Image hpBar; // HPバー
+
         /// -----protected変数------ ///
         #endregion
 
@@ -748,15 +762,7 @@ namespace Misaki
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
 
-        // HPとBrave値の表示テキスト
-        [SerializeField] private TextMeshProUGUI textHP;
-        [SerializeField] private TextMeshProUGUI textBrave;
-
-        [SerializeField] private TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
-
-        [SerializeField] private Image hpBar; // HPバー
-
-        [SerializeField] private DamageUIManager damageUI;
+        [SerializeField] private DamageUIManager damageUI; // ダメージポップアップUI
 
         /// ------private変数------- ///
         #endregion

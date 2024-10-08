@@ -73,7 +73,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""LockOn"",
+                    ""name"": ""Lockon"",
                     ""type"": ""Button"",
                     ""id"": ""f97e1657-cdb6-43ed-b786-af923fb502a4"",
                     ""expectedControlType"": ""Button"",
@@ -82,7 +82,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Lock"",
+                    ""name"": ""Look"",
                     ""type"": ""Value"",
                     ""id"": ""b5d9ccae-2611-4062-8c14-d48427e16e28"",
                     ""expectedControlType"": ""Vector2"",
@@ -209,7 +209,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LockOn"",
+                    ""action"": ""Lockon"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -220,7 +220,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": ""ScaleVector2(x=0.2,y=0.2)"",
                     ""groups"": """",
-                    ""action"": ""Lock"",
+                    ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -236,8 +236,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_Player_HAttack = m_Player.FindAction("HAttack", throwIfNotFound: true);
         m_Player_Guard = m_Player.FindAction("Guard", throwIfNotFound: true);
         m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
-        m_Player_LockOn = m_Player.FindAction("LockOn", throwIfNotFound: true);
-        m_Player_Lock = m_Player.FindAction("Lock", throwIfNotFound: true);
+        m_Player_Lockon = m_Player.FindAction("Lockon", throwIfNotFound: true);
+        m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -304,8 +304,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_HAttack;
     private readonly InputAction m_Player_Guard;
     private readonly InputAction m_Player_Dodge;
-    private readonly InputAction m_Player_LockOn;
-    private readonly InputAction m_Player_Lock;
+    private readonly InputAction m_Player_Lockon;
+    private readonly InputAction m_Player_Look;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -315,8 +315,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @HAttack => m_Wrapper.m_Player_HAttack;
         public InputAction @Guard => m_Wrapper.m_Player_Guard;
         public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
-        public InputAction @LockOn => m_Wrapper.m_Player_LockOn;
-        public InputAction @Lock => m_Wrapper.m_Player_Lock;
+        public InputAction @Lockon => m_Wrapper.m_Player_Lockon;
+        public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -341,12 +341,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Dodge.started += instance.OnDodge;
             @Dodge.performed += instance.OnDodge;
             @Dodge.canceled += instance.OnDodge;
-            @LockOn.started += instance.OnLockOn;
-            @LockOn.performed += instance.OnLockOn;
-            @LockOn.canceled += instance.OnLockOn;
-            @Lock.started += instance.OnLock;
-            @Lock.performed += instance.OnLock;
-            @Lock.canceled += instance.OnLock;
+            @Lockon.started += instance.OnLockon;
+            @Lockon.performed += instance.OnLockon;
+            @Lockon.canceled += instance.OnLockon;
+            @Look.started += instance.OnLook;
+            @Look.performed += instance.OnLook;
+            @Look.canceled += instance.OnLook;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -366,12 +366,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Dodge.started -= instance.OnDodge;
             @Dodge.performed -= instance.OnDodge;
             @Dodge.canceled -= instance.OnDodge;
-            @LockOn.started -= instance.OnLockOn;
-            @LockOn.performed -= instance.OnLockOn;
-            @LockOn.canceled -= instance.OnLockOn;
-            @Lock.started -= instance.OnLock;
-            @Lock.performed -= instance.OnLock;
-            @Lock.canceled -= instance.OnLock;
+            @Lockon.started -= instance.OnLockon;
+            @Lockon.performed -= instance.OnLockon;
+            @Lockon.canceled -= instance.OnLockon;
+            @Look.started -= instance.OnLook;
+            @Look.performed -= instance.OnLook;
+            @Look.canceled -= instance.OnLook;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -396,7 +396,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnHAttack(InputAction.CallbackContext context);
         void OnGuard(InputAction.CallbackContext context);
         void OnDodge(InputAction.CallbackContext context);
-        void OnLockOn(InputAction.CallbackContext context);
-        void OnLock(InputAction.CallbackContext context);
+        void OnLockon(InputAction.CallbackContext context);
+        void OnLook(InputAction.CallbackContext context);
     }
 }

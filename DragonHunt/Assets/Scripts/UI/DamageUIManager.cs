@@ -16,40 +16,9 @@ namespace Misaki
         /// <summary>
         /// ダメージUIをポップさせる関数
         /// </summary>
-        /*public void PopDamageUI()
-        {
-            // ターゲットの子オブジェクトとdamageUIを生成
-            GameObject obj = new GameObject("Damage");
-            GameObject ui = Instantiate(damageText);
-
-            // 子オブジェクトに設定
-            obj.transform.SetParent(target.transform);
-            ui.transform.SetParent(canvas.transform);
-
-            // UIの位置更新のためにトランスフォームを代入
-            ui.GetComponent<PopUIUpdate>().SetTarget = obj.transform;
-
-            // UIを表示
-            ui.SetActive(true);
-
-            // 半径viewRadiusの内ランダムなX,Y座標を取得し、ターゲットの上部の座標を設定する
-            Vector2 circlePos = Random.insideUnitCircle * viewRadius;
-            obj.transform.position = transform.position + Vector3.up * Random.Range(viewHeightMin, viewHeightMax) + new Vector3(circlePos.x, 0, circlePos.y);
-
-            // UIをobjの位置に移動させる
-            ui.GetComponent<RectTransform>().position = RectTransformUtility.WorldToScreenPoint(Camera.main, obj.transform.position);
-
-            // 表示を消す
-            Destroy(obj, 2.0f);
-            Destroy(ui, 2.0f);
-        }*/
-
-        /// <summary>
-        /// ダメージUIをポップさせる関数
-        /// </summary>
         /// <param name="damage">表示したいダメージ</param>
         /// <param name="isCritical">クリティカルかどうか</param>
-        public void PopDamageUI(float damage, bool isCritical)
+        public IEnumerator PopDamageUI(float damage, bool isCritical)
         {
             // tarオブジェクトが存在しない場合
             if (!tar)
@@ -59,7 +28,7 @@ namespace Misaki
                 subCan = Instantiate(subCanvas);
 
                 // UIの位置更新のためにトランスフォームを代入
-                subCan.GetComponent<PopUIUpdate>().SetTarget = tar.transform;
+                subCan.GetComponent<UIUpdate>().SetTarget = tar.transform;
 
                 // サブキャンバスをアクティブ化して表示可能にする
                 subCan.SetActive(true);
@@ -74,12 +43,10 @@ namespace Misaki
             }
 
             // ダメージテキストを生成
-            GameObject ui;
-            if (isCritical) ui = Instantiate(criticalDamageText);
-            else ui = Instantiate(damageText);
-
             // 新しいUIをsubCanの子オブジェクトとして設定
-            ui.transform.SetParent(subCan.transform);
+            GameObject ui;
+            if (isCritical) ui = criticalPool.GetGameObject(criticalDamageText, PoolType.E_DamageText, Vector3.zero, Quaternion.identity, subCan.transform);
+            else ui = damagePool.GetGameObject(damageText, PoolType.E_DamageText, Vector3.zero, Quaternion.identity, subCan.transform);
 
             // 半径viewRadiusの内ランダムなX,Y座標を取得し、ターゲットの上部の座標を設定する
             // UIのRectTransformの位置を変更する
@@ -93,7 +60,9 @@ namespace Misaki
             ui.SetActive(true);
 
             // 2秒後にUIオブジェクトを削除（自動で消える）
-            Destroy(ui, 2f);
+            yield return new WaitForSeconds(2.0f);
+            if (isCritical)criticalPool.ReleaseGameObject(ui);
+            else damagePool.ReleaseGameObject(ui);
         }
 
         /// -------public関数------- ///
@@ -110,7 +79,14 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
-
+        private void Start()
+        {
+            // オブジェクトプールを生成・初期化
+            damagePool = new GameObject("DamagePool").AddComponent<PoolManager>(); 
+            damagePool.InitializePool(poolDefaultCapacity, poolMaxSize, damageText);
+            criticalPool = new GameObject("CriticalPool").AddComponent<PoolManager>();
+            criticalPool.InitializePool(poolDefaultCapacity, poolMaxSize, criticalDamageText);
+        }
 
         /// ------private関数------- ///
         #endregion
@@ -151,6 +127,12 @@ namespace Misaki
         [SerializeField] private GameObject subCanvas; // サブキャンパス
         [SerializeField] private GameObject damageText; // ダメージテキスト
         [SerializeField] private GameObject criticalDamageText; // クリティカルダメージテキスト
+
+        private PoolManager damagePool; // 通常ダメージプール
+        private PoolManager criticalPool; // クリティカルダメージプール
+
+        [SerializeField] private int poolDefaultCapacity = 20; // オブジェクトプールのデフォルト容量
+        [SerializeField] private int poolMaxSize = 30; // オブジェクトプールの最大容量
 
         /// ------private変数------- ///
         #endregion

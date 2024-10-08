@@ -17,12 +17,12 @@ namespace Misaki
         /// <param name="position">指定したい位置</param>
         /// <param name="rotation">指定したい向き</param>
         /// <returns></returns>
-        public GameObject GetGameObject(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent)
+        public GameObject GetGameObject(GameObject prefab, PoolType poolType, Vector3 position, Quaternion rotation, Transform parent)
         {
             Prefab = prefab; // 指定のオブジェクトをプレハブに代入
 
             GameObject obj = pool.Get(); // オブジェクトプールからオブジェクトを取り出す
-            obj.GetComponent<PooledEffectObject>().SetPoolManager = this;
+            if (poolType == PoolType.E_Effect) obj.GetComponent<PooledEffectObject>().SetPoolManager = this;
 
             obj.transform.SetParent(parent); // 親オブジェクトを代入
 

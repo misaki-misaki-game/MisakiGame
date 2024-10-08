@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Misaki
 {
@@ -22,6 +25,13 @@ namespace Misaki
             if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
             base.BraveAttack();
+        }
+        public override void Dead()
+        {
+            // EnemyScriptが破棄されたことを通知
+            MessageBroker.Default.Publish(new EnemyScriptDestroyedMessage(this));
+
+            base.Dead();
         }
 
         public override void Dodge()
@@ -55,7 +65,7 @@ namespace Misaki
 
             // 自身とターゲットの距離を取得
             float distance = Vector3.Distance(transform.position, target.position);
-                agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
+            agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
 
             // 距離が設定した停止距離より大きいなら
             if (distance > agent.stoppingDistance)
@@ -115,7 +125,10 @@ namespace Misaki
             // コンポーネントを取得
             agent ??= GetComponent<NavMeshAgent>(); // ナビメッシュエージェントを取得
             rigid ??= GetComponent<Rigidbody>(); // リギッドボディ
-            col ??=GetComponent<CapsuleCollider>() ; // コライダー
+            col ??= GetComponent<CapsuleCollider>(); // コライダー
+
+            // EnemyScriptが生成されたことを通知
+            MessageBroker.Default.Publish(new EnemyScriptCreatedMessage(this));
 
             // ナビメッシュエージェントのスピードを初期化
             agent.speed = parameter.speed;
@@ -128,6 +141,42 @@ namespace Misaki
 
             // 攻撃IDをランダムに決める
             GetAttackPattern();
+        }
+
+        public void InitializeEnemyUI()
+        {
+            // tarオブジェクトが存在しない場合
+            if (!tar)
+            {
+                // 新しいターゲットオブジェクトとサブキャンパスを生成
+                tar = new GameObject("Tar");
+                subCan = Instantiate(subCanvas);
+
+                // UIの位置更新のためにトランスフォームを代入
+                subCan.GetComponent<UIUpdate>().SetTarget = tar.transform;
+
+                // サブキャンバスをアクティブ化して表示可能にする
+                subCan.SetActive(true);
+
+                // tarをtargetの子オブジェクトとして設定する
+                // subCanをメインキャンバス（canvas）の子オブジェクトとして設定する
+                tar.transform.SetParent(transform);
+                subCan.transform.SetParent(ui.transform);
+
+                // tarの位置をこのオブジェクトの位置から少し上に移動
+                tar.transform.position = transform.position + Vector3.up * offsetUI;
+            }
+
+            GameObject eUI = Instantiate(enemyUI, subCan.transform); 
+
+            eUI.GetComponent<RectTransform>().position = ui.transform.position + Vector3.up;
+            textHP = eUI.transform.Find("HPGauge/HPText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBrave = eUI.transform.Find("BrText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBreak = eUI.transform.Find("BreakText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBreak.gameObject.SetActive(false);
+            hpBar = eUI.transform.Find("HPGauge/HPBar").gameObject.GetComponent<Image>();
+
+            InitializeHPUI();
         }
 
         protected override void Update()
@@ -269,6 +318,26 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
+        // エネミースクリプトが生成された際のイベントメッセージ
+        public class EnemyScriptCreatedMessage
+        {
+            public EnemyScript Script { get; }
+            public EnemyScriptCreatedMessage(EnemyScript script)
+            {
+                Script = script;
+            }
+        }
+
+        // エネミースクリプトが削除された際のイベントメッセージ
+        public class EnemyScriptDestroyedMessage
+        {
+            public EnemyScript Script { get; }
+            public EnemyScriptDestroyedMessage(EnemyScript script)
+            {
+                Script = script;
+            }
+        }
+
         /// <summary>
         /// アタックスクリプト配列を複数持つリスト
         /// </summary>
@@ -291,8 +360,10 @@ namespace Misaki
 
         #region protected変数
         /// -----protected変数------ ///
+         
+        [SerializeField] protected bool isEnemy = true; // 敵かどうか
 
-        [SerializeField] protected bool isEnemy = true;
+        [SerializeField] protected float offsetUI = 2.0f; // エネミーUIの配置位置
 
         protected Vector2 moveInputValue; // 入力した値
 
@@ -319,6 +390,7 @@ namespace Misaki
         protected PlayerInputs playerInputs; // InputSystemから生成したスクリプト
 
         [SerializeField] protected GameObject ui; // エネミーのUI
+        [SerializeField] protected GameObject subCanvas; // サブキャンパス
 
         /// -----protected変数------ ///
         #endregion
@@ -332,6 +404,12 @@ namespace Misaki
 
         private float idleTime; // 攻撃までの待機時間
 
+
+        private GameObject tar; // 変更用ターゲット変数
+        private GameObject subCan; // 変更用ターゲット変数
+        [SerializeField] private GameObject enemyUI; // エネミー用のHPUI
+        [SerializeField] private GameObject cameraAnchor; // カメラアンカー
+
         private Rigidbody rigid; // リギッドボディ
 
         private CapsuleCollider col; // コライダー
@@ -344,7 +422,7 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
 
-
+        public GameObject GetCameraAnchor {  get { return cameraAnchor; } }
 
         /// -------プロパティ------- ///
         #endregion

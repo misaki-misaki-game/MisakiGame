@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Misaki
 {
-    public partial class PlayerCameraScript : MonoBehaviour
+    public partial class UIUpdate : MonoBehaviour
     {
         /// --------関数一覧-------- ///
 
@@ -27,14 +25,23 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        private void Awake()
+        {
+            rectTransform = GetComponent<RectTransform>();
+        }
 
+        private void Update()
+        {
+            // UIの位置を更新する
+            rectTransform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, target.position) + offset;
+        }
 
         /// ------private関数------- ///
         #endregion
 
         /// --------関数一覧-------- ///
     }
-    public partial class PlayerCameraScript
+    public partial class UIUpdate
     {
         /// --------変数一覧-------- ///
 
@@ -57,7 +64,11 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        private RectTransform rectTransform; // UIの座標
 
+        private Transform target; // ターゲットの座標
+
+        [SerializeField] private Vector2 offset = Vector2.zero; // オフセット
 
         /// ------private変数------- ///
         #endregion
@@ -65,7 +76,7 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
     
-    
+        public Transform SetTarget { set { target = value; } }
     
         /// -------プロパティ------- ///
         #endregion

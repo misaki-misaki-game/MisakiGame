@@ -9,9 +9,12 @@ using System.Collections.Generic;
 using static Misaki.AttackScript;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static Misaki.EnemyScript;
 
 namespace Misaki
 {
+    // 自動的にコンポーネントを追加 Cameraworkを追加
+    [RequireComponent(typeof(Camerawork))]
     public partial class GameManager : SingletonMonoBehaviour<GameManager>
     {
         /// --------関数一覧-------- ///
@@ -39,12 +42,36 @@ namespace Misaki
         {
             base.Awake();
             Application.targetFrameRate = 60; // 60fpsに設定
+
+            // EnemyScriptの生成と破棄を監視
+            MessageBroker.Default.Receive<EnemyScriptCreatedMessage>()
+                .Subscribe(message => AddScript(message.Script))
+                .AddTo(this);
+            MessageBroker.Default.Receive<EnemyScriptDestroyedMessage>()
+                .Subscribe(message => RemoveScript(message.Script))
+                .AddTo(this);
+
+            // AttackScriptの生成と破棄を監視
+            MessageBroker.Default.Receive<AttackScriptCreatedMessage>()
+                .Subscribe(message => AddScript(message.Script))
+                .AddTo(this);
+            MessageBroker.Default.Receive<AttackScriptDestroyedMessage>()
+                .Subscribe(message => RemoveScript(message.Script))
+                .AddTo(this);
+
+            // 回避成功イベントをグローバルに購読
+            MessageBroker.Default.Receive<DodgeSuccessMessage>()
+                .Subscribe(_ => OnDodgeSuccess())
+                .AddTo(this);
         }
 
         private void Start()
         {
             // Titleスクリプトのインスタンス生成
             titleInputs = new TitleInputs();
+
+            // カメラワークを取得
+            camerawork = GetComponent<Camerawork>();
 
             // アクションマップを設定
             titleInputs.Enable();
@@ -60,24 +87,8 @@ namespace Misaki
             dragon.OnDragonDead.Subscribe(_ => { StartCoroutine(GameOverSequence(true)); })
                 .AddTo(this);
 
-            // AttackScriptの生成と破棄を監視
-            MessageBroker.Default.Receive<AttackScriptCreatedMessage>()
-                .Subscribe(message => AddAttackScript(message.Script))
-                .AddTo(this);
-            MessageBroker.Default.Receive<AttackScriptDestroyedMessage>()
-                .Subscribe(message => RemoveAttackScript(message.Script))
-                .AddTo(this);
-
-            // 回避成功イベントをグローバルに購読
-            MessageBroker.Default.Receive<DodgeSuccessMessage>()
-                .Subscribe(_ => OnDodgeSuccess())
-                .AddTo(this);
-
             // タイトルのBGMを流す
             SoundManager.SoundPlay(BGMList.E_TitleBGM, true);
-
-            // メインカメラのトランスフォームを取得
-            mainCamera = playerFollowCamera.transform;
         }
 
         private void OnDestroy()
@@ -115,7 +126,7 @@ namespace Misaki
             titleUI.gameObject.SetActive(false);
 
             // プレイヤー追従カメラの優先度を上げて画面に表示する
-            playerFollowCamera.Priority = 20;
+            camerawork.GetFreeLookCamera.Priority = 20;
 
             // BGMを流す
             SoundManager.SoundPlay(BGMList.E_OpeningBGM, true);
@@ -133,11 +144,16 @@ namespace Misaki
             // ゲームの状態をインゲームにする
             gameState = GameState.E_InGame;
 
+            // カメラワークを許可
+            camerawork.GetFreeLookCamera.GetComponent<CinemachineInputProvider>().enabled = true;
+
             // インゲームUIを表示にする
             foreach(GameObject obj in inGameUI) obj.SetActive(true);
 
             // BGMを流す
             SoundManager.SoundPlay(BGMList.E_InGameBGM, true);
+
+            dragon.InitializeEnemyUI(); // ドラゴンのUI初期化
         }
 
         /// <summary>
@@ -183,21 +199,34 @@ namespace Misaki
         }
 
         /// <summary>
-        /// アタックスクリプトリストに指定のアタックスクリプトを加える関数
+        /// スクリプトリストに指定のスクリプトを加える関数
         /// </summary>
-        /// <param name="script">指定のアタックスクリプト</param>
-        private void AddAttackScript(AttackScript script)
+        /// <param name="script">指定のスクリプト</param>
+        private void AddScript<T>(T script)
         {
-            if (!attackScripts.Contains(script)) attackScripts.Add(script);
+            if (script is AttackScript attackScript && !attackScripts.Contains(attackScript)) attackScripts.Add(attackScript);
+            else if (script is EnemyScript enemyScript && !enemeis.Contains(enemyScript))
+            {
+                // エネミーリストとロックオン位置リストを追加
+                enemeis.Add(enemyScript);
+                enemyCameraAnchor.Add(enemyScript.GetCameraAnchor);
+            }
         }
 
         /// <summary>
-        /// アタックスクリプトリストから指定のアタックスクリプトを外す関数
+        /// スクリプトリストから指定のスクリプトを外す関数
         /// </summary>
-        /// <param name="script">指定のアタックスクリプト</param>
-        private void RemoveAttackScript(AttackScript script)
+        /// <param name="script">指定のスクリプト</param>
+        private void RemoveScript<T>(T script)
         {
-            if (attackScripts.Contains(script)) attackScripts.Remove(script);
+            if (script is AttackScript attackScript && !attackScripts.Contains(attackScript)) attackScripts.Remove(attackScript);
+            else if (script is EnemyScript enemyScript && !enemeis.Contains(enemyScript))
+            {
+                // エネミーリストとロックオン位置リストから除外
+                enemeis.Remove(enemyScript);
+                enemyCameraAnchor.Remove(enemyScript.GetCameraAnchor);
+                camerawork.ChangeTarget(-1f);
+            }
         }
 
         /// <summary>
@@ -300,6 +329,7 @@ namespace Misaki
         [SerializeField] private float chanceTime = 5f; // チャンスタイムの制限時間
         [SerializeField] private static float breakBonus = 500; // 相手をブレイクした際のボーナスブレイブ
 
+        private static List<GameObject> enemyCameraAnchor = new List<GameObject>(); // ロックオン位置リスト
         [SerializeField] private GameObject titleUI; // タイトルのUI
         [SerializeField] private GameObject[] inGameUI; // インゲームのUI
         [SerializeField] private GameObject winUI; // 勝った時のUI
@@ -311,17 +341,18 @@ namespace Misaki
 
         [SerializeField] private PlayerScript player; // プレイヤー
 
+        private List<EnemyScript> enemeis = new List<EnemyScript>(); // エネミーリスト
         [SerializeField] private DragonScript dragon; // ドラゴン
 
         [SerializeField] private PlayableDirector playableDirector; // タイムラインのプレイアブルディレクター
-
-        [SerializeField] private CinemachineVirtualCamera playerFollowCamera; // プレイヤーに追従するカメラ
 
         private List<AttackScript> attackScripts = new List<AttackScript>(); // アタックスクリプトのリスト
 
         [SerializeField] private Volume volume; // ボリューム変数
 
         private Vignette vignette; // ビネット変数
+
+        private Camerawork camerawork; // カメラワーク変数
 
         private static GameState gameState = GameState.E_Title; // ゲームの状態変数 
 
@@ -336,6 +367,8 @@ namespace Misaki
         public static float GetBreakBonus { get { return breakBonus; } }
 
         public static GameState GetGameState {  get { return gameState; } }
+
+        public static List<GameObject> GetEnemyCameraAnchor { get { return enemyCameraAnchor; } }
 
         public static Transform GetCameraTransform { get { return mainCamera; } }
 
