@@ -196,7 +196,7 @@ namespace Misaki
         /// <summary>
         /// HP攻撃を受けた際のリアクション関数
         /// </summary>
-        public IEnumerator HPHitReaction()
+        public virtual IEnumerator HPHitReaction()
         {
             // アニメーション状態を被ダメージ中にする
             AnimState = AnimState.E_HitReaction;
@@ -330,6 +330,15 @@ namespace Misaki
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
             bulletAttackScript.SetHPAttack = parameter.brave;
             bulletAttackScript.ClearHitObj();
+        }
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// 遠距離で特定の位置に攻撃する場合
+        /// </summary>
+        /// <param name="effectName">エフェクト名</param>
+        public virtual void BeginHPSearch(EffectName effectName)
+        {
         }
 
         /// <summary>
@@ -536,9 +545,11 @@ namespace Misaki
             Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
 
             attackScripts = new List<AttackScript>(attackScriptList[0].attackScriptGroup); // アタックスクリプトリストを初期化
-
         }
 
+        /// <summary>
+        /// HPUIと変数を連動させる関数
+        /// </summary>
         protected void InitializeHPUI()
         {
             // テキストを変更する
@@ -596,6 +607,19 @@ namespace Misaki
             PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
             return effect.GetGameObject(EffectManager.effectGroups[num].effect, PoolType.E_Effect, effectPos.transform.position, 
                 effectPos.transform.rotation, effectPos.transform); // プールマネージャーからエフェクトをとりだす
+        }
+
+        /// <summary>
+        /// エフェクトを生成する関数(親設定なし)
+        /// </summary>
+        /// <param name="effectName">生成するエフェクト名</param>
+        /// <param name="effectPos">生成する場所</param>
+        protected GameObject GenerateEffectNoneParent(EffectName effectName, GameObject effectPos)
+        {
+            int num = (int)effectName; // エフェクト名をint型に変更
+            PoolManager effect = EffectManager.effectGroups[num].pool; // プールマネージャーを選択
+            return effect.GetGameObject(EffectManager.effectGroups[num].effect, PoolType.E_Effect, effectPos.transform.position,
+                effectPos.transform.rotation); // プールマネージャーからエフェクトをとりだす
         }
 
         /// <summary>

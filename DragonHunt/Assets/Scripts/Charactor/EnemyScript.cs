@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UniRx;
@@ -90,8 +91,26 @@ namespace Misaki
                 Vector3 direction = (target.position - transform.position).normalized;
                 Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f); // スムーズに回転
-
             }
+        }
+
+        /// <summary>
+        /// HP攻撃開始時の関数
+        /// 遠距離で特定の位置に攻撃する場合
+        /// </summary>
+        /// <param name="effectName">エフェクト名</param>
+        public override void BeginHPSearch(EffectName effectName)
+        {
+            // エフェクトを生成し、そのアタックスクリプトを取得
+            GameObject obj = GenerateEffectNoneParent(effectName, target.gameObject);
+            bulletAttackScript = obj.GetComponentInChildren<AttackScript>();
+            
+            // 武器のステートとHP攻撃値を変更し、ヒットオブジェクトリストをリセットする
+            // アタックスクリプトの所有者を自分にする
+            bulletAttackScript.SetOwnOwner = this;
+            bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
+            bulletAttackScript.SetHPAttack = parameter.brave;
+            bulletAttackScript.ClearHitObj();
         }
 
         public override void EndAnim()
@@ -110,6 +129,50 @@ namespace Misaki
         {
             base.GuardReaction();
             SmallHitReaction(0);
+        }
+
+        /// <summary>
+        /// エネミーのHPUIを初期化・表示する関数
+        /// </summary>
+        public void InitializeEnemyUI()
+        {
+            // tarオブジェクトが存在しない場合
+            if (!tar)
+            {
+                // 新しいターゲットオブジェクトとサブキャンパスを生成
+                tar = new GameObject("Tar");
+                subCan = Instantiate(subCanvas);
+
+                // UIの位置更新のためにトランスフォームを代入
+                subCan.GetComponent<UIUpdate>().SetTarget = tar.transform;
+
+                // サブキャンバスをアクティブ化して表示可能にする
+                subCan.SetActive(true);
+
+                // tarをtargetの子オブジェクトとして設定する
+                // subCanをメインキャンバス（canvas）の子オブジェクトとして設定する
+                tar.transform.SetParent(transform);
+                subCan.transform.SetParent(ui.transform);
+
+                // tarの位置をこのオブジェクトの位置から少し上に移動
+                tar.transform.position = transform.position + Vector3.up * offsetUI;
+            }
+
+            // エネミー用HPUI生成
+            GameObject eUI = Instantiate(enemyUI, subCan.transform);
+
+            // エネミー用のHPUIの位置調整
+            eUI.GetComponent<RectTransform>().position = ui.transform.position + Vector3.up;
+
+            // 各変数に代入
+            textHP = eUI.transform.Find("HPGauge/HPText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBrave = eUI.transform.Find("BrText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBreak = eUI.transform.Find("BreakText").gameObject.GetComponent<TextMeshProUGUI>();
+            textBreak.gameObject.SetActive(false);
+            hpBar = eUI.transform.Find("HPGauge/HPBar").gameObject.GetComponent<Image>();
+
+            // HPUIと変数を連動
+            InitializeHPUI();
         }
 
         /// -------public関数------- ///
@@ -141,42 +204,6 @@ namespace Misaki
 
             // 攻撃IDをランダムに決める
             GetAttackPattern();
-        }
-
-        public void InitializeEnemyUI()
-        {
-            // tarオブジェクトが存在しない場合
-            if (!tar)
-            {
-                // 新しいターゲットオブジェクトとサブキャンパスを生成
-                tar = new GameObject("Tar");
-                subCan = Instantiate(subCanvas);
-
-                // UIの位置更新のためにトランスフォームを代入
-                subCan.GetComponent<UIUpdate>().SetTarget = tar.transform;
-
-                // サブキャンバスをアクティブ化して表示可能にする
-                subCan.SetActive(true);
-
-                // tarをtargetの子オブジェクトとして設定する
-                // subCanをメインキャンバス（canvas）の子オブジェクトとして設定する
-                tar.transform.SetParent(transform);
-                subCan.transform.SetParent(ui.transform);
-
-                // tarの位置をこのオブジェクトの位置から少し上に移動
-                tar.transform.position = transform.position + Vector3.up * offsetUI;
-            }
-
-            GameObject eUI = Instantiate(enemyUI, subCan.transform); 
-
-            eUI.GetComponent<RectTransform>().position = ui.transform.position + Vector3.up;
-            textHP = eUI.transform.Find("HPGauge/HPText").gameObject.GetComponent<TextMeshProUGUI>();
-            textBrave = eUI.transform.Find("BrText").gameObject.GetComponent<TextMeshProUGUI>();
-            textBreak = eUI.transform.Find("BreakText").gameObject.GetComponent<TextMeshProUGUI>();
-            textBreak.gameObject.SetActive(false);
-            hpBar = eUI.transform.Find("HPGauge/HPBar").gameObject.GetComponent<Image>();
-
-            InitializeHPUI();
         }
 
         protected override void Update()
@@ -300,12 +327,6 @@ namespace Misaki
             return false;
         }
 
-        private void LateUpdate()
-        {
-            // UIをカメラの向きに合わせる
-            ui.transform.rotation = Camera.main.transform.rotation;
-        }
-
         /// ------private関数------- ///
         #endregion
 
@@ -400,10 +421,9 @@ namespace Misaki
 
         private bool canAttack; // 攻撃フラグ
 
-        [SerializeField] private int attackID; // 攻撃ID
+        private int attackID; // 攻撃ID
 
         private float idleTime; // 攻撃までの待機時間
-
 
         private GameObject tar; // 変更用ターゲット変数
         private GameObject subCan; // 変更用ターゲット変数

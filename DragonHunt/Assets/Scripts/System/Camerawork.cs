@@ -23,7 +23,7 @@ namespace Misaki
             if (isLockon)
             {
                 List<GameObject> cameraAnchorList = GameManager.GetEnemyCameraAnchor;
-                ActiveLockonCamera(cameraAnchorList[lockNomber]);
+                ActiveLockonCamera(cameraAnchorList[lockonNomber]);
             }
             else InactiveLockonCamera();
         }
@@ -44,15 +44,15 @@ namespace Misaki
             if (cameraAnchorList.Count > 1)
             {
                 // イテレーターをずらす
-                if (value <= 0) lockNomber++;
-                else lockNomber--;
+                if (value <= 0) lockonNomber++;
+                else lockonNomber--;
 
                 // ロックオン位置リストのアウトレンジにならないようにイテレーターを調整
-                if (lockNomber >= cameraAnchorList.Count) lockNomber = 0;
-                else if (lockNomber < 0) lockNomber = cameraAnchorList.Count - 1;
+                if (lockonNomber >= cameraAnchorList.Count) lockonNomber = 0;
+                else if (lockonNomber < 0) lockonNomber = cameraAnchorList.Count - 1;
             }
             // ターゲット切り替え
-            ActiveLockonCamera(cameraAnchorList[lockNomber]);
+            ActiveLockonCamera(cameraAnchorList[lockonNomber]);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Misaki
             lockonCamera.LookAt = null;
 
             // 直前のLockonCameraの角度を引き継ぐ
-            var pov = freeLookCamera.GetCinemachineComponent<CinemachinePOV>();
+            CinemachinePOV pov = freeLookCamera.GetCinemachineComponent<CinemachinePOV>();
             pov.m_VerticalAxis.Value = Mathf.Repeat(lockonCamera.transform.eulerAngles.x + 180, 360) - 180;
             pov.m_HorizontalAxis.Value = lockonCamera.transform.eulerAngles.y;
             currentCameraTransform = freeLookCamera.transform;
@@ -129,7 +129,7 @@ namespace Misaki
 
         private bool isLockon = false; // ロックオンしているか
 
-        private int lockNomber = 0; // ロックしている番号
+        private int lockonNomber = 0; // ロックしている番号
 
         readonly int lockonCameraActivePriority = 21; // ロックオンカメラを優先する際の値
         readonly int lockonCameraInactivePriority = 0; // 優先しない際の値

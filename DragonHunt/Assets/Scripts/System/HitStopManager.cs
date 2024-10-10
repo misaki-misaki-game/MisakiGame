@@ -64,7 +64,7 @@ namespace Misaki
             }
 
             // キャラクター及びカメラを揺らす
-            StartCoroutine(ShakeCoroutine(anim.transform, duration, 0.2f));
+            StartCoroutine(ShakeCoroutine(anim.transform, duration, 0.15f));
             if (isCameraShake) StartCoroutine(ShakeCameraCoroutine(2f, 8, duration));
 
             // チャンスタイムではない場合
@@ -112,7 +112,6 @@ namespace Misaki
                 // フレームの終了を待つ
                 yield return null;
             }
-
             // 揺れが終了したら元の位置に戻す
             target.localPosition = originalPosition;
         }
@@ -127,7 +126,7 @@ namespace Misaki
         private IEnumerator ShakeCameraCoroutine(float width, int count, float duration)
         {
             // メインカメラを取得し、元のローテーションを保持する
-            Transform camera = Camerawork.GetCurrentCameraTransform;//GameManager.GetCameraTransform;
+            Transform camera = Camerawork.GetCurrentCameraTransform;
             Quaternion originalRotation = camera.localRotation;
 
             // 振れ演出の片道の揺れ分の時間

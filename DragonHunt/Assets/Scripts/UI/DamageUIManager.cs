@@ -39,7 +39,7 @@ namespace Misaki
                 subCan.transform.SetParent(canvas.transform);
 
                 // tarの位置をこのオブジェクトの位置から少し上に移動（Y軸方向に2.0）
-                tar.transform.position = transform.position + Vector3.up * 2.0f;
+                tar.transform.position = transform.position + Vector3.up * subCanvasHeight;
             }
 
             // ダメージテキストを生成
@@ -61,7 +61,7 @@ namespace Misaki
 
             // 2秒後にUIオブジェクトを削除（自動で消える）
             yield return new WaitForSeconds(2.0f);
-            if (isCritical)criticalPool.ReleaseGameObject(ui);
+            if (isCritical) criticalPool.ReleaseGameObject(ui);
             else damagePool.ReleaseGameObject(ui);
         }
 
@@ -119,6 +119,7 @@ namespace Misaki
         [SerializeField] private float viewRadius = 100f; // ダメージテキストを表示する半径
         [SerializeField] private float viewHeightMax = 40f; // ダメージテキストを表示する高さ上限
         [SerializeField] private float viewHeightMin = 0f; // ダメージテキストを表示する高さ下限
+        [SerializeField] private float subCanvasHeight = 2f; // サブキャンパスの高さ
 
         private GameObject tar; // 変更用ターゲット変数
         private GameObject subCan; // 変更用ターゲット変数

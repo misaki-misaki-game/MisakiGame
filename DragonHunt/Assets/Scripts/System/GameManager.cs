@@ -83,8 +83,10 @@ namespace Misaki
             player.OnPlayerDead.Subscribe(_ =>{ StartCoroutine(GameOverSequence(false)); })
                 .AddTo(this);
 
-            // ドラゴンの戦闘不能イベントを監視
+            // ドラゴンのイベントを監視
             dragon.OnDragonDead.Subscribe(_ => { StartCoroutine(GameOverSequence(true)); })
+                .AddTo(this);
+            dragon.OnPhaseChange.Subscribe(_ => {  StartCoroutine(SummonMook()); })
                 .AddTo(this);
 
             // タイトルのBGMを流す
@@ -153,7 +155,18 @@ namespace Misaki
             // BGMを流す
             SoundManager.SoundPlay(BGMList.E_InGameBGM, true);
 
-            dragon.InitializeEnemyUI(); // ドラゴンのUI初期化
+            // エネミー全てのUI初期化
+            foreach (EnemyScript enemy in enemeis) enemy.InitializeEnemyUI();
+        }
+
+        /// <summary>
+        /// 雑魚敵を召喚する関数
+        /// </summary>
+        private IEnumerator SummonMook()
+        {
+            Debug.Log("雑魚敵召喚");
+
+            yield return null;
         }
 
         /// <summary>
@@ -330,6 +343,7 @@ namespace Misaki
         [SerializeField] private static float breakBonus = 500; // 相手をブレイクした際のボーナスブレイブ
 
         private static List<GameObject> enemyCameraAnchor = new List<GameObject>(); // ロックオン位置リスト
+        [SerializeField] private List<GameObject[]> triggerObjects = new List<GameObject[]>();
         [SerializeField] private GameObject titleUI; // タイトルのUI
         [SerializeField] private GameObject[] inGameUI; // インゲームのUI
         [SerializeField] private GameObject winUI; // 勝った時のUI

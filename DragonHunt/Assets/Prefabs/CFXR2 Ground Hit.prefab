@@ -3706,9 +3706,14 @@ ParticleSystem:
     outside: 0
     enter: 2
     exit: 0
-    colliderQueryMode: 0
+    colliderQueryMode: 2
     radiusScale: 1
-    primitives: []
+    primitives:
+    - {fileID: 7439276821244122932, guid: 9f9e613086425be4b822f2ab8a124dca, type: 3}
+    - {fileID: 67274015974101409, guid: 2a7ae001ae55f23438b859cc39e89e03, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -4838,11 +4843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a3627fd9e67443bfab3dd43fd9fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpAttack: 0
-  attack: 0
   particle: {fileID: 870411179426623218}
-  hitObj: []
-  ownOwner: {fileID: 0}
 --- !u!114 &6860119323408036804
 MonoBehaviour:
   m_ObjectHideFlags: 0

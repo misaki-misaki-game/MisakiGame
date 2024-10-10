@@ -21,6 +21,21 @@ namespace Misaki
             base.Dead();
         }
 
+        public override IEnumerator HPHitReaction()
+        {
+            // HPが50%を切ったら形態変更
+            if (!isPhaseChange && parameter.hp < parameter.maxHp / 2)
+            {
+                isPhaseChange = true;
+                onPhaseChange.OnNext(Unit.Default);  // イベントを発行
+                onPhaseChange.OnCompleted();  // イベント終了
+            }
+
+            StartCoroutine(base.HPHitReaction());
+
+            yield return null;
+        }
+
         /// <summary>
         /// ボムを設置する関数
         /// </summary>
@@ -68,6 +83,7 @@ namespace Misaki
         }
 
         public IObservable<Unit> OnDragonDead => onDragonDead; // ドラゴンが戦闘不能になった際に監視者に通知
+        public IObservable<Unit> OnPhaseChange => onPhaseChange; // ドラゴンが形態変更の際に監視者に通知
 
         /// -------public関数------- ///
         #endregion
@@ -137,6 +153,8 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
+        public bool isPhaseChange = false; // 形態変更したか
+
         [SerializeField] private int bombMax; // ボムをセットできる上限
         private HashSet<int> bombHashSet = new HashSet<int>(); // ボム抽選のハッシュセット
 
@@ -147,6 +165,7 @@ namespace Misaki
         [SerializeField] private GameObject bombsField; // ボムのフィールド
 
         private Subject<Unit> onDragonDead = new Subject<Unit>(); // 戦闘不能イベントのためのSubject
+        private Subject<Unit> onPhaseChange = new Subject<Unit>(); // 形態変更イベントのためのSubject
 
         /// ------private変数------- ///
         #endregion

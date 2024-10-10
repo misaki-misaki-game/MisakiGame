@@ -157,7 +157,7 @@ namespace Misaki
                 playerInputs.Player.Guard.started += OnGuard;
                 playerInputs.Player.Dodge.started += OnDodge;
                 playerInputs.Player.Lockon.started += OnLockon;
-                //playerInputs.Player.Look.started +=;
+                playerInputs.Player.Look.started += OnLook;
 
                 startPos = transform.position; // 初期位置を取得
                 cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得

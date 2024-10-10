@@ -49,7 +49,8 @@ public enum EffectName
     hpShockWaveEffect = 2,
     hpFireBreath = 3,
     hpBomb1 = 4,
-    hpBomb2 = 5
+    hpBomb2 = 5,
+    hpMeteor = 6
 }
 
 // ƒQ[ƒ€‚Ìó‘Ô

@@ -3798,6 +3798,10 @@ ParticleSystem:
     colliderQueryMode: 2
     radiusScale: 3.71
     primitives:
+    - {fileID: 7887082598003022933, guid: dfc5122c15f111742b1f2831df2aba03, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     - {fileID: 0}
   SubModule:
     serializedVersion: 2

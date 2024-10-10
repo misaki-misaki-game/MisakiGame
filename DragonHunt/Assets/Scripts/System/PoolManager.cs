@@ -14,17 +14,19 @@ namespace Misaki
         /// オブジェクトをオブジェクトプールから取り出す関数
         /// </summary>
         /// <param name="prefab">オブジェクト</param>
+        /// <param name="poolType">オブジェクトのタイプ</param>
         /// <param name="position">指定したい位置</param>
         /// <param name="rotation">指定したい向き</param>
+        /// <param name="parent">親オブジェクト</param>
         /// <returns></returns>
-        public GameObject GetGameObject(GameObject prefab, PoolType poolType, Vector3 position, Quaternion rotation, Transform parent)
+        public GameObject GetGameObject(GameObject prefab, PoolType poolType, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             Prefab = prefab; // 指定のオブジェクトをプレハブに代入
 
             GameObject obj = pool.Get(); // オブジェクトプールからオブジェクトを取り出す
             if (poolType == PoolType.E_Effect) obj.GetComponent<PooledEffectObject>().SetPoolManager = this;
 
-            obj.transform.SetParent(parent); // 親オブジェクトを代入
+            if (parent != null) obj.transform.SetParent(parent); // 親オブジェクトを代入
 
             // トランスフォームを代入
             Transform tf = obj.transform;

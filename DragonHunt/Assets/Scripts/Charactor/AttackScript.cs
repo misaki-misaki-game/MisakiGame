@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Misaki
@@ -96,23 +95,26 @@ namespace Misaki
         /// </summary>
         private void OnParticleTrigger()
         {
+            // コライダーを取得できるようにする
             // Triggerで設定したコライダーを全て検索
             for (int i = 0; i < particle.trigger.colliderCount; i++)
             {
+                // nullチェック
+                if (particle.trigger.GetCollider(i) == null) continue;
+
                 // コライダーを取得
                 Collider col = particle.trigger.GetCollider(i).GetComponent<Collider>();
-                if (tag == Tags.PlayerWepon.ToString() && !col.CompareTag(Tags.Enemy.ToString())) return;
-                if (tag == Tags.EnemyWepon.ToString() && !col.CompareTag(Tags.Player.ToString())) return;
 
-                // コライダーがnullで無ければ、処理を開始
-                if (col != null)
-                {
-                    col.GetComponent<BaseCharactorScript>().CanDamageEffect();
+                // コライダーが適切なものかを確認
+                if (tag == Tags.PlayerWepon.ToString() && !col.CompareTag(Tags.Enemy.ToString())) continue;
+                if (tag == Tags.EnemyWepon.ToString() && !col.CompareTag(Tags.Player.ToString())) continue;
 
-                    // ステートによって処理を変える
-                    if (attack == AttackState.E_BraveAttack) CalcBrave(col);
-                    else if (attack == AttackState.E_HPAttack) CalcHP(col);
-                }
+                // 処理を開始
+                col.GetComponent<BaseCharactorScript>().CanDamageEffect();
+
+                // ステートによって処理を変える
+                if (attack == AttackState.E_BraveAttack) CalcBrave(col);
+                else if (attack == AttackState.E_HPAttack) CalcHP(col);
             }
         }
 
@@ -198,6 +200,16 @@ namespace Misaki
         private bool ChackInHit(GameObject obj)
         {
             return hitObj.Contains(obj);
+        }
+
+        private void InitializeParticleTrigger()
+        {
+            // TriggerModuleを取得
+            ParticleSystem.TriggerModule triggerModule = particle.trigger;
+            triggerModule.enabled = true;
+
+            // コライダーを設定
+            //triggerModule.SetCollider(0, targetCollider);
         }
 
         /// ------private関数------- ///
