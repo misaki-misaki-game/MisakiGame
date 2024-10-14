@@ -175,6 +175,19 @@ namespace Misaki
             InitializeHPUI();
         }
 
+        /// <summary>
+        /// ターゲットとキャンパスを代入する関数
+        /// </summary>
+        /// <param name="targetTransform">追跡ターゲット</param>
+        /// <param name="damageCanvas">ダメージポップアップ用キャンパス</param>
+        /// <param name="enemyCanvas">エネミーHP用キャンパス</param>
+        public void SetupTargetAndCanvas(Transform targetTransform, GameObject damageCanvas, GameObject enemyCanvas)
+        {
+            target = targetTransform;
+            GetComponent<DamageUIManager>().SetCanvas = damageCanvas;
+            ui = enemyCanvas;
+        }
+
         /// -------public関数------- ///
         #endregion
 
@@ -343,9 +356,12 @@ namespace Misaki
         public class EnemyScriptCreatedMessage
         {
             public EnemyScript Script { get; }
+            public Collider Collider { get; }
+
             public EnemyScriptCreatedMessage(EnemyScript script)
             {
                 Script = script;
+                Collider = script.GetComponent<Collider>();
             }
         }
 
@@ -353,9 +369,12 @@ namespace Misaki
         public class EnemyScriptDestroyedMessage
         {
             public EnemyScript Script { get; }
+            public Collider Collider { get; }
+
             public EnemyScriptDestroyedMessage(EnemyScript script)
             {
                 Script = script;
+                Collider = script.GetComponent<Collider>();
             }
         }
 
@@ -401,7 +420,7 @@ namespace Misaki
         [Header("HP攻撃アニメーション")]
         [SerializeField] protected AnimationClip[] hpAttackClip = new AnimationClip[2];
 
-        protected Dictionary<int, float> attackDict= new Dictionary<int, float>(); // 敵の行動パターンの辞書
+        protected Dictionary<int, float> attackDict = new Dictionary<int, float>(); // 敵の行動パターンの辞書
 
         [Header("必ずアニメーションで呼び出したいAttackScriptListと同じにすること")]
         [SerializeField] protected List<AttackDictionary> attackList; // 攻撃パターンリスト
@@ -443,6 +462,8 @@ namespace Misaki
         /// -------プロパティ------- ///
 
         public GameObject GetCameraAnchor {  get { return cameraAnchor; } }
+
+        public Transform SetTarget { set { target = value; } }
 
         /// -------プロパティ------- ///
         #endregion

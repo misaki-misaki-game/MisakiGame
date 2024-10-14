@@ -3796,7 +3796,7 @@ ParticleSystem:
     enter: 2
     exit: 0
     colliderQueryMode: 2
-    radiusScale: 3.71
+    radiusScale: 1
     primitives:
     - {fileID: 7887082598003022933, guid: dfc5122c15f111742b1f2831df2aba03, type: 3}
     - {fileID: 0}

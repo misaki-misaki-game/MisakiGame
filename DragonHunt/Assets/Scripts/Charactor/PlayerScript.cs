@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System;
 using UniRx;
+using static Misaki.EnemyScript;
 
 namespace Misaki
 {
@@ -164,6 +165,9 @@ namespace Misaki
             }
 
             InitializeHPUI(); // HPに数値を反映
+
+            // PlayerScriptが生成されたことを通知
+            MessageBroker.Default.Publish(new PlayerScriptCreatedMessage(this));
         }
 
         protected override void Update()
@@ -374,7 +378,30 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
+        // プレイヤースクリプトが生成された際のイベントメッセージ
+        public class PlayerScriptCreatedMessage
+        {
+            public PlayerScript Script { get; }
+            public Collider Collider { get; }
+            public PlayerScriptCreatedMessage(PlayerScript script)
+            {
+                Script = script;
+                Collider = script.GetComponent<Collider>();
+            }
+        }
 
+        // プレイヤースクリプトが削除された際のイベントメッセージ
+        public class PlayerScriptDestroyedMessage
+        {
+            public PlayerScript Script { get; }
+            public Collider Collider { get; }
+
+            public PlayerScriptDestroyedMessage(PlayerScript script)
+            {
+                Script = script;
+                Collider = script.GetComponent<Collider>();
+            }
+        }
 
         /// -------public変数------- ///
         #endregion

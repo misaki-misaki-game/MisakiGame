@@ -10,6 +10,7 @@ using static Misaki.AttackScript;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using static Misaki.EnemyScript;
+using static Misaki.PlayerScript;
 
 namespace Misaki
 {
@@ -43,12 +44,32 @@ namespace Misaki
             base.Awake();
             Application.targetFrameRate = 60; // 60fpsに設定
 
+            // コライダーグループを初期化
+            particleTriggerColliderGroup = new ParticleTriggerColliderGroup[2];
+            for (int i = 0; i < particleTriggerColliderGroup.Length; i++) particleTriggerColliderGroup[i] = new ParticleTriggerColliderGroup();
+
+            // PlayerScriptの生成と破棄を監視
+            MessageBroker.Default.Receive<PlayerScriptCreatedMessage>()
+                .Subscribe(message => { AddCollider(ParticleSystemTrigger.E_EnemyWepon, message.Collider);})
+                .AddTo(this);
+            MessageBroker.Default.Receive<PlayerScriptDestroyedMessage>()
+                .Subscribe(message => { RemoveCollider(ParticleSystemTrigger.E_EnemyWepon, message.Collider); })
+                .AddTo(this);
+
             // EnemyScriptの生成と破棄を監視
             MessageBroker.Default.Receive<EnemyScriptCreatedMessage>()
-                .Subscribe(message => AddScript(message.Script))
+                .Subscribe(message =>
+                {
+                    AddScript(message.Script);
+                    AddCollider(ParticleSystemTrigger.E_PlayerWepon, message.Collider);
+                })
                 .AddTo(this);
             MessageBroker.Default.Receive<EnemyScriptDestroyedMessage>()
-                .Subscribe(message => RemoveScript(message.Script))
+                .Subscribe(message =>
+                {
+                    RemoveScript(message.Script);
+                    RemoveCollider(ParticleSystemTrigger.E_PlayerWepon, message.Collider);
+                })
                 .AddTo(this);
 
             // AttackScriptの生成と破棄を監視
@@ -63,6 +84,7 @@ namespace Misaki
             MessageBroker.Default.Receive<DodgeSuccessMessage>()
                 .Subscribe(_ => OnDodgeSuccess())
                 .AddTo(this);
+
         }
 
         private void Start()
@@ -164,9 +186,14 @@ namespace Misaki
         /// </summary>
         private IEnumerator SummonMook()
         {
-            Debug.Log("雑魚敵召喚");
-
-            yield return null;
+            GameObject[] obj=new GameObject[spawnPos.Length];
+            for (int i = 0; i < spawnPos.Length; i++)
+            {
+                obj[i] = Instantiate(mook, spawnPos[i].transform.localPosition, Quaternion.identity);
+                obj[i].GetComponent<EnemyScript>().SetupTargetAndCanvas(player.transform, damageCanvas, enemyHPCanvas);
+            }
+            yield return new WaitForSeconds(0.5f);
+            for (int i = 0; i < spawnPos.Length; i++) obj[i].GetComponent<EnemyScript>().InitializeEnemyUI();
         }
 
         /// <summary>
@@ -194,7 +221,6 @@ namespace Misaki
 
             // アニメーションが完了するまで待つ
             yield return new WaitForSeconds(gameOverDelay);
-
 
             // 現在のシーンを再読み込み
             ReloadScene();
@@ -240,6 +266,26 @@ namespace Misaki
                 enemyCameraAnchor.Remove(enemyScript.GetCameraAnchor);
                 camerawork.ChangeTarget(-1f);
             }
+        }
+
+        /// <summary>
+        /// コライダーグループを追加する関数
+        /// </summary>
+        /// <param name="e">追加したいコライダーのタグ</param>
+        /// <param name="col">追加したいコライダー</param>
+        private void AddCollider(ParticleSystemTrigger e, Collider col)
+        {
+            particleTriggerColliderGroup[(int)e].targetColliders.Add(col);
+        }
+
+        /// <summary>
+        /// コライダーグループから外す関数
+        /// </summary>
+        /// <param name="e">除外したいコライダーのタグ</param>
+        /// <param name="col">除外したいコライダー</param>
+        private void RemoveCollider(ParticleSystemTrigger e, Collider col)
+        {
+            particleTriggerColliderGroup[(int)e].targetColliders.Remove(col);
         }
 
         /// <summary>
@@ -322,6 +368,12 @@ namespace Misaki
         #region public変数
         /// -------public変数------- ///
 
+        [System.Serializable]
+        public class ParticleTriggerColliderGroup
+        {
+            public List<Collider> targetColliders = new List<Collider>(); // パーティクルシステムのトリガーに設定するためのコライダー配列
+        }
+
         /// -------public変数------- ///
         #endregion
 
@@ -343,11 +395,14 @@ namespace Misaki
         [SerializeField] private static float breakBonus = 500; // 相手をブレイクした際のボーナスブレイブ
 
         private static List<GameObject> enemyCameraAnchor = new List<GameObject>(); // ロックオン位置リスト
-        [SerializeField] private List<GameObject[]> triggerObjects = new List<GameObject[]>();
         [SerializeField] private GameObject titleUI; // タイトルのUI
         [SerializeField] private GameObject[] inGameUI; // インゲームのUI
         [SerializeField] private GameObject winUI; // 勝った時のUI
         [SerializeField] private GameObject loseUI;// 負けた時のUI
+        [SerializeField] private GameObject mook; // 雑魚エネミー
+        [SerializeField] private GameObject[] spawnPos; // 雑魚エネミー出現場所
+        [SerializeField] private GameObject damageCanvas; // ダメージポップアップ用キャンパス
+        [SerializeField] private GameObject enemyHPCanvas; // エネミーHP用キャンパス
 
         private TitleInputs titleInputs; // InputSystemから生成したスクリプト
 
@@ -356,6 +411,7 @@ namespace Misaki
         [SerializeField] private PlayerScript player; // プレイヤー
 
         private List<EnemyScript> enemeis = new List<EnemyScript>(); // エネミーリスト
+
         [SerializeField] private DragonScript dragon; // ドラゴン
 
         [SerializeField] private PlayableDirector playableDirector; // タイムラインのプレイアブルディレクター
@@ -367,6 +423,8 @@ namespace Misaki
         private Vignette vignette; // ビネット変数
 
         private Camerawork camerawork; // カメラワーク変数
+
+        private static ParticleTriggerColliderGroup[] particleTriggerColliderGroup;  // トリガー対象とするコライダー
 
         private static GameState gameState = GameState.E_Title; // ゲームの状態変数 
 
@@ -385,6 +443,9 @@ namespace Misaki
         public static List<GameObject> GetEnemyCameraAnchor { get { return enemyCameraAnchor; } }
 
         public static Transform GetCameraTransform { get { return mainCamera; } }
+
+        public static ParticleTriggerColliderGroup[] GetParticleTriggerColliderGroup { get { return particleTriggerColliderGroup; } }
+
 
         /// -------プロパティ------- ///
         #endregion

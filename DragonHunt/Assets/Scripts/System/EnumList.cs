@@ -53,6 +53,13 @@ public enum EffectName
     hpMeteor = 6
 }
 
+// パーティクルシステムのトリガー対象
+public enum ParticleSystemTrigger
+{
+    E_PlayerWepon = 0,
+    E_EnemyWepon = 1
+}
+
 // ゲームの状態
 public enum GameState
 {

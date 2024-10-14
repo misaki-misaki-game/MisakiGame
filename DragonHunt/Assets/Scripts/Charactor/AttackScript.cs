@@ -202,16 +202,6 @@ namespace Misaki
             return hitObj.Contains(obj);
         }
 
-        private void InitializeParticleTrigger()
-        {
-            // TriggerModuleを取得
-            ParticleSystem.TriggerModule triggerModule = particle.trigger;
-            triggerModule.enabled = true;
-
-            // コライダーを設定
-            //triggerModule.SetCollider(0, targetCollider);
-        }
-
         /// ------private関数------- ///
         #endregion
 

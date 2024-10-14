@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Misaki
 {
@@ -27,19 +28,40 @@ namespace Misaki
 
         private void Start()
         {
+            SetTriggerColliders();
+        }
+
+        private void OnEnable()
+        {
+            SetTriggerColliders();
+        }
+        
+        /// <summary>
+        /// 自身のタグに応じてセットするコライダーを変える関数
+        /// </summary>
+        private void SetTriggerColliders()
+        {
             // 自身のパーティクルシステムを取得してトリガーを取得する
             ParticleSystem ps = GetComponent<ParticleSystem>();
-            var trigger = ps.trigger;
+            ParticleSystem.TriggerModule trigger = ps.trigger;
 
-            // タグで特定のオブジェクトのコライダーを自動取得
-            GameObject target = GameObject.FindWithTag(hitTarget.ToString());
-            if (target != null)
+            // タグによって初期化を変える
+            if (tag == Tags.PlayerWepon.ToString()) InitializeTriggerModule(ps, ParticleSystemTrigger.E_PlayerWepon);
+            else if (tag == Tags.EnemyWepon.ToString()) InitializeTriggerModule(ps, ParticleSystemTrigger.E_EnemyWepon);
+        }
+
+        /// <summary>
+        /// パーティクルシステムのトリガーを初期化する関数
+        /// </summary>
+        /// <param name="ps">初期化したいパーティクルシステム</param>
+        /// <param name="e">プレイヤーかエネミーの武器</param>
+        private void InitializeTriggerModule(ParticleSystem ps, ParticleSystemTrigger e)
+        {
+            // GameManagerで設定したコライダーを代入
+            List<Collider> colliders = GameManager.GetParticleTriggerColliderGroup[(int)e].targetColliders;
+            for (int i = 0; i < colliders.Count; i++)
             {
-                Collider col = target.GetComponent<Collider>();
-                if (col != null)
-                {
-                    trigger.SetCollider(0, col); // コライダーを設定
-                }
+                ps.trigger.SetCollider(i, colliders[i]);
             }
         }
 
@@ -71,7 +93,6 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        [SerializeField] private Tags hitTarget; // ヒットする目標
 
         /// ------private変数------- ///
         #endregion

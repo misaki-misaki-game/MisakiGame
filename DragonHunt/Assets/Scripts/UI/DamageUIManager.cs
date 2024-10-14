@@ -141,7 +141,7 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
 
-
+        public GameObject SetCanvas { set { canvas = value; } }
 
         /// -------プロパティ------- ///
         #endregion
