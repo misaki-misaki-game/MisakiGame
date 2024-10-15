@@ -50,7 +50,9 @@ public enum EffectName
     hpFireBreath = 3,
     hpBomb1 = 4,
     hpBomb2 = 5,
-    hpMeteor = 6
+    hpMeteor = 6,
+    summon = 7,
+    death = 8
 }
 
 // パーティクルシステムのトリガー対象
@@ -90,7 +92,10 @@ public enum SEList
     E_DragonWingSE = 7,
     E_DragonGetHitVoiceSE = 8,
     E_BeginChanceTime = 9,
-    E_EndChanceTime = 10
+    E_EndChanceTime = 10,
+    E_SmallDragonstepsSE = 11,
+    E_SmallDragonScreamSE = 12,
+    E_BornSE = 13
 }
 
 // プールするオブジェクトタイプ

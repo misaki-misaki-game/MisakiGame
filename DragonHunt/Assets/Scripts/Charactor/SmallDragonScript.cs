@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEngine;
 
 namespace Misaki
 {
@@ -8,6 +9,13 @@ namespace Misaki
 
         #region public関数
         /// -------public関数------- ///
+
+        public override void Born()
+        {
+            // 召喚エフェクトとSEを流す
+            GenerateEffectNoneParent(EffectName.summon, gameObject);
+            SEPlay(SEList.E_BornSE); // SEを流す
+        }
 
         public override IEnumerator BraveHitReaction()
         {
@@ -29,7 +37,7 @@ namespace Misaki
         {
             base.Start();
 
-            //InitializeEnemyUI(); // エネミーUI初期化
+            Born();
         }
 
         /// -----protected関数------ ///

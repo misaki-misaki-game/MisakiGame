@@ -32,6 +32,10 @@ namespace Misaki
             // EnemyScriptが破棄されたことを通知
             MessageBroker.Default.Publish(new EnemyScriptDestroyedMessage(this));
 
+            // UIを消去
+            Destroy(tar);
+            Destroy(subCan);
+
             base.Dead();
         }
 
@@ -140,7 +144,7 @@ namespace Misaki
             if (!tar)
             {
                 // 新しいターゲットオブジェクトとサブキャンパスを生成
-                tar = new GameObject("Tar");
+                tar = new GameObject("HPTarget");
                 subCan = Instantiate(subCanvas);
 
                 // UIの位置更新のためにトランスフォームを代入
@@ -184,8 +188,16 @@ namespace Misaki
         public void SetupTargetAndCanvas(Transform targetTransform, GameObject damageCanvas, GameObject enemyCanvas)
         {
             target = targetTransform;
-            GetComponent<DamageUIManager>().SetCanvas = damageCanvas;
+            GetComponent<DamageUIScript>().SetCanvas = damageCanvas;
             ui = enemyCanvas;
+        }
+
+        /// <summary>
+        /// 自身を削除する関数
+        /// </summary>
+        private void DestroySelf()
+        {
+            Destroy(gameObject);
         }
 
         /// -------public関数------- ///
@@ -217,6 +229,9 @@ namespace Misaki
 
             // 攻撃IDをランダムに決める
             GetAttackPattern();
+
+            // 全てのマテリアルを取得
+            StartCoroutine(InitializeMaterials());
         }
 
         protected override void Update()
@@ -340,6 +355,82 @@ namespace Misaki
             return false;
         }
 
+        /// <summary>
+        /// 全てのマテリアルを取得する関数
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator InitializeMaterials()
+        {
+            // 全ての子オブジェクトのRendererを取得して、マテリアルをリストに追加
+            Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer renderer in allRenderers)
+            {
+                foreach (Material mat in renderer.materials)
+                {
+                    materials.Add(mat);
+                }
+            }
+            yield return null;
+        }
+
+        /// <summary>
+        /// フェードを開始する関数
+        /// </summary>
+        public void StartFade()
+        {
+            StartCoroutine(FadeAllMaterials());
+        }
+
+        /// <summary>
+        /// 全マテリアルを徐々に透明にする関数
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator FadeAllMaterials()
+        {
+            // 経過時間と透明度の変数を生成
+            float elapsedTime = 0f;
+            List<float> initialTransparencyValues = new List<float>();
+
+            // 各マテリアルの初期の_Tweak_transparency値を保持
+            foreach (Material mat in materials)
+            {
+                float initialTransparency = mat.HasProperty("_Tweak_transparency") ? mat.GetFloat("_Tweak_transparency") : 0f;
+                initialTransparencyValues.Add(initialTransparency);
+            }
+
+            // 経過時間が設定した時間を超えるまで、フェード処理を行う
+            while (elapsedTime < fadeDuration)
+            {
+                // 経過時間を保持、経過時間に基づき透明度を算出
+                elapsedTime += Time.deltaTime;
+                float alpha = Mathf.Lerp(1, 0, elapsedTime / fadeDuration);
+
+                // 全マテリアルの透明度を変更する
+                for (int i = 0; i < materials.Count; i++)
+                {
+                    Material mat = materials[i];
+
+                    if (mat.HasProperty("_Tweak_transparency"))
+                    {
+                        float newTransparency = Mathf.Lerp(initialTransparencyValues[i], -1f, elapsedTime / fadeDuration);
+                        mat.SetFloat("_Tweak_transparency", newTransparency);
+                    }
+                }
+
+                yield return null;
+            }
+
+            // 最終的に完全に透明に設定
+            foreach (Material mat in materials)
+            {
+                if (mat.HasProperty("_Tweak_transparency"))
+                {
+                    mat.SetFloat("_Tweak_transparency", -1f);
+                }
+            }
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -443,6 +534,7 @@ namespace Misaki
         private int attackID; // 攻撃ID
 
         private float idleTime; // 攻撃までの待機時間
+        [SerializeField] private float fadeDuration = 2f; // フェードにかける時間
 
         private GameObject tar; // 変更用ターゲット変数
         private GameObject subCan; // 変更用ターゲット変数
@@ -454,6 +546,8 @@ namespace Misaki
         private CapsuleCollider col; // コライダー
 
         private AttackState attackState; // 攻撃の種類
+
+        private List<Material> materials = new List<Material>(); // マテリアルリスト
 
         /// ------private変数------- ///
         #endregion

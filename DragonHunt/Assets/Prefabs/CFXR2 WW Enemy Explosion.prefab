@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3698491107572625289}
   - component: {fileID: 3559175946000540695}
   - component: {fileID: 7579772026388890298}
+  - component: {fileID: 6841466250797703260}
   m_Layer: 0
   m_Name: Quick Spikes
   m_TagString: Untagged
@@ -117,7 +118,7 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 0.5
   simulationSpeed: 1
-  stopAction: 0
+  stopAction: 3
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
@@ -4756,6 +4757,18 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!114 &6841466250797703260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013519736820673030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7226888050891314116
 GameObject:
   m_ObjectHideFlags: 0
@@ -4767,6 +4780,7 @@ GameObject:
   - component: {fileID: 7226888050891314115}
   - component: {fileID: 7226888050891314113}
   - component: {fileID: 7226888050891314114}
+  - component: {fileID: 5224770999427295958}
   m_Layer: 0
   m_Name: "Smoke 90\xB0"
   m_TagString: Untagged
@@ -4799,8 +4813,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -9665,6 +9679,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &5224770999427295958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888050891314116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7226888051353360784
 GameObject:
   m_ObjectHideFlags: 0
@@ -9676,6 +9702,7 @@ GameObject:
   - component: {fileID: 7226888051353360815}
   - component: {fileID: 7226888051353360813}
   - component: {fileID: 7226888051353360814}
+  - component: {fileID: 7574961429746784870}
   m_Layer: 0
   m_Name: "Smoke 270\xB0"
   m_TagString: Untagged
@@ -9708,8 +9735,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -14574,6 +14601,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &7574961429746784870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888051353360784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7226888052447524525
 GameObject:
   m_ObjectHideFlags: 0
@@ -14703,6 +14742,7 @@ GameObject:
   - component: {fileID: 7226888052524955020}
   - component: {fileID: 7226888052524955018}
   - component: {fileID: 7226888052524955019}
+  - component: {fileID: 5653645295723581115}
   m_Layer: 0
   m_Name: "Smoke 180\xB0"
   m_TagString: Untagged
@@ -14735,8 +14775,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -19601,6 +19641,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &5653645295723581115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888052524955021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7226888052703040409
 GameObject:
   m_ObjectHideFlags: 0
@@ -19613,6 +19665,8 @@ GameObject:
   - component: {fileID: 7226888052703040407}
   - component: {fileID: 7226888052703040408}
   - component: {fileID: 7226888052703040405}
+  - component: {fileID: 1602727995656894079}
+  - component: {fileID: 4212004665548631863}
   m_Layer: 0
   m_Name: CFXR2 WW Enemy Explosion
   m_TagString: Untagged
@@ -19652,8 +19706,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -24672,6 +24726,31 @@ MonoBehaviour:
     perlinColor: 0
     perlinColorSpeed: 0
   fadeOutReference: {fileID: 0}
+--- !u!114 &1602727995656894079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888052703040409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4212004665548631863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888052703040409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc75691c1ce00784db5c25cacc345bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectPool: {fileID: 0}
 --- !u!1 &7226888052859246535
 GameObject:
   m_ObjectHideFlags: 0
@@ -24683,6 +24762,7 @@ GameObject:
   - component: {fileID: 7226888052859246534}
   - component: {fileID: 7226888052859246532}
   - component: {fileID: 7226888052859246533}
+  - component: {fileID: 3963702847737981616}
   m_Layer: 0
   m_Name: Rays
   m_TagString: Untagged
@@ -24715,8 +24795,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -29572,6 +29652,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3963702847737981616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226888052859246535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7251351415208071827
 GameObject:
   m_ObjectHideFlags: 0
@@ -29583,6 +29675,7 @@ GameObject:
   - component: {fileID: 2509284396223527835}
   - component: {fileID: 9138477582908237298}
   - component: {fileID: 1251272410337526195}
+  - component: {fileID: 233645125597707384}
   m_Layer: 0
   m_Name: "Smoke 0\xB0"
   m_TagString: Untagged
@@ -29615,8 +29708,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.1
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -34481,3 +34574,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &233645125597707384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7251351415208071827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

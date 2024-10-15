@@ -84,7 +84,6 @@ namespace Misaki
             MessageBroker.Default.Receive<DodgeSuccessMessage>()
                 .Subscribe(_ => OnDodgeSuccess())
                 .AddTo(this);
-
         }
 
         private void Start()
@@ -258,8 +257,8 @@ namespace Misaki
         /// <param name="script">指定のスクリプト</param>
         private void RemoveScript<T>(T script)
         {
-            if (script is AttackScript attackScript && !attackScripts.Contains(attackScript)) attackScripts.Remove(attackScript);
-            else if (script is EnemyScript enemyScript && !enemeis.Contains(enemyScript))
+            if (script is AttackScript attackScript && attackScripts.Contains(attackScript)) attackScripts.Remove(attackScript);
+            else if (script is EnemyScript enemyScript && enemeis.Contains(enemyScript))
             {
                 // エネミーリストとロックオン位置リストから除外
                 enemeis.Remove(enemyScript);

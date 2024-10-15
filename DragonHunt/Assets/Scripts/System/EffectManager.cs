@@ -30,7 +30,7 @@ namespace Misaki
                 effectGroups[i] = new EffectGroup(); // インスタンス生成
                 effectGroups[i].effect = effectObjects[i]; // エフェクトを代入
                 effectGroups[i].pool= new GameObject(name.ToString() + "Pool").AddComponent<PoolManager>(); // オブジェクトプールをヒエラルキー上に生成
-                effectGroups[i].pool.InitializePool(poolDefaultCapacity, poolMaxSize, effectGroups[i].effect); // オブジェクトプールを初期化
+                effectGroups[i].pool.InitializePool(poolDefaultCapacity, poolMaxSize); // オブジェクトプールを初期化
             }
         }
 

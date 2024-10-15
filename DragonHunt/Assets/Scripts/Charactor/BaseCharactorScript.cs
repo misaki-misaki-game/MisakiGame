@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 namespace Misaki
 {
-    // 自動的にコンポーネントを追加 AudioSource,TrailController,DamageUIManagerを追加
+    // 自動的にコンポーネントを追加 AudioSource,TrailController,DamageUIScriptを追加
     [RequireComponent(typeof(AudioSource))]
     [RequireComponent(typeof(TrailController))]
-    [RequireComponent(typeof(DamageUIManager))]
+    [RequireComponent(typeof(DamageUIScript))]
     public abstract partial class BaseCharactorScript : DebugSetUp, IBattle
     {
         /// --------関数一覧-------- ///
@@ -46,25 +46,6 @@ namespace Misaki
             return IsBreak();
         }
 
-        /// <summary>
-        /// ブレイク状態になったかどうか
-        /// </summary>
-        /// <returns>ブレイク状態であればtrue</returns>
-        private bool IsBreak()
-        {
-            // 既にブレイク状態ならfalseを返す
-            if (braveState == BraveState.E_Break) return false;
-
-            // ブレイブが0以下になったらブレイク状態にする
-            if (parameter.brave <= 0)
-            {
-                parameter.brave = 0;
-                braveState = BraveState.E_Break;
-                textBreak.gameObject.SetActive(true);
-                return true;
-            }
-            else return false;
-        }
 
         /// <summary>
         /// HP値へのダメージを受け取る関数
@@ -90,9 +71,9 @@ namespace Misaki
         /// <summary>
         /// 生まれる関数
         /// </summary>
-        public void Born()
+        public virtual void Born()
         {
-            //anim
+            
         }
 
         /// <summary>
@@ -404,7 +385,7 @@ namespace Misaki
             // 通常状態の場合はリターン
             // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
             // ブレイク状態の場合はbrakSpeed秒掛けて回復
-            if (braveState == BraveState.E_Default) return;
+            if (braveState == BraveState.E_Default || animState==AnimState.E_Dead) return;
             else if (braveState == BraveState.E_Regenerate) parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
             else parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
 
@@ -540,6 +521,8 @@ namespace Misaki
 
             // コンポーネントを取得
             anim ??= GetComponent<Animator>();
+            damageUI ??= GetComponent<DamageUIScript>();
+
             AnimState = default; // アニメーション状態をなにもしていないに変更
 
             Random.InitState(System.DateTime.Now.Millisecond); // シード値を設定(日付データ)
@@ -657,6 +640,26 @@ namespace Misaki
             // モーション値*攻撃力*クリティカル倍率
             if (isCritical) return motionValue * parameter.attack * criticalDamageRate;
             else return motionValue * parameter.attack;
+        }
+
+        /// <summary>
+        /// ブレイク状態になったかどうか
+        /// </summary>
+        /// <returns>ブレイク状態であればtrue</returns>
+        private bool IsBreak()
+        {
+            // 既にブレイク状態ならfalseを返す
+            if (braveState == BraveState.E_Break) return false;
+
+            // ブレイブが0以下になったらブレイク状態にする
+            if (parameter.brave <= 0)
+            {
+                parameter.brave = 0;
+                braveState = BraveState.E_Break;
+                textBreak.gameObject.SetActive(true);
+                return true;
+            }
+            else return false;
         }
 
         /// ------private関数------- ///
@@ -786,7 +789,7 @@ namespace Misaki
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
 
-        [SerializeField] private DamageUIManager damageUI; // ダメージポップアップUI
+        private DamageUIScript damageUI; // ダメージポップアップUI
 
         /// ------private変数------- ///
         #endregion

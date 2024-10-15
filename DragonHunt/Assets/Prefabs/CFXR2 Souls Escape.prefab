@@ -130,6 +130,8 @@ GameObject:
   - component: {fileID: 5515065002404772068}
   - component: {fileID: 5515400301767673886}
   - component: {fileID: 114114994653804418}
+  - component: {fileID: 8376400440743690058}
+  - component: {fileID: 3977220514834962158}
   m_Layer: 0
   m_Name: CFXR2 Souls Escape
   m_TagString: Untagged
@@ -165,8 +167,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 3
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 3
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -4939,6 +4941,31 @@ MonoBehaviour:
     perlinColor: 0
     perlinColorSpeed: 0
   fadeOutReference: {fileID: 0}
+--- !u!114 &8376400440743690058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5642766282230003982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc75691c1ce00784db5c25cacc345bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectPool: {fileID: 0}
+--- !u!114 &3977220514834962158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5642766282230003982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7660836441076557297
 GameObject:
   m_ObjectHideFlags: 0
@@ -4950,6 +4977,7 @@ GameObject:
   - component: {fileID: 7660836441076557296}
   - component: {fileID: 7660836441076557302}
   - component: {fileID: 7660836441076557303}
+  - component: {fileID: 6262102446119374315}
   m_Layer: 0
   m_Name: Smoke
   m_TagString: Untagged
@@ -4982,8 +5010,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 3
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -9601,6 +9629,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &6262102446119374315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7660836441076557297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7660836442491109380
 GameObject:
   m_ObjectHideFlags: 0
@@ -9612,6 +9652,7 @@ GameObject:
   - component: {fileID: 7660836442491109403}
   - component: {fileID: 7660836442491109401}
   - component: {fileID: 7660836442491109402}
+  - component: {fileID: 8034871280564515790}
   m_Layer: 0
   m_Name: Rays
   m_TagString: Untagged
@@ -9644,8 +9685,8 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.5
   simulationSpeed: 1
-  stopAction: 0
-  cullingMode: 0
+  stopAction: 3
+  cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
@@ -14443,3 +14484,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &8034871280564515790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7660836442491109380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30b65307526c7e46a48e1f50c804b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

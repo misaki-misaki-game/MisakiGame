@@ -33,7 +33,8 @@ namespace Misaki
         private void Update()
         {
             // UIの位置を更新する
-            rectTransform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, target.position) + offset;
+            if (target != null) rectTransform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, target.position) + offset;
+            else Destroy(gameObject);
         }
 
         /// ------private関数------- ///

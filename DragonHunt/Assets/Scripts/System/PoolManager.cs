@@ -27,6 +27,7 @@ namespace Misaki
             if (poolType == PoolType.E_Effect) obj.GetComponent<PooledEffectObject>().SetPoolManager = this;
 
             if (parent != null) obj.transform.SetParent(parent); // 親オブジェクトを代入
+            else obj.transform.SetParent(null); // 親オブジェクトの設定をはずす
 
             // トランスフォームを代入
             Transform tf = obj.transform;
@@ -52,7 +53,7 @@ namespace Misaki
         /// <param name="defaultCapacity">初期容量</param>
         /// <param name="maxSize">最大容量</param>
         /// <param name="obj">プール化したいオブジェクト</param>
-        public void InitializePool(int defaultCapacity, int maxSize, GameObject obj = null)
+        public void InitializePool(int defaultCapacity, int maxSize)
         {
             // プールを生成
             pool = new ObjectPool<GameObject>(OnCreatePooledObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, false, defaultCapacity, maxSize);
@@ -96,6 +97,8 @@ namespace Misaki
         /// <param name="obj">指定のオブジェクト</param>
         private void OnReleaseToPool(GameObject obj)
         {
+            obj.transform.SetParent(this.transform); // プールを管理するオブジェクトを親に設定
+
             obj.SetActive(false); // オブジェクトを非表示にする
         }
 
