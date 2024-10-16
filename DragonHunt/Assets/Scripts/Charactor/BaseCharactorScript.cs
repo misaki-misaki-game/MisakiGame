@@ -36,7 +36,6 @@ namespace Misaki
 
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
-            if (parameter.brave <= 0) parameter.brave = 0;
 
             // ダメージを表示する
             StartCoroutine(damageUI.PopDamageUI(damage, isCritical));
@@ -268,7 +267,11 @@ namespace Misaki
             for (int i = 0; i < attackScripts.Count; i++)
             {
                 attackScripts[i].SetAttackState = AttackState.E_HPAttack;
-                attackScripts[i].SetHPAttack = parameter.brave;
+
+                // ブレイク状態の場合のみ0ダメージにする
+                if (braveState != BraveState.E_Break) attackScripts[i].SetHPAttack = parameter.brave;
+                else attackScripts[i].SetHPAttack = 0;
+
                 attackScripts[i].ClearHitObj();
             }
         }
@@ -289,7 +292,11 @@ namespace Misaki
             // アタックスクリプトの所有者を自分にする
             bulletAttackScript.SetOwnOwner = this;
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
-            bulletAttackScript.SetHPAttack = parameter.brave;
+
+            // ブレイク状態の場合のみ0ダメージにする
+            if (braveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
+            else bulletAttackScript.SetHPAttack = 0;
+
             bulletAttackScript.ClearHitObj();
         }
 
@@ -309,7 +316,11 @@ namespace Misaki
             // アタックスクリプトの所有者を自分にする
             bulletAttackScript.SetOwnOwner = this;
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
-            bulletAttackScript.SetHPAttack = parameter.brave;
+
+            // ブレイク状態の場合のみ0ダメージにする
+            if (braveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
+            else bulletAttackScript.SetHPAttack = 0;
+
             bulletAttackScript.ClearHitObj();
         }
 
@@ -367,11 +378,20 @@ namespace Misaki
         /// </summary>
         public void HitHPAttack()
         {
-            // ブレイブを0にする
-            parameter.brave = 0;
+            // ブレイブの状態によって処理を変える
+            if (braveState != BraveState.E_Break)
+            {
+                // ブレイブを0にする
+                parameter.brave = 0;
 
-            // ブレイブ状態をリジェネ状態にする
-            braveState = BraveState.E_Regenerate;
+                // ブレイブ状態をリジェネ状態にしてリジェネ開始
+                braveState = BraveState.E_Regenerate;
+            }
+            else
+            {
+                // ブレイブを基準値にして、リジェネを停止
+                parameter.brave = parameter.standardBrave;
+            }
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -385,7 +405,7 @@ namespace Misaki
             // 通常状態の場合はリターン
             // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
             // ブレイク状態の場合はbrakSpeed秒掛けて回復
-            if (braveState == BraveState.E_Default || animState==AnimState.E_Dead) return;
+            if (braveState == BraveState.E_Default || animState == AnimState.E_Dead) return;
             else if (braveState == BraveState.E_Regenerate) parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
             else parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
 

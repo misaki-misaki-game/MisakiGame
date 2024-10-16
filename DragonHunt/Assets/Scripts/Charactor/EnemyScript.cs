@@ -113,7 +113,11 @@ namespace Misaki
             // アタックスクリプトの所有者を自分にする
             bulletAttackScript.SetOwnOwner = this;
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
-            bulletAttackScript.SetHPAttack = parameter.brave;
+
+            // ブレイク状態の場合のみ0ダメージにする
+            if (braveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
+            else bulletAttackScript.SetHPAttack = 0;
+
             bulletAttackScript.ClearHitObj();
         }
 

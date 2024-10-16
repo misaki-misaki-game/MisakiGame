@@ -40,8 +40,9 @@ namespace Misaki
             // ロックオン位置リストを取得
             List<GameObject> cameraAnchorList = GameManager.GetEnemyCameraAnchor;
 
+            if (cameraAnchorList.Count == 0) return;
             // リストの要素数が1を超過しているなら
-            if (cameraAnchorList.Count > 1)
+            else if (cameraAnchorList.Count > 1)
             {
                 // イテレーターをずらす
                 if (value <= 0) lockonNomber++;
