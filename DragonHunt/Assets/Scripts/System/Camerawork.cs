@@ -56,34 +56,6 @@ namespace Misaki
             ActiveLockonCamera(cameraAnchorList[lockonNomber]);
         }
 
-        /// <summary>
-        /// ロックオン時のVirtualCamera切り替え
-        /// </summary>
-        /// <param name="target">ロックオンしたいエネミー</param>
-        private void ActiveLockonCamera(GameObject target)
-        {
-            // ロックオンカメラの優先度を最上位にして、ターゲットを代入する
-            lockonCamera.Priority = lockonCameraActivePriority;
-            lockonCamera.LookAt = target.transform;
-            currentCameraTransform = lockonCamera.transform;
-        }
-
-        /// <summary>
-        /// ロックオン解除時のVirtualCamera切り替え
-        /// </summary>
-        private void InactiveLockonCamera()
-        {
-            // ロックオンカメラの優先度を最下位にして、ターゲットをはずす
-            lockonCamera.Priority = lockonCameraInactivePriority;
-            lockonCamera.LookAt = null;
-
-            // 直前のLockonCameraの角度を引き継ぐ
-            CinemachinePOV pov = freeLookCamera.GetCinemachineComponent<CinemachinePOV>();
-            pov.m_VerticalAxis.Value = Mathf.Repeat(lockonCamera.transform.eulerAngles.x + 180, 360) - 180;
-            pov.m_HorizontalAxis.Value = lockonCamera.transform.eulerAngles.y;
-            currentCameraTransform = freeLookCamera.transform;
-        }
-
         /// -------public関数------- ///
         #endregion
 
@@ -98,7 +70,44 @@ namespace Misaki
         #region private関数
         /// ------private関数------- ///
 
+        private void Update()
+        {
+            // ロックオンカーソル
+            if (isLockon && lockonCamera.LookAt != null)
+            {
+                lockonCursor.transform.position = Camera.main.WorldToScreenPoint(lockonCamera.LookAt.position);
+            }
+        }
 
+        /// <summary>
+        /// ロックオン時のVirtualCamera切り替え
+        /// </summary>
+        /// <param name="target">ロックオンしたいエネミー</param>
+        private void ActiveLockonCamera(GameObject target)
+        {
+            // ロックオンカメラの優先度を最上位にして、ターゲットを代入する
+            lockonCamera.Priority = lockonCameraActivePriority;
+            lockonCamera.LookAt = target.transform;
+            currentCameraTransform = lockonCamera.transform;
+            lockonCursor.SetActive(true);
+        }
+
+        /// <summary>
+        /// ロックオン解除時のVirtualCamera切り替え
+        /// </summary>
+        private void InactiveLockonCamera()
+        {
+            // ロックオンカメラの優先度を最下位にして、ターゲットをはずす
+            lockonCamera.Priority = lockonCameraInactivePriority;
+            lockonCamera.LookAt = null;
+            lockonCursor.SetActive(false);
+
+            // 直前のLockonCameraの角度を引き継ぐ
+            CinemachinePOV pov = freeLookCamera.GetCinemachineComponent<CinemachinePOV>();
+            pov.m_VerticalAxis.Value = Mathf.Repeat(lockonCamera.transform.eulerAngles.x + 180, 360) - 180;
+            pov.m_HorizontalAxis.Value = lockonCamera.transform.eulerAngles.y;
+            currentCameraTransform = freeLookCamera.transform;
+        }
 
         /// ------private関数------- ///
         #endregion
@@ -139,6 +148,8 @@ namespace Misaki
         [SerializeField] private CinemachineVirtualCamera lockonCamera; // ロックオンカメラ
 
         private static Transform currentCameraTransform; // 現在使用しているカメラ
+        private Transform lockonTargetTransform; // ロックオンしているターゲットのトランスフォーム
+
         [SerializeField] private GameObject lockonCursor; // ロックオンカーソル
 
         /// ------private変数------- ///

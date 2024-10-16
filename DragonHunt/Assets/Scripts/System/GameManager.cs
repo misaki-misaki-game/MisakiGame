@@ -185,12 +185,17 @@ namespace Misaki
         /// </summary>
         private IEnumerator SummonMook()
         {
-            GameObject[] obj=new GameObject[spawnPos.Length];
+            // エネミー生成位置を取得
+            GameObject[] obj = new GameObject[spawnPos.Length];
+
+            // エネミーを生成し、必要な情報を渡す
             for (int i = 0; i < spawnPos.Length; i++)
             {
                 obj[i] = Instantiate(mook, spawnPos[i].transform.localPosition, Quaternion.identity);
                 obj[i].GetComponent<EnemyScript>().SetupTargetAndCanvas(player.transform, damageCanvas, enemyHPCanvas);
             }
+
+            // 生成から少し時間を置いてから、UIの初期化を行う
             yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < spawnPos.Length; i++) obj[i].GetComponent<EnemyScript>().InitializeEnemyUI();
         }
@@ -339,7 +344,7 @@ namespace Misaki
             SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_EndChanceTime);
 
             // アニメーションスピードとクリティカル発生率,ビネットを元に戻す
-            dragon.GetAnimator.speed = 1f;
+            if (dragon != null) dragon.GetAnimator.speed = 1f;
             player.GetAnimator.speed = 1f;
             player.CriticalRate = currentCriticalRate;
             if (volume.profile.TryGet(out vignette))

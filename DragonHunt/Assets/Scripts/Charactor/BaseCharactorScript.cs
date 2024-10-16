@@ -669,7 +669,11 @@ namespace Misaki
         private bool IsBreak()
         {
             // 既にブレイク状態ならfalseを返す
-            if (braveState == BraveState.E_Break) return false;
+            if (braveState == BraveState.E_Break)
+            {
+                Debug.Log("既にブレイク状態です");
+                return false;
+            }
 
             // ブレイブが0以下になったらブレイク状態にする
             if (parameter.brave <= 0)
@@ -677,9 +681,15 @@ namespace Misaki
                 parameter.brave = 0;
                 braveState = BraveState.E_Break;
                 textBreak.gameObject.SetActive(true);
+                Debug.Log("ブレイク状態になりました");
                 return true;
             }
-            else return false;
+            else
+            {
+                Debug.Log("ブレイク状態にはなりません");
+
+                return false;
+            }
         }
 
         /// ------private関数------- ///
