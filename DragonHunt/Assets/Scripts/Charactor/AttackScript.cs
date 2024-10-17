@@ -106,8 +106,8 @@ namespace Misaki
                 Collider col = particle.trigger.GetCollider(i).GetComponent<Collider>();
 
                 // コライダーが適切なものかを確認
-                if (tag == Tags.PlayerWepon.ToString() && !col.CompareTag(Tags.Enemy.ToString())) continue;
-                if (tag == Tags.EnemyWepon.ToString() && !col.CompareTag(Tags.Player.ToString())) continue;
+                if (CompareTag(Tags.PlayerWepon.ToString()) && !col.CompareTag(Tags.Enemy.ToString())) continue;
+                if (CompareTag(Tags.EnemyWepon.ToString()) && !col.CompareTag(Tags.Player.ToString())) continue;
 
                 // 処理を開始
                 col.GetComponent<BaseCharactorScript>().CanDamageEffect();

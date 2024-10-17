@@ -7461,6 +7461,11 @@ PrefabInstance:
       propertyPath: faceWindow
       value: 
       objectReference: {fileID: 1363986511}
+    - target: {fileID: 6323405084502904604, guid: dfc5122c15f111742b1f2831df2aba03,
+        type: 3}
+      propertyPath: positioning
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7887082598003022933, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8037,6 +8042,11 @@ PrefabInstance:
       objectReference: {fileID: 941663309}
     - target: {fileID: 2737478110485823940, guid: 9f9e613086425be4b822f2ab8a124dca,
         type: 3}
+      propertyPath: positioning
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737478110485823940, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
       propertyPath: effectPositions.Array.size
       value: 9
       objectReference: {fileID: 0}
@@ -8159,6 +8169,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 13.851379
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936159374080581481, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: m_Height
+      value: 8.979068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936159374080581481, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: m_Center.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936159374080581481, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 1.7695336
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936159374080581481, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: m_Center.z
+      value: -0.6600001
       objectReference: {fileID: 0}
     - target: {fileID: 4077895208455313636, guid: 9f9e613086425be4b822f2ab8a124dca,
         type: 3}
@@ -8554,6 +8584,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Boss
+      objectReference: {fileID: 0}
+    - target: {fileID: 7071430053768063260, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: avoidancePriority
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 7136178778775573788, guid: 9f9e613086425be4b822f2ab8a124dca,
         type: 3}

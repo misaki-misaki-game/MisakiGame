@@ -1127,7 +1127,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 2.5
   m_Speed: 2
-  m_Acceleration: 5
+  m_Acceleration: 2.5
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 1.5
@@ -1184,10 +1184,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 4.3
-  m_Height: 21.67
-  m_Direction: 1
-  m_Center: {x: 0, y: 8.8, z: 0}
+  m_Radius: 2.33
+  m_Height: 8.81
+  m_Direction: 2
+  m_Center: {x: -0, y: 1.4, z: -0}
 --- !u!82 &4686969195939578078
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1309,6 +1309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffb2006255e64b54fadf034a5943e19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlayer: 0
   viewRadius: 100
   viewHeightMax: 20
   viewHeightMin: 0
@@ -1321,8 +1322,6 @@ MonoBehaviour:
     type: 3}
   criticalDamageText: {fileID: 7311776906451147771, guid: c0a496c157a223044bced2f5edc8dbb1,
     type: 3}
-  poolDefaultCapacity: 20
-  poolMaxSize: 30
 --- !u!114 &8025831726301368349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1352,6 +1351,7 @@ MonoBehaviour:
   speed: 10
   attack: 5
   adjustEffectYPos: 0
+  pushStrength: 0.3
   animState: 0
   effectPositions:
   - {fileID: 1955913344268320102}
@@ -1363,8 +1363,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 1955913344268320102}
-  damageUI: {fileID: 5696350474838544924}
-  isEnemy: 1
   offsetUI: 1
   target: {fileID: 0}
   braveAttackClip:
@@ -1379,6 +1377,7 @@ MonoBehaviour:
   ui: {fileID: 0}
   subCanvas: {fileID: 8585009173511462879, guid: 0c2c8aa5c793ade47977ff825a29c42a,
     type: 3}
+  fadeDuration: 2
   enemyUI: {fileID: 674970134454911928, guid: 5afbc0e2ae4d7354d95533f3d8fe10c4, type: 3}
   cameraAnchor: {fileID: 1117097251487728275}
 --- !u!1 &6260726445520236374

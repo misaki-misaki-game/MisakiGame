@@ -115,7 +115,7 @@ namespace Misaki
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
 
             // ブレイク状態の場合のみ0ダメージにする
-            if (braveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
+            if (BraveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
             else bulletAttackScript.SetHPAttack = 0;
 
             bulletAttackScript.ClearHitObj();
@@ -435,6 +435,24 @@ namespace Misaki
             }
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.CompareTag(Tags.Player.ToString()))
+            {
+                // コライダーに乗り上げないように押し出す関数の許可を出す
+                inCollider = true;
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject.CompareTag(Tags.Player.ToString()))
+            {
+                // 押し出す関数の許可を取り消す
+                inCollider = false;
+            }
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -496,8 +514,6 @@ namespace Misaki
         #region protected変数
         /// -----protected変数------ ///
          
-        [SerializeField] protected bool isEnemy = true; // 敵かどうか
-
         [SerializeField] protected float offsetUI = 2.0f; // エネミーUIの配置位置
 
         protected Vector2 moveInputValue; // 入力した値

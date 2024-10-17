@@ -40,7 +40,12 @@ namespace Misaki
             // ロックオン位置リストを取得
             List<GameObject> cameraAnchorList = GameManager.GetEnemyCameraAnchor;
 
-            if (cameraAnchorList.Count == 0) return;
+            // エネミーの数が0の場合ロックオンカーソルを外す
+            if (cameraAnchorList.Count == 0)
+            {
+                lockonCursor.SetActive(false);
+                return;
+            }
             // リストの要素数が1を超過しているなら
             else if (cameraAnchorList.Count > 1)
             {
@@ -52,6 +57,7 @@ namespace Misaki
                 if (lockonNomber >= cameraAnchorList.Count) lockonNomber = 0;
                 else if (lockonNomber < 0) lockonNomber = cameraAnchorList.Count - 1;
             }
+
             // ターゲット切り替え
             ActiveLockonCamera(cameraAnchorList[lockonNomber]);
         }
@@ -72,7 +78,7 @@ namespace Misaki
 
         private void Update()
         {
-            // ロックオンカーソル
+            // ロックオンカーソルを追尾させる
             if (isLockon && lockonCamera.LookAt != null)
             {
                 lockonCursor.transform.position = Camera.main.WorldToScreenPoint(lockonCamera.LookAt.position);

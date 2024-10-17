@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System;
 using UniRx;
-using static Misaki.EnemyScript;
 
 namespace Misaki
 {
@@ -138,31 +137,30 @@ namespace Misaki
             // コンポーネントを取得
             con ??= GetComponent<CharacterController>();
 
-            if (!isEnemy)
-            {
-                // マウスを固定する気はない
-                // マウスカーソルを非表示にし、位置を固定
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
 
-                key ??= Keyboard.current; // 現在のキーボード情報を取得
+            // マウスを固定する気はない
+            // マウスカーソルを非表示にし、位置を固定
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
 
-                playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
+            key ??= Keyboard.current; // 現在のキーボード情報を取得
 
-                // イベント登録
-                playerInputs.Player.Move.started += OnMove;
-                playerInputs.Player.Move.performed += OnMove;
-                playerInputs.Player.Move.canceled += OnMove;
-                playerInputs.Player.BAttack.started += OnBAttack;
-                playerInputs.Player.HAttack.started += OnHAttack;
-                playerInputs.Player.Guard.started += OnGuard;
-                playerInputs.Player.Dodge.started += OnDodge;
-                playerInputs.Player.Lockon.started += OnLockon;
-                playerInputs.Player.Look.started += OnLook;
+            playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
 
-                startPos = transform.position; // 初期位置を取得
-                cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
-            }
+            // イベント登録
+            playerInputs.Player.Move.started += OnMove;
+            playerInputs.Player.Move.performed += OnMove;
+            playerInputs.Player.Move.canceled += OnMove;
+            playerInputs.Player.BAttack.started += OnBAttack;
+            playerInputs.Player.HAttack.started += OnHAttack;
+            playerInputs.Player.Guard.started += OnGuard;
+            playerInputs.Player.Dodge.started += OnDodge;
+            playerInputs.Player.Lockon.started += OnLockon;
+            playerInputs.Player.Look.started += OnLook;
+
+            startPos = transform.position; // 初期位置を取得
+            cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
+
 
             InitializeHPUI(); // HPに数値を反映
 
@@ -181,48 +179,14 @@ namespace Misaki
                 isInGame = true;
             }
 
-            if (!isEnemy)
-            {
-                // キーボードチェック
-                CheckKeyBoard();
 
-                // 移動関数
-                Move();
+            // キーボードチェック
+            CheckKeyBoard();
 
-                // カメラを追従させる
-                TrackingCamera();
-            }
+            // 移動関数
+            Move();
 
             base.Update();
-            PushOutCollider();
-        }
-
-        /// <summary>
-        /// エネミーにめり込まないようにプレイヤーを押し出す関数
-        /// </summary>
-        private void PushOutCollider()
-        {
-            // エネミーコライダー内でないならリターン
-            if (!inCollider) return;
-            CharacterController charaCon = GetComponent<CharacterController>();
-
-            // 自身に接触しているコライダーを取得
-            Collider[] colliders = Physics.OverlapSphere(transform.position, charaCon.radius);
-
-            // コライダーの位置を取得し、位置座標の逆方向にプレイヤーを押し出す
-            foreach (Collider collider in colliders)
-            {
-                if (collider.CompareTag("Enemy"))
-                {
-                    // 敵のコライダーの外に押し出す
-                    Vector3 direction = (transform.position - collider.transform.position).normalized;
-
-                    // 方向に向かって押し出す
-                    charaCon.Move(direction * positioning);
-
-                    break; // 一つ見つけたら処理を終了
-                }
-            }
         }
 
         /// -----protected関数------ ///
@@ -312,8 +276,11 @@ namespace Misaki
             // lookアクションの入力取得
             lookInputValue = context.ReadValue<Vector2>();
 
-            // ロックの切り替え
-            camerawork.ChangeTarget(lookInputValue.x);
+            // 閾値を設定（必要に応じて調整）
+            float threshold = 10f;
+
+            // ロックの切り替え処理は、X軸の入力が閾値を超えた場合のみ行う
+            if (Mathf.Abs(lookInputValue.x) > threshold) camerawork.ChangeTarget(lookInputValue.x);
         }
 
         /// <summary>
@@ -332,14 +299,6 @@ namespace Misaki
         }
 
         /// <summary>
-        /// カメラを追従させる関数
-        /// </summary>
-        private void TrackingCamera()
-        {
-            //plCamera.transform.localPosition = new Vector3(transform.position.x, 0, transform.position.z) + cameraOffset;
-        }
-
-        /// <summary>
         /// 顔ウィンドウの表示を変える関数
         /// </summary>
         /// <param name="animState"></param>
@@ -350,7 +309,7 @@ namespace Misaki
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            if (hit.collider.tag == "Enemy")
+            if (hit.collider.CompareTag(Tags.Enemy.ToString()))
             {
                 // コライダーに乗り上げないように押し出す関数の許可を出す
                 inCollider = true;
@@ -359,7 +318,7 @@ namespace Misaki
 
         private void OnCollisionExit(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Enemy"))
+            if (collision.gameObject.CompareTag(Tags.Enemy.ToString()))
             {
                 // 押し出す関数の許可を取り消す
                 inCollider = false;
@@ -417,12 +376,9 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        private bool inCollider; // コライダー内かどうか
         private bool isInGame = false; // インゲーム中かどうか
-        [SerializeField] private bool isEnemy = false; // エネミーかどうか　テスト用
 
         private float gravity = 10f; // 重力
-        [SerializeField] private float positioning = 0.1f; // 位置調整
 
         private Vector2 moveInputValue; // 移動入力した値
         private Vector2 lookInputValue; // 視点入力した値

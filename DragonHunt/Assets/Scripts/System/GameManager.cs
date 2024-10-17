@@ -314,7 +314,10 @@ namespace Misaki
             SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_BeginChanceTime);
 
             // アニメーションスピードを変更
-            dragon.GetAnimator.speed = 0.1f;
+            if (enemeis.Count > 0)
+            {
+                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 0.1f;
+            }
             player.GetAnimator.speed = 2f;
 
             // クリティカル発生率を100%にする
@@ -344,7 +347,10 @@ namespace Misaki
             SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_EndChanceTime);
 
             // アニメーションスピードとクリティカル発生率,ビネットを元に戻す
-            if (dragon != null) dragon.GetAnimator.speed = 1f;
+            if (enemeis.Count > 0)
+            {
+                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 1f;
+            }
             player.GetAnimator.speed = 1f;
             player.CriticalRate = currentCriticalRate;
             if (volume.profile.TryGet(out vignette))
@@ -392,7 +398,7 @@ namespace Misaki
         #region private変数
         /// ------private変数------- ///
 
-        private static bool isChanceTime = false;
+        private static bool isChanceTime = false; // チャンスタイムかどうか
 
         [SerializeField] private float gameOverDelay = 5f; // ゲームをリセットするまでの時間
         [SerializeField] private float chanceTime = 5f; // チャンスタイムの制限時間

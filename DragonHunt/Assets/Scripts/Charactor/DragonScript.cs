@@ -24,7 +24,7 @@ namespace Misaki
         public override IEnumerator HPHitReaction()
         {
             // HPが50%を切ったら形態変更
-            if (!isPhaseChange && parameter.hp<2000/*parameter.hp < parameter.maxHp / 2*/)
+            if (!isPhaseChange && parameter.hp < 2499/*parameter.hp < parameter.maxHp / 2*/)
             {
                 isPhaseChange = true;
                 onPhaseChange.OnNext(Unit.Default);  // イベントを発行
