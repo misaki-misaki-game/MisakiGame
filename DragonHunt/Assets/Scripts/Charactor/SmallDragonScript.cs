@@ -19,7 +19,10 @@ namespace Misaki
         public override IEnumerator BraveHitReaction()
         {
             // 被ダメージ状態がスーパーアーマーでなければ小怯みアニメーションを再生
-            if (damageState != DamageState.E_SuperArmor) SmallHitReaction(0);
+            if (damageState != DamageState.E_SuperArmor)
+            {
+                SmallHitReaction(0);
+            }
 
             StartCoroutine(base.BraveHitReaction());
 

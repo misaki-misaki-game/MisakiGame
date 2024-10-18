@@ -46,7 +46,10 @@ namespace Misaki
 
             // コライダーグループを初期化
             particleTriggerColliderGroup = new ParticleTriggerColliderGroup[2];
-            for (int i = 0; i < particleTriggerColliderGroup.Length; i++) particleTriggerColliderGroup[i] = new ParticleTriggerColliderGroup();
+            for (int i = 0; i < particleTriggerColliderGroup.Length; i++)
+            {
+                particleTriggerColliderGroup[i] = new ParticleTriggerColliderGroup();
+            }
 
             // PlayerScriptの生成と破棄を監視
             MessageBroker.Default.Receive<PlayerScriptCreatedMessage>()
@@ -171,13 +174,19 @@ namespace Misaki
             camerawork.GetFreeLookCamera.GetComponent<CinemachineInputProvider>().enabled = true;
 
             // インゲームUIを表示にする
-            foreach(GameObject obj in inGameUI) obj.SetActive(true);
+            foreach (GameObject obj in inGameUI)
+            {
+                obj.SetActive(true);
+            }
 
             // BGMを流す
             SoundManager.SoundPlay(BGMList.E_InGameBGM, true);
 
             // エネミー全てのUI初期化
-            foreach (EnemyScript enemy in enemeis) enemy.InitializeEnemyUI();
+            foreach (EnemyScript enemy in enemeis)
+            {
+                enemy.InitializeEnemyUI();
+            }
         }
 
         /// <summary>
@@ -197,7 +206,10 @@ namespace Misaki
 
             // 生成から少し時間を置いてから、UIの初期化を行う
             yield return new WaitForSeconds(0.5f);
-            for (int i = 0; i < spawnPos.Length; i++) obj[i].GetComponent<EnemyScript>().InitializeEnemyUI();
+            for (int i = 0; i < spawnPos.Length; i++)
+            {
+                obj[i].GetComponent<EnemyScript>().InitializeEnemyUI();
+            }
         }
 
         /// <summary>
@@ -247,7 +259,10 @@ namespace Misaki
         /// <param name="script">指定のスクリプト</param>
         private void AddScript<T>(T script)
         {
-            if (script is AttackScript attackScript && !attackScripts.Contains(attackScript)) attackScripts.Add(attackScript);
+            if (script is AttackScript attackScript && !attackScripts.Contains(attackScript))
+            {
+                attackScripts.Add(attackScript);
+            }
             else if (script is EnemyScript enemyScript && !enemeis.Contains(enemyScript))
             {
                 // エネミーリストとロックオン位置リストを追加
@@ -262,7 +277,10 @@ namespace Misaki
         /// <param name="script">指定のスクリプト</param>
         private void RemoveScript<T>(T script)
         {
-            if (script is AttackScript attackScript && attackScripts.Contains(attackScript)) attackScripts.Remove(attackScript);
+            if (script is AttackScript attackScript && attackScripts.Contains(attackScript))
+            {
+                attackScripts.Remove(attackScript);
+            }
             else if (script is EnemyScript enemyScript && enemeis.Contains(enemyScript))
             {
                 // エネミーリストとロックオン位置リストから除外
@@ -349,7 +367,10 @@ namespace Misaki
             // アニメーションスピードとクリティカル発生率,ビネットを元に戻す
             if (enemeis.Count > 0)
             {
-                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 1f;
+                foreach (EnemyScript enemy in enemeis)
+                {
+                    enemy.GetAnimator.speed = 1f;
+                }
             }
             player.GetAnimator.speed = 1f;
             player.CriticalRate = currentCriticalRate;

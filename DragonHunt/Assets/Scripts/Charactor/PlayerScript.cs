@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System;
 using UniRx;
+using TMPro;
 
 namespace Misaki
 {
@@ -15,6 +16,14 @@ namespace Misaki
 
         #region public関数
         /// -------public関数------- ///
+
+        public override void ReceiveHPDamage(float brave, Vector3 direction)
+        {
+            base.ReceiveHPDamage(brave, direction);
+
+            // HP攻撃ヒット時UIを表示
+            StartCoroutine(ViewHPAttackHitUI(enemyHPAttackHitUI, brave));
+        }
 
         public override void BraveAttack()
         {
@@ -107,6 +116,23 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
+        public override void HitHPAttack(float damage)
+        {
+            // ブレイブの状態によって処理を変える
+            if (BraveState != BraveState.E_Break)
+            {
+                // HP攻撃ヒット時UIを表示
+                StartCoroutine(ViewHPAttackHitUI(playerHPAttackHitUI, damage));
+            }
+            else
+            {
+                // HP攻撃ヒット時UIを表示(ブレイク状態なので0で表示)
+                StartCoroutine(ViewHPAttackHitUI(playerHPAttackHitUI, 0f));
+            }
+
+            base.HitHPAttack(damage);
+        }
+
         public override void BeginKnockBack()
         {
             if (AnimState != AnimState.E_HitReaction) return;
@@ -161,7 +187,6 @@ namespace Misaki
             startPos = transform.position; // 初期位置を取得
             cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
 
-
             InitializeHPUI(); // HPに数値を反映
 
             // PlayerScriptが生成されたことを通知
@@ -178,7 +203,6 @@ namespace Misaki
                 playerInputs.Enable();
                 isInGame = true;
             }
-
 
             // キーボードチェック
             CheckKeyBoard();
@@ -280,7 +304,10 @@ namespace Misaki
             float threshold = 10f;
 
             // ロックの切り替え処理は、X軸の入力が閾値を超えた場合のみ行う
-            if (Mathf.Abs(lookInputValue.x) > threshold) camerawork.ChangeTarget(lookInputValue.x);
+            if (Mathf.Abs(lookInputValue.x) > threshold)
+            {
+                camerawork.ChangeTarget(lookInputValue.x);
+            }
         }
 
         /// <summary>
@@ -305,6 +332,34 @@ namespace Misaki
         private void ChangeFace(AnimState animState)
         {
             faceWindow.sprite = faceSprite[(int)animState];
+        }
+
+        /// <summary>
+        /// HP攻撃ヒット時にUIを呼び出す関数
+        /// </summary>
+        /// <param name="ui">呼び出したいUI構造体</param>
+        /// <param name="damage">ダメージ量</param>
+        /// <returns></returns>
+        private IEnumerator ViewHPAttackHitUI(HPAttackHitUI ui, float damage)
+        {
+            // UIを表示
+            ui.hpAttackUI.SetActive(true);
+
+            // ダメージ量をテキストに代入
+            if(ui.isPlayerAttack)
+            {
+                ui.damageText.text = damage.ToString() + " !!!";
+            }
+            else
+            {
+                ui.damageText.text = damage.ToString();
+            }
+
+            // 2秒間待つ
+            yield return new WaitForSeconds(2f);
+
+            // UIを非表示
+            ui.hpAttackUI.SetActive(false);
         }
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -362,6 +417,15 @@ namespace Misaki
             }
         }
 
+        // HP攻撃ヒット時の構造体
+        [Serializable]
+        public struct HPAttackHitUI
+        {
+            public bool isPlayerAttack; // プレイヤーの攻撃かどうか
+            public GameObject hpAttackUI; // UIオブジェクト
+            public TextMeshProUGUI damageText; // ダメージ表示テキスト
+        }
+
         /// -------public変数------- ///
         #endregion
 
@@ -406,6 +470,9 @@ namespace Misaki
         [SerializeField, EnumIndex(typeof(AnimState))] private Sprite[] faceSprite; // 顔グラフィック
 
         [SerializeField] private Camerawork camerawork; // カメラワーク
+
+        [SerializeField] private HPAttackHitUI playerHPAttackHitUI; // プレイヤーのHP攻撃がヒットした際のUI
+        [SerializeField] private HPAttackHitUI enemyHPAttackHitUI; // エネミーのHP攻撃がヒットした際のUI
 
         /// ------private変数------- ///
         #endregion

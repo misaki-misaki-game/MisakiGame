@@ -86,8 +86,14 @@ namespace Misaki
             }
 
             // ステートによって処理を変える
-            if (attack == AttackState.E_BraveAttack) CalcBrave(col);
-            else if (attack == AttackState.E_HPAttack) CalcHP(col);
+            if (attack == AttackState.E_BraveAttack)
+            {
+                CalcBrave(col);
+            }
+            else if (attack == AttackState.E_HPAttack)
+            {
+                CalcHP(col);
+            }
         }
 
         /// <summary>
@@ -113,8 +119,14 @@ namespace Misaki
                 col.GetComponent<BaseCharactorScript>().CanDamageEffect();
 
                 // ステートによって処理を変える
-                if (attack == AttackState.E_BraveAttack) CalcBrave(col);
-                else if (attack == AttackState.E_HPAttack) CalcHP(col);
+                if (attack == AttackState.E_BraveAttack)
+                {
+                    CalcBrave(col);
+                }
+                else if (attack == AttackState.E_HPAttack)
+                {
+                    CalcHP(col);
+                }
             }
         }
 
@@ -188,7 +200,7 @@ namespace Misaki
                 HitStopManager.hitStop.StartHitStop(ownOwner.GetAnimator, 0.2f);
 
                 // 所有者のブレイブを0にしてリジェネを開始する
-                ownOwner.HitHPAttack();
+                ownOwner.HitHPAttack(hpAttack);
             }
         }
 

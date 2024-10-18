@@ -268,8 +268,14 @@ namespace Misaki
             idleTime = Random.Range(1.5f, 4);
 
             // IDによってモーションを変える
-            if(attackID < braveAttackClip.Length) BraveAttackSetUP(attackID);
-            else HPAttackSetUP(attackID - braveAttackClip.Length);
+            if (attackID < braveAttackClip.Length)
+            {
+                BraveAttackSetUP(attackID);
+            }
+            else
+            {
+                HPAttackSetUP(attackID - braveAttackClip.Length);
+            }
         }
 
         /// <summary>

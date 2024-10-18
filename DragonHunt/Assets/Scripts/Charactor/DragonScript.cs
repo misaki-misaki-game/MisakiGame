@@ -111,7 +111,10 @@ namespace Misaki
         {
             // ボムの場所を初期化
             bombPos = new GameObject[bombsField.transform.childCount];
-            for (int i = 0; i < bombPos.Length; i++) bombPos[i] = bombsField.transform.GetChild(i).gameObject;
+            for (int i = 0; i < bombPos.Length; i++)
+            {
+                bombPos[i] = bombsField.transform.GetChild(i).gameObject;
+            }
         }
 
         /// <summary>

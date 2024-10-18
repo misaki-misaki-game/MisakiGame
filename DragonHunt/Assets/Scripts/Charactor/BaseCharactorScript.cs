@@ -32,7 +32,10 @@ namespace Misaki
             SoundManager.SoundPlay(GetComponent<AudioSource>(), SEList.E_GetHitSE);
 
             // キャラクターの向きを指定の向きに変え、エフェクトを生成するポジションを設定
-            if (damageState != DamageState.E_SuperArmor) transform.LookAt(transform.position + direction);
+            if (damageState != DamageState.E_SuperArmor)
+            {
+                transform.LookAt(transform.position + direction);
+            }
             
             // Braveからdamage分を引く
             parameter.brave = parameter.brave - damage;
@@ -49,7 +52,7 @@ namespace Misaki
         /// HP値へのダメージを受け取る関数
         /// </summary>
         /// <param name="brave">HPダメージ値</param>
-        public void ReceiveHPDamage(float brave, Vector3 direction)
+        public virtual void ReceiveHPDamage(float brave, Vector3 direction)
         {
             // 無敵時間中または戦闘不能中ならリターン
             if (damageState == DamageState.E_Invincible || AnimState == AnimState.E_Dead) return;
@@ -98,7 +101,10 @@ namespace Misaki
         public virtual IEnumerator BraveHitReaction()
         {
             // スーパーアーマーでなければ、アニメーション状態を被ダメージ中にする
-            if (damageState != DamageState.E_SuperArmor) AnimState = AnimState.E_HitReaction;
+            if (damageState != DamageState.E_SuperArmor)
+            {
+                AnimState = AnimState.E_HitReaction;
+            }
 
             // ノックバック距離を代入
             knockBackDistance = 1f;
@@ -110,11 +116,15 @@ namespace Misaki
 
             // ヒットストップさせる
             HitStopManager.hitStop.StartHitStop(anim, 0.1f);
+
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
 
             // リジェネ中なら通常状態にしてリジェネを止める
-            if (BraveState == BraveState.E_Regenerate) BraveState = BraveState.E_Default;
+            if (BraveState == BraveState.E_Regenerate)
+            {
+                BraveState = BraveState.E_Default;
+            }
         }
 
         /// <summary>
@@ -267,8 +277,14 @@ namespace Misaki
                 attackScripts[i].SetAttackState = AttackState.E_HPAttack;
 
                 // ブレイク状態の場合のみ0ダメージにする
-                if (BraveState != BraveState.E_Break) attackScripts[i].SetHPAttack = parameter.brave;
-                else attackScripts[i].SetHPAttack = 0;
+                if (BraveState != BraveState.E_Break)
+                {
+                    attackScripts[i].SetHPAttack = parameter.brave;
+                }
+                else
+                {
+                    attackScripts[i].SetHPAttack = 0;
+                }
 
                 attackScripts[i].ClearHitObj();
             }
@@ -292,8 +308,14 @@ namespace Misaki
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
 
             // ブレイク状態の場合のみ0ダメージにする
-            if (BraveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
-            else bulletAttackScript.SetHPAttack = 0;
+            if (BraveState != BraveState.E_Break)
+            {
+                bulletAttackScript.SetHPAttack = parameter.brave;
+            }
+            else
+            {
+                bulletAttackScript.SetHPAttack = 0;
+            }
 
             bulletAttackScript.ClearHitObj();
         }
@@ -316,8 +338,14 @@ namespace Misaki
             bulletAttackScript.SetAttackState = AttackState.E_HPAttack;
 
             // ブレイク状態の場合のみ0ダメージにする
-            if (BraveState != BraveState.E_Break) bulletAttackScript.SetHPAttack = parameter.brave;
-            else bulletAttackScript.SetHPAttack = 0;
+            if (BraveState != BraveState.E_Break)
+            {
+                bulletAttackScript.SetHPAttack = parameter.brave;
+            }
+            else
+            {
+                bulletAttackScript.SetHPAttack = 0;
+            }
 
             bulletAttackScript.ClearHitObj();
         }
@@ -365,7 +393,10 @@ namespace Misaki
             // ブレイブを加算する
             parameter.brave += obtainBrave;
             // ブレイクした場合はボーナスも加算する
-            if (braveBreak) parameter.brave += GameManager.GetBreakBonus;
+            if (braveBreak)
+            {
+                parameter.brave += GameManager.GetBreakBonus;
+            }
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -374,7 +405,8 @@ namespace Misaki
         /// <summary>
         /// 自分のHP攻撃が当たった時の関数
         /// </summary>
-        public void HitHPAttack()
+        /// <param name="hpDamage">表示するダメージ量</param>
+        public virtual void HitHPAttack(float hpDamage)
         {
             // ブレイブの状態によって処理を変える
             if (BraveState != BraveState.E_Break)
@@ -404,14 +436,23 @@ namespace Misaki
             // リジェネ状態の場合はregenerateSpeed秒掛かけ回復
             // ブレイク状態の場合はbrakSpeed秒掛けて回復
             if (BraveState == BraveState.E_Default || animState == AnimState.E_Dead) return;
-            else if (BraveState == BraveState.E_Regenerate) parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
-            else parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
+            else if (BraveState == BraveState.E_Regenerate)
+            {
+                parameter.brave += parameter.standardBrave / parameter.regenerateSpeed * Time.deltaTime;
+            }
+            else
+            {
+                parameter.brave += parameter.standardBrave / parameter.breakSpeed * Time.deltaTime;
+            }
 
             // ブレイブ値がブレイブ基準値以上まで回復したら回復を止める
             if (parameter.brave >= parameter.standardBrave)
             {
                 // リジェネ中にブレイクボーナスを取得出来た際には下記の処理はしない
-                if (parameter.brave <= GameManager.GetBreakBonus - parameter.standardBrave) parameter.brave = parameter.standardBrave;
+                if (parameter.brave <= GameManager.GetBreakBonus - parameter.standardBrave)
+                {
+                    parameter.brave = parameter.standardBrave;
+                }
 
                 BraveState = BraveState.E_Default;
                 textBreak.gameObject.SetActive(false);
@@ -576,7 +617,10 @@ namespace Misaki
         {
             // 攻撃を受けたことを確認する
             if (col.CompareTag(Tags.EnemyWepon.ToString()) && CompareTag(Tags.Player.ToString()) ||
-                col.CompareTag(Tags.PlayerWepon.ToString()) && CompareTag(Tags.Enemy.ToString())) CanDamageEffect();
+                col.CompareTag(Tags.PlayerWepon.ToString()) && CompareTag(Tags.Enemy.ToString()))
+            {
+                CanDamageEffect();
+            }
         }
 
         /// <summary>
@@ -661,8 +705,14 @@ namespace Misaki
         private float CalculateDamage(float motionValue, bool isCritical)
         {
             // モーション値*攻撃力*クリティカル倍率
-            if (isCritical) return motionValue * parameter.attack * criticalDamageRate;
-            else return motionValue * parameter.attack;
+            if (isCritical)
+            {
+                return motionValue * parameter.attack * criticalDamageRate;
+            }
+            else
+            {
+                return motionValue * parameter.attack;
+            }
         }
 
         /// <summary>

@@ -94,7 +94,8 @@ namespace Misaki
         /// <summary>
         /// 自分のHP攻撃が当たった時の関数
         /// </summary>
-        void HitHPAttack();
+        /// <param name="hpDamage">表示するダメージ量</param>
+        void HitHPAttack(float hpDamage);
 
         /// <summary>
         /// ブレイブを徐々に回復する関数

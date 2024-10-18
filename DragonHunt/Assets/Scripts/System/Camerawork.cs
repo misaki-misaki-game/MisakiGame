@@ -25,7 +25,10 @@ namespace Misaki
                 List<GameObject> cameraAnchorList = GameManager.GetEnemyCameraAnchor;
                 ActiveLockonCamera(cameraAnchorList[lockonNomber]);
             }
-            else InactiveLockonCamera();
+            else
+            {
+                InactiveLockonCamera();
+            }
         }
 
         /// <summary>
