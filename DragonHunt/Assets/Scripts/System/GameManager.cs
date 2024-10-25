@@ -85,7 +85,12 @@ namespace Misaki
 
             // 回避成功イベントをグローバルに購読
             MessageBroker.Default.Receive<DodgeSuccessMessage>()
-                .Subscribe(_ => OnDodgeSuccess())
+                .Subscribe(message => OnDodgeSuccess())
+                .AddTo(this);
+
+            // ブレイクイベントをグローバルに購読
+            MessageBroker.Default.Receive<BreakSuccessMessage>()
+                .Subscribe(message => OnBreakSuccess())
                 .AddTo(this);
         }
 
@@ -320,6 +325,15 @@ namespace Misaki
         }
 
         /// <summary>
+        /// ブレイク時の関数
+        /// </summary>
+        private void OnBreakSuccess()
+        {
+            // ブレイク時の処理
+            StartCoroutine(BreakingTime());
+        }
+
+        /// <summary>
         /// チャンスタイムを開始する関数
         /// </summary>
         /// <returns></returns>
@@ -387,6 +401,42 @@ namespace Misaki
             isChanceTime = false;
         }
 
+        /// <summary>
+        /// ブレイク時の演出を開始する関数
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator BreakingTime()
+        {
+            // 既にブレイク演出中なら処理を中断
+            if (isBreaking || isChanceTime) yield break;
+            isBreaking = true;
+
+            SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_BreakSE1);
+            SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_BreakSE2);
+
+            // アニメーションスピードを変更
+            if (enemeis.Count > 0)
+            {
+                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 0.1f;
+            }
+            player.GetAnimator.speed = 0.1f;
+
+            // 1.5秒間待つ
+            yield return new WaitForSeconds(1.5f);
+
+            // アニメーションスピードを元に戻す
+            if (enemeis.Count > 0)
+            {
+                foreach (EnemyScript enemy in enemeis)
+                {
+                    enemy.GetAnimator.speed = 1f;
+                }
+            }
+            player.GetAnimator.speed = 1f;
+
+            isBreaking = false;
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -420,6 +470,7 @@ namespace Misaki
         /// ------private変数------- ///
 
         private static bool isChanceTime = false; // チャンスタイムかどうか
+        private bool isBreaking = false; // ブレイク演出中かどうか
 
         [SerializeField] private float gameOverDelay = 5f; // ゲームをリセットするまでの時間
         [SerializeField] private float chanceTime = 5f; // チャンスタイムの制限時間

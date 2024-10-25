@@ -95,7 +95,9 @@ public enum SEList
     E_EndChanceTime = 10,
     E_SmallDragonstepsSE = 11,
     E_SmallDragonScreamSE = 12,
-    E_BornSE = 13
+    E_BornSE = 13,
+    E_BreakSE1 = 14,
+    E_BreakSE2 = 15
 }
 
 // プールするオブジェクトタイプ

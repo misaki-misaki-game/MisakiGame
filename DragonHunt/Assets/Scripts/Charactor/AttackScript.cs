@@ -56,6 +56,15 @@ namespace Misaki
         }
 
         /// <summary>
+        /// ブレイク時のイベント発火関数
+        /// </summary>
+        private void TriggerBreakSuccess()
+        {
+            // ブレイクイベントを発火
+            MessageBroker.Default.Publish(new BreakSuccessMessage());
+        }
+
+        /// <summary>
         /// コライダーを用いた当たり判定関数
         /// </summary>
         /// <param name="col">ヒットしたコライダー</param>
@@ -161,8 +170,17 @@ namespace Misaki
                     return;
                 }
 
+                bool isBreak = col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir, isCritical);
+
+                // ブレイクしていたらブレイクイベントを発火させる
+
+                if (isBreak)
+                {
+                    TriggerBreakSuccess();
+                }
+
                 // ブレイブダメージを与えて与えたブレイブを自身の所有者に渡す
-                ownOwner.HitBraveAttack(braveAttack, col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir, isCritical));
+                ownOwner.HitBraveAttack(braveAttack, isBreak);
 
                 // ヒットストップさせる
                 HitStopManager.hitStop.StartHitStop(ownOwner.GetAnimator, 0.1f);
@@ -248,6 +266,9 @@ namespace Misaki
 
         // 回避が成功した際のイベントメッセージ
         public class DodgeSuccessMessage { }
+
+        // ブレイク時のイベントメッセージ
+        public class BreakSuccessMessage { }
 
         /// -------public変数------- ///
         #endregion
