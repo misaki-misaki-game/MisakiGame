@@ -70,20 +70,26 @@ namespace Misaki
 
             // 自身とターゲットの距離を取得
             float distance = Vector3.Distance(transform.position, target.position);
-            agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
 
             // 距離が設定した停止距離より大きいなら
-            if (distance > agent.stoppingDistance)
+            if (distance > attackList[attackID].stopDistance)
             {
                 base.Move(); // 移動中に変更
 
+                // 待機時間をリセット
+                idleTime = defaultIdleTime;
+
+                isWandering = false; // うろうろしないようにする
+
                 // 行先を設定し、そこに移動
+                agent.SetDestination(target.position); // 行先をターゲットのポジションに設定
+                agent.stoppingDistance = attackList[attackID].stopDistance; // 停止距離設定
                 agent.isStopped = false; // 移動開始
                 float speed = agent.velocity.magnitude; // 速度ベクトルの長さ(速度)を取得
                 anim.SetFloat("Af_Running", speed); // 移動のアニメーション開始
             }
-            // 距離が設定した停止距離以下なら
-            else
+            // 停止距離内
+            else if (!isWandering)
             {
                 AnimState = AnimState.E_Idle; // 待機中に変更
 
@@ -91,11 +97,45 @@ namespace Misaki
                 agent.isStopped = true; // 移動停止
                 anim.SetFloat("Af_Running", 0f); // 待機のアニメーション開始
 
-                // ターゲットの方向を向く（回転のみ）
-                Vector3 direction = (target.position - transform.position).normalized;
-                Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
-                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f); // スムーズに回転
+                idleTime -= Time.deltaTime; // 待機時間をカウントダウンする
+
+                // 敵の上に乗る問題が解決しないとうろうろさせられない
+                // 待機時間が0以下になったら
+                if (idleTime <= 0f)
+                {
+                    // ランダムな位置(外周)を取得してその方向へ向かうように設定
+                    Vector3 wanderPoint = GetRandomOuterPoint(target.position, transform.position, attackList[attackID].stopDistance, 120); // ランダム位置を取得
+                    agent.SetDestination(wanderPoint);
+                    agent.stoppingDistance = 1f; // 停止距離設定
+                    isWandering = true; // うろうろさせる
+                }
             }
+
+            // 自身とうろうろ位置の距離を取得
+            float wanderPointDistance = Vector3.Distance(transform.position, agent.destination);
+
+            // うろうろ位置にたどり着いてない場合
+            if (isWandering && wanderPointDistance > agent.stoppingDistance)
+            {
+                base.Move(); // 移動中に変更
+
+                agent.isStopped = false; // 移動開始
+                float speed = agent.velocity.magnitude; // 速度ベクトルの長さ(速度)を取得
+                anim.SetFloat("Af_Running", speed); // 移動のアニメーション開始
+            }
+            // たどり着いた場合
+            else if (isWandering && wanderPointDistance <= agent.stoppingDistance)
+            {
+                // 待機時間をリセット
+                idleTime = defaultIdleTime;
+
+                isWandering = false; // うろうろしないようにする
+            }
+
+            // ターゲットの方向を向く（回転のみ）
+            Vector3 direction = (target.position - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f); // スムーズに回転
         }
 
         /// <summary>
@@ -225,6 +265,9 @@ namespace Misaki
             // ナビメッシュエージェントのスピードを初期化
             agent.speed = parameter.speed;
 
+            // 待機時間を初期化
+            idleTime = defaultIdleTime;
+
             // 攻撃パターンの辞書を初期化
             foreach (AttackDictionary dict in attackList)
             {
@@ -249,8 +292,14 @@ namespace Misaki
             // 攻撃許可かつ待機中または移動中なら
             if (CanAttack())
             {
-                if (attackState == AttackState.E_BraveAttack) BraveAttack();
-                else if (attackState == AttackState.E_HPAttack) HPAttack();
+                if (attackState == AttackState.E_BraveAttack)
+                {
+                    BraveAttack();
+                }
+                else if (attackState == AttackState.E_HPAttack)
+                {
+                    HPAttack();
+                }
             }
 
             base.Update();
@@ -265,7 +314,10 @@ namespace Misaki
             attackID = Choose();
 
             // 攻撃までの待機時間を抽選
-            idleTime = Random.Range(1.5f, 4);
+            attackTime = Random.Range(1.5f, 4);
+
+            // ターゲットとの距離をIDによって変える
+            agent.stoppingDistance = attackList[attackID].stopDistance;
 
             // IDによってモーションを変える
             if (attackID < braveAttackClip.Length)
@@ -356,13 +408,37 @@ namespace Misaki
         private bool CanAttack()
         {
             // 待機時間を減らす
-            idleTime -= Time.deltaTime;
+            attackTime -= Time.deltaTime;
 
             // 待機時間が0以下になったらtrueを返す
             // まだの場合はfalseを返す
-            if (idleTime <= 0 && AnimState == AnimState.E_Idle) return true;
+            if (attackTime <= 0 && AnimState == AnimState.E_Idle) return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// ベクトル方向を取得し、指定角度の外周の位置を返す関数
+        /// </summary>
+        /// <param name="center">円の中心</param>
+        /// <param name="enemyPosition">ベクトル方向のポジション</param>
+        /// <param name="radius">半径</param>
+        /// <param name="angleRange">取得したい位置の角度</param>
+        /// <returns></returns>
+        private Vector3 GetRandomOuterPoint(Vector3 center, Vector3 enemyPosition, float radius, float angleRange)
+        {
+            // プレイヤーからエネミーへの方向ベクトルを基準に設定
+            Vector3 directionToEnemy = (enemyPosition - center).normalized;
+
+            // 外周のランダムな角度を -angleRange/2 から +angleRange/2 の範囲で取得
+            float angle = Random.Range(-angleRange / 2f, angleRange / 2f);
+            float radians = angle * Mathf.Deg2Rad;
+
+            // 基準ベクトル（エネミー方向）に対して角度を回転させた方向ベクトルを計算
+            Vector3 rotatedDirection = Quaternion.Euler(0, angle, 0) * directionToEnemy;
+
+            // 中心点から回転方向に半径分だけ移動した位置を返す
+            return center + rotatedDirection * radius;
         }
 
         /// <summary>
@@ -441,6 +517,18 @@ namespace Misaki
             }
         }
 
+        /// <summary>
+        /// ランダムな場所を決める関数
+        /// </summary>
+        /// <param name="center">生成したい範囲の中心</param>
+        /// <param name="radius">生成したい範囲</param>
+        /// <returns></returns>
+        Vector3 GetRandomWanderPoint(Vector3 center, float radius)
+        {
+            Vector2 randomPoint = Random.insideUnitCircle * radius;
+            return new Vector3(center.x + randomPoint.x, center.y, center.z + randomPoint.y);
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.CompareTag(Tags.Player.ToString()))
@@ -504,14 +592,16 @@ namespace Misaki
         public class AttackDictionary
         {
             // コンストラクタ
-            public AttackDictionary(int pattern, float rate)
+            public AttackDictionary(int pattern, float rate, float distance)
             {
                 attackPattern = pattern;
                 attackRate = rate;
+                stopDistance = distance;
             }
 
             public int attackPattern; // 攻撃パターン
             public float attackRate; // 攻撃の発生率
+            public float stopDistance; // 相手との距離
         }
 
         /// -------public変数------- ///
@@ -556,10 +646,13 @@ namespace Misaki
         /// ------private変数------- ///
 
         private bool canAttack; // 攻撃フラグ
+        private bool isWandering; // うろうろするかのフラグ
 
         private int attackID; // 攻撃ID
 
-        private float idleTime; // 攻撃までの待機時間
+        private float attackTime; // 攻撃までの待機時間
+        private float idleTime; // 待機モーションの持続時間
+        private float defaultIdleTime = 1.5f; // 待機モーションの持続時間のデフォルト
         [SerializeField] private float fadeDuration = 2f; // フェードにかける時間
 
         private GameObject tar; // 変更用ターゲット変数
@@ -584,6 +677,8 @@ namespace Misaki
         public GameObject GetCameraAnchor {  get { return cameraAnchor; } }
 
         public Transform SetTarget { set { target = value; } }
+
+        public NavMeshAgent GetNavMeshAgent { get { return agent; } }
 
         /// -------プロパティ------- ///
         #endregion

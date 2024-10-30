@@ -291,7 +291,7 @@ namespace Misaki
                 // エネミーリストとロックオン位置リストから除外
                 enemeis.Remove(enemyScript);
                 enemyCameraAnchor.Remove(enemyScript.GetCameraAnchor);
-                camerawork.ChangeTarget(-1f);
+                camerawork.ChangeTarget(1f);
             }
         }
 
@@ -348,7 +348,13 @@ namespace Misaki
             // アニメーションスピードを変更
             if (enemeis.Count > 0)
             {
-                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 0.1f;
+                foreach (EnemyScript enemy in enemeis)
+                {
+                    enemy.GetAnimator.speed = 0.1f;
+
+                    // 現在のNavMeshAgentの速度を保持し、移動速度を遅くする
+                    enemy.GetNavMeshAgent.speed /= 5f;
+                }
             }
             player.GetAnimator.speed = 2f;
 
@@ -357,17 +363,20 @@ namespace Misaki
             player.CriticalRate = 0;
 
             // ビネットを保持して演出を変更する
+            float currentWeight = 0;
             bool currentRounded = false;
             float currentIntensity = 0;
             float currentSmoothness = 0;
             if (volume.profile.TryGet(out vignette))
             {
+                currentWeight = volume.weight;
                 currentRounded = vignette.rounded.value;
                 currentIntensity = vignette.intensity.value;
                 currentSmoothness = vignette.smoothness.value;
+                volume.weight = 1f;
                 vignette.rounded.value = true;
-                vignette.intensity.value = 1f;
-                vignette.smoothness.value = 1f;
+                vignette.intensity.value = 0.3f;
+                vignette.smoothness.value = 0.45f;
             }
 
             // オーラを出す
@@ -384,12 +393,16 @@ namespace Misaki
                 foreach (EnemyScript enemy in enemeis)
                 {
                     enemy.GetAnimator.speed = 1f;
+
+                    // NavMeshAgentの速度を元に戻す
+                    enemy.GetNavMeshAgent.speed *= 5f;
                 }
             }
             player.GetAnimator.speed = 1f;
             player.CriticalRate = currentCriticalRate;
             if (volume.profile.TryGet(out vignette))
             {
+                volume.weight = currentWeight;
                 vignette.rounded.value = currentRounded;
                 vignette.intensity.value = currentIntensity;
                 vignette.smoothness.value = currentSmoothness;
@@ -417,7 +430,13 @@ namespace Misaki
             // アニメーションスピードを変更
             if (enemeis.Count > 0)
             {
-                foreach (EnemyScript enemy in enemeis) enemy.GetAnimator.speed = 0.1f;
+                foreach (EnemyScript enemy in enemeis)
+                {
+                    enemy.GetAnimator.speed = 0.1f;
+
+                    // 現在のNavMeshAgentの速度を保持し、移動速度を遅くする
+                    enemy.GetNavMeshAgent.speed /= 5f;
+                }
             }
             player.GetAnimator.speed = 0.1f;
 
@@ -430,6 +449,9 @@ namespace Misaki
                 foreach (EnemyScript enemy in enemeis)
                 {
                     enemy.GetAnimator.speed = 1f;
+
+                    // NavMeshAgentの速度を元に戻す
+                    enemy.GetNavMeshAgent.speed *= 5f;
                 }
             }
             player.GetAnimator.speed = 1f;

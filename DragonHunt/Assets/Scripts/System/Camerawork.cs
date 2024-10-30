@@ -23,7 +23,7 @@ namespace Misaki
             if (isLockon)
             {
                 List<GameObject> cameraAnchorList = GameManager.GetEnemyCameraAnchor;
-                ActiveLockonCamera(cameraAnchorList[lockonNomber]);
+                ActiveLockonCamera(cameraAnchorList[lockonNumber]);
             }
             else
             {
@@ -53,16 +53,28 @@ namespace Misaki
             else if (cameraAnchorList.Count > 1)
             {
                 // イテレーターをずらす
-                if (value <= 0) lockonNomber++;
-                else lockonNomber--;
+                if (value <= 0)
+                {
+                    lockonNumber++;
+                }
+                else
+                {
+                    lockonNumber--;
+                }
+            }
 
-                // ロックオン位置リストのアウトレンジにならないようにイテレーターを調整
-                if (lockonNomber >= cameraAnchorList.Count) lockonNomber = 0;
-                else if (lockonNomber < 0) lockonNomber = cameraAnchorList.Count - 1;
+            // ロックオン位置リストのアウトレンジにならないようにイテレーターを調整
+            if (lockonNumber >= cameraAnchorList.Count)
+            {
+                lockonNumber = 0;
+            }
+            else if (lockonNumber < 0)
+            {
+                lockonNumber = cameraAnchorList.Count - 1;
             }
 
             // ターゲット切り替え
-            ActiveLockonCamera(cameraAnchorList[lockonNomber]);
+            ActiveLockonCamera(cameraAnchorList[lockonNumber]);
         }
 
         /// -------public関数------- ///
@@ -148,7 +160,7 @@ namespace Misaki
 
         private bool isLockon = false; // ロックオンしているか
 
-        private int lockonNomber = 0; // ロックしている番号
+        private int lockonNumber = 0; // ロックしている番号
 
         readonly int lockonCameraActivePriority = 21; // ロックオンカメラを優先する際の値
         readonly int lockonCameraInactivePriority = 0; // 優先しない際の値

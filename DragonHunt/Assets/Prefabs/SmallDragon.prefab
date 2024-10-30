@@ -1147,17 +1147,17 @@ Rigidbody:
   m_GameObject: {fileID: 6160755626418673034}
   serializedVersion: 4
   m_Mass: 5
-  m_Drag: 0
+  m_Drag: 4
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -1175,10 +1175,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1344,7 +1344,7 @@ MonoBehaviour:
   textBrave: {fileID: 0}
   textBreak: {fileID: 0}
   hpBar: {fileID: 0}
-  hp: 150
+  hp: 300
   brave: 100
   regenerateSpeed: 3
   breakSpeed: 10
@@ -1372,8 +1372,10 @@ MonoBehaviour:
   attackList:
   - attackPattern: 0
     attackRate: 50
+    stopDistance: 1.5
   - attackPattern: 1
     attackRate: 50
+    stopDistance: 5
   ui: {fileID: 0}
   subCanvas: {fileID: 8585009173511462879, guid: 0c2c8aa5c793ade47977ff825a29c42a,
     type: 3}
