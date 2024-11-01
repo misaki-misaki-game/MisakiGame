@@ -36,9 +36,9 @@ namespace Misaki
             {
                 transform.LookAt(transform.position + direction);
             }
-            
+
             // Braveからdamage分を引く
-            parameter.brave = parameter.brave - damage;
+            if (braveState != BraveState.E_Break) parameter.brave = parameter.brave - damage;
 
             // ダメージを表示する
             StartCoroutine(damageUI.PopDamageUI(damage, isCritical));
@@ -388,7 +388,7 @@ namespace Misaki
         /// </summary>
         /// <param name="obtainBrave">取得したブレイブ</param>
         /// <param name="braveBreak">相手をブレイクしたかどうか</param>
-        public void HitBraveAttack(float obtainBrave, bool braveBreak)
+        public virtual void HitBraveAttack(float obtainBrave, bool braveBreak)
         {
             // ブレイブを加算する
             parameter.brave += obtainBrave;
@@ -680,61 +680,6 @@ namespace Misaki
             hpBar.fillAmount= parameter.hp / parameter.maxHp;
         }
 
-        /// -----protected関数------ ///
-        #endregion
-
-        #region private関数
-        /// ------private関数------- ///
-
-        /// <summary>
-        /// クリティカルかどうかの判定関数
-        /// </summary>
-        /// <returns>クリティカルかどうか</returns>
-        private bool IsCriticalHit()
-        {
-            // 1/3でクリティカル
-            return Random.Range(0, criticalRate) == 0;
-        }
-
-        /// <summary>
-        /// ブレイブダメージ計算関数
-        /// </summary>
-        /// <param name="motionValue">モーション値</param>
-        /// <param name="isCritical">クリティカルかどうか</param>
-        /// <returns></returns>
-        private float CalculateDamage(float motionValue, bool isCritical)
-        {
-            // モーション値*攻撃力*クリティカル倍率
-            if (isCritical)
-            {
-                return motionValue * parameter.attack * criticalDamageRate;
-            }
-            else
-            {
-                return motionValue * parameter.attack;
-            }
-        }
-
-        /// <summary>
-        /// ブレイク状態になったかどうか
-        /// </summary>
-        /// <returns>ブレイク状態であればtrue</returns>
-        private bool IsBreak()
-        {
-            // 既にブレイク状態ならfalseを返す
-            if (BraveState == BraveState.E_Break) return false;
-
-            // ブレイブが0以下になったらブレイク状態にする
-            if (parameter.brave <= 0)
-            {
-                parameter.brave = 0;
-                BraveState = BraveState.E_Break;
-                textBreak.gameObject.SetActive(true);
-                return true;
-            }
-            else return false;
-        }
-
         /// <summary>
         /// エネミーにめり込まないようにプレイヤーを押し出す関数
         /// </summary>
@@ -791,13 +736,68 @@ namespace Misaki
                     charaCon.Move(direction * pushStrength);
                     break; // 一つ見つけたら処理を終了
                 }
-                else if(!isPlayer && collider.CompareTag(Tags.Player.ToString()))
+                else if (!isPlayer && collider.CompareTag(Tags.Player.ToString()))
                 {
                     // 方向に向かって力を加える
                     rb.AddForce(direction * pushStrength, ForceMode.Impulse);
                     break; // 一つ見つけたら処理を終了
                 }
             }
+        }
+
+        /// -----protected関数------ ///
+        #endregion
+
+        #region private関数
+        /// ------private関数------- ///
+
+        /// <summary>
+        /// クリティカルかどうかの判定関数
+        /// </summary>
+        /// <returns>クリティカルかどうか</returns>
+        private bool IsCriticalHit()
+        {
+            // 1/3でクリティカル
+            return Random.Range(0, criticalRate) == 0;
+        }
+
+        /// <summary>
+        /// ブレイブダメージ計算関数
+        /// </summary>
+        /// <param name="motionValue">モーション値</param>
+        /// <param name="isCritical">クリティカルかどうか</param>
+        /// <returns></returns>
+        private float CalculateDamage(float motionValue, bool isCritical)
+        {
+            // モーション値*攻撃力*クリティカル倍率
+            if (isCritical)
+            {
+                return motionValue * parameter.attack * criticalDamageRate;
+            }
+            else
+            {
+                return motionValue * parameter.attack;
+            }
+        }
+
+        /// <summary>
+        /// ブレイク状態になったかどうか
+        /// </summary>
+        /// <returns>ブレイク状態であればtrue</returns>
+        private bool IsBreak()
+        {
+            // 既にブレイク状態ならfalseを返す
+            if (BraveState == BraveState.E_Break) return false;
+
+            // ブレイブが0以下になったらブレイク状態にする
+            if (parameter.brave <= 0)
+            {
+                parameter.brave = 0;
+                BraveState = BraveState.E_Break;
+                textBreak.gameObject.SetActive(true);
+                return true;
+            }
+            else return false;
         }
 
         /// ------private関数------- ///
@@ -942,7 +942,7 @@ namespace Misaki
 
         public Animator GetAnimator { get { return anim; } }
 
-        public BraveState BraveState
+        public virtual BraveState BraveState
         { 
             get { return braveState; }
             set

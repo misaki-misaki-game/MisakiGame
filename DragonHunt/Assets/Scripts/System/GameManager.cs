@@ -96,6 +96,11 @@ namespace Misaki
 
         private void Start()
         {
+            // マウスを固定する気はない
+            // マウスカーソルを非表示にし、位置を固定
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             // Titleスクリプトのインスタンス生成
             titleInputs = new TitleInputs();
 
@@ -175,8 +180,9 @@ namespace Misaki
             // ゲームの状態をインゲームにする
             gameState = GameState.E_InGame;
 
-            // カメラワークを許可
+            // カメラワークを許可し、敵をロックオン
             camerawork.GetFreeLookCamera.GetComponent<CinemachineInputProvider>().enabled = true;
+            camerawork.Lockon();
 
             // インゲームUIを表示にする
             foreach (GameObject obj in inGameUI)
@@ -375,7 +381,7 @@ namespace Misaki
                 currentSmoothness = vignette.smoothness.value;
                 volume.weight = 1f;
                 vignette.rounded.value = true;
-                vignette.intensity.value = 0.3f;
+                vignette.intensity.value = 0.45f;
                 vignette.smoothness.value = 0.45f;
             }
 

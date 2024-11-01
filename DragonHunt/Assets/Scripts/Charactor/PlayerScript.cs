@@ -116,6 +116,16 @@ namespace Misaki
             con.Move(moveDirection * Time.deltaTime);
         }
 
+        public override void HitBraveAttack(float obtainBrave, bool braveBreak)
+        {
+            // エネミーブレイクUIを表示
+            if (braveBreak)
+            {
+                StartCoroutine(ViewBreakUI(enemyBreakUI));
+            }
+            base.HitBraveAttack(obtainBrave, braveBreak);
+        }
+
         public override void HitHPAttack(float damage)
         {
             // ブレイブの状態によって処理を変える
@@ -163,12 +173,6 @@ namespace Misaki
             // コンポーネントを取得
             con ??= GetComponent<CharacterController>();
 
-
-            // マウスを固定する気はない
-            // マウスカーソルを非表示にし、位置を固定
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-
             key ??= Keyboard.current; // 現在のキーボード情報を取得
 
             playerInputs = new PlayerInputs(); // Actionスクリプトのインスタンス生成
@@ -182,7 +186,7 @@ namespace Misaki
             playerInputs.Player.Guard.started += OnGuard;
             playerInputs.Player.Dodge.started += OnDodge;
             playerInputs.Player.Lockon.started += OnLockon;
-            playerInputs.Player.Look.started += OnLook;
+            playerInputs.Player.SwitchTarget.started += OnSwitchTarget;
 
             startPos = transform.position; // 初期位置を取得
             cameraOffset = plCamera.transform.localPosition - transform.localPosition; // プレイヤーとカメラの距離を取得
@@ -295,19 +299,11 @@ namespace Misaki
         /// <summary>
         /// 視点移動・ロックターゲット切り替えのコールバック登録関数
         /// </summary>
-        private void OnLook(InputAction.CallbackContext context)
+        private void OnSwitchTarget(InputAction.CallbackContext context)
         {
-            // lookアクションの入力取得
-            lookInputValue = context.ReadValue<Vector2>();
-
-            // 閾値を設定（必要に応じて調整）
-            float threshold = 10f;
-
-            // ロックの切り替え処理は、X軸の入力が閾値を超えた場合のみ行う
-            if (Mathf.Abs(lookInputValue.x) > threshold)
-            {
-                camerawork.ChangeTarget(lookInputValue.x);
-            }
+            // switchTargetアクションの入力取得し、ターゲットを切り替える
+            switchInputValue = context.ReadValue<Vector2>();
+            camerawork.ChangeTarget(switchInputValue.x);
         }
 
         /// <summary>
@@ -360,6 +356,24 @@ namespace Misaki
 
             // UIを非表示
             ui.hpAttackUI.SetActive(false);
+        }
+
+        /// <summary>
+        /// HP攻撃ヒット時にUIを呼び出す関数
+        /// </summary>
+        /// <param name="ui">呼び出したいUI構造体</param>
+        /// <param name="damage">ダメージ量</param>
+        /// <returns></returns>
+        private IEnumerator ViewBreakUI(BreakUI ui)
+        {
+            // UIを表示
+            ui.breakUI.SetActive(true);
+
+            // 2秒間待つ
+            yield return new WaitForSeconds(2f);
+
+            // UIを非表示
+            ui.breakUI.SetActive(false);
         }
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -426,6 +440,13 @@ namespace Misaki
             public TextMeshProUGUI damageText; // ダメージ表示テキスト
         }
 
+        // ブレイク成功時の構造体
+        [Serializable]
+        public struct BreakUI
+        {
+            public GameObject breakUI; // ブレイクUI
+        }
+
         /// -------public変数------- ///
         #endregion
 
@@ -445,7 +466,7 @@ namespace Misaki
         private float gravity = 10f; // 重力
 
         private Vector2 moveInputValue; // 移動入力した値
-        private Vector2 lookInputValue; // 視点入力した値
+        private Vector2 switchInputValue; // 視点入力した値
 
         private Vector3 moveDirection = Vector3.zero; // 移動した位置
         private Vector3 cameraOffset = Vector3.zero; // カメラとプレイヤーの差
@@ -474,6 +495,9 @@ namespace Misaki
         [SerializeField] private HPAttackHitUI playerHPAttackHitUI; // プレイヤーのHP攻撃がヒットした際のUI
         [SerializeField] private HPAttackHitUI enemyHPAttackHitUI; // エネミーのHP攻撃がヒットした際のUI
 
+        [SerializeField] private BreakUI playerBreakUI; // プレイヤーがブレイクした際のUI
+        [SerializeField] private BreakUI enemyBreakUI; // エネミーがブレイクした際のUI
+
         /// ------private変数------- ///
         #endregion
 
@@ -481,6 +505,19 @@ namespace Misaki
         /// -------プロパティ------- ///
 
         public GameObject GetAura {  get { return aura; } }
+
+        public override BraveState BraveState
+        {
+            get { return base.BraveState; }
+            set
+            {
+                base.BraveState = value;
+                if (BraveState == BraveState.E_Break)
+                {
+                    StartCoroutine(ViewBreakUI(playerBreakUI));
+                }
+            }
+        }
 
         protected override AnimState AnimState
         {
