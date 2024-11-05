@@ -927,7 +927,8 @@ namespace Misaki
 
         private Vector3 effectPos; // エフェクト表示位置
 
-        [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"), SerializeField, EnumIndex(typeof(EffectName))]
+        [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"),
+            SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
 
         private DamageUIScript damageUI; // ダメージポップアップUI

@@ -427,6 +427,31 @@ MonoBehaviour:
   dragon: {fileID: 7809508632551352273}
   playableDirector: {fileID: 1091036317}
   volume: {fileID: 832575518}
+  customVolume:
+  - weight: 0
+    bloomIntensity: 0
+    vignetteRounded: 0
+    vignetteIntensity: 0
+    vignetteSmoothness: 0
+    vignetteColor: {r: 0, g: 0, b: 0, a: 0}
+  - weight: 1
+    bloomIntensity: -1
+    vignetteRounded: 1
+    vignetteIntensity: 0.45
+    vignetteSmoothness: 0.45
+    vignetteColor: {r: 0.26415092, g: 0.242969, b: 0.242969, a: 1}
+  - weight: -1
+    bloomIntensity: 20
+    vignetteRounded: 0
+    vignetteIntensity: -1
+    vignetteSmoothness: -1
+    vignetteColor: {r: 0, g: 0, b: 0, a: 0}
+  - weight: 0.9
+    bloomIntensity: -1
+    vignetteRounded: 0
+    vignetteIntensity: 0.45
+    vignetteSmoothness: 0.45
+    vignetteColor: {r: 0.4339623, g: 0, b: 0, a: 1}
 --- !u!114 &32538313
 MonoBehaviour:
   m_ObjectHideFlags: 0

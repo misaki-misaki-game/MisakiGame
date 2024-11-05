@@ -11,6 +11,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using static Misaki.EnemyScript;
 using static Misaki.PlayerScript;
+using System.Reflection;
 
 namespace Misaki
 {
@@ -125,6 +126,9 @@ namespace Misaki
 
             // タイトルのBGMを流す
             SoundManager.SoundPlay(BGMList.E_TitleBGM, true);
+
+            // 通常時ボリューム情報を初期化
+            InitializeCustomVolume();
         }
 
         private void OnDestroy()
@@ -340,6 +344,71 @@ namespace Misaki
         }
 
         /// <summary>
+        /// 通常時のボリューム情報を初期化する関数
+        /// </summary>
+        private void InitializeCustomVolume()
+        {
+            // 通常時ボリューム情報を保持する
+            customVolume[0] = new CustomVolume(volume);
+
+            CustomVolume defaultVolume = customVolume[0]; // 基準となるcustomVolume[0]
+            CustomVolume currentVolume = new CustomVolume();
+
+            // customVolume[1]以降をチェックして必要に応じて値をコピー
+            for (int i = 1; i < customVolume.Length; i++)
+            {
+                currentVolume = customVolume[i];
+
+                // CustomVolumeクラスの各フィールドを取得
+                foreach (FieldInfo field in typeof(CustomVolume).GetFields(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    object currentValue = field.GetValue(currentVolume);
+                    object defaultValue = field.GetValue(defaultVolume);
+
+                    // フィールドの型ごとにコピー条件を判定
+                    if (field.FieldType == typeof(float) && (float)currentValue == -1)
+                    {
+                        field.SetValue(currentVolume, defaultValue);
+                    }
+                    else if (field.FieldType == typeof(Color) && (Color)currentValue == Color.clear) // Color.clearを基準に
+                    {
+                        field.SetValue(currentVolume, defaultValue);
+                    }
+                }
+            }
+
+            // 静的変数に代入
+            staticVolume = volume;
+            staticCustomVolume = new CustomVolume[customVolume.Length];
+            for (int i = 0; i < staticCustomVolume.Length; i++)
+            {
+                staticCustomVolume[i] = customVolume[i];
+            }
+        }
+
+        /// <summary>
+        /// 指定のボリューム情報に変更する関数
+        /// </summary>
+        /// <param name="type">指定のボリューム</param>
+        private static void ChangeVolume(VolumeType type)
+        {
+            // 指定のボリュームに変更する
+            int i = (int)type;
+            if (staticVolume.profile.TryGet(out vignette))
+            {
+                staticVolume.weight = staticCustomVolume[i].weight;
+                vignette.rounded.value = staticCustomVolume[i].vignetteRounded;
+                vignette.intensity.value = staticCustomVolume[i].vignetteIntensity;
+                vignette.smoothness.value = staticCustomVolume[i].vignetteSmoothness;
+                vignette.color.value = staticCustomVolume[i].vignetteColor;
+            }
+            if (staticVolume.profile.TryGet(out bloom))
+            {
+                bloom.intensity.value = staticCustomVolume[i].bloomIntensity;
+            }
+        }
+
+        /// <summary>
         /// チャンスタイムを開始する関数
         /// </summary>
         /// <returns></returns>
@@ -368,22 +437,8 @@ namespace Misaki
             int currentCriticalRate = player.CriticalRate;
             player.CriticalRate = 0;
 
-            // ビネットを保持して演出を変更する
-            float currentWeight = 0;
-            bool currentRounded = false;
-            float currentIntensity = 0;
-            float currentSmoothness = 0;
-            if (volume.profile.TryGet(out vignette))
-            {
-                currentWeight = volume.weight;
-                currentRounded = vignette.rounded.value;
-                currentIntensity = vignette.intensity.value;
-                currentSmoothness = vignette.smoothness.value;
-                volume.weight = 1f;
-                vignette.rounded.value = true;
-                vignette.intensity.value = 0.45f;
-                vignette.smoothness.value = 0.45f;
-            }
+            // ボリュームを変更
+            ChangeVolume(VolumeType.E_ChanceTime);
 
             // オーラを出す
             player.GetAura.SetActive(true);
@@ -393,7 +448,7 @@ namespace Misaki
 
             SoundManager.SoundPlay(SoundManager.GetMainAudioSource, SEList.E_EndChanceTime);
 
-            // アニメーションスピードとクリティカル発生率,ビネットを元に戻す
+            // アニメーションスピードとクリティカル発生率,ボリューム情報を元に戻す
             if (enemeis.Count > 0)
             {
                 foreach (EnemyScript enemy in enemeis)
@@ -406,13 +461,7 @@ namespace Misaki
             }
             player.GetAnimator.speed = 1f;
             player.CriticalRate = currentCriticalRate;
-            if (volume.profile.TryGet(out vignette))
-            {
-                volume.weight = currentWeight;
-                vignette.rounded.value = currentRounded;
-                vignette.intensity.value = currentIntensity;
-                vignette.smoothness.value = currentSmoothness;
-            }
+            ChangeVolume(VolumeType.E_Normal);
 
             // オーラを消す
             player.GetAura.SetActive(false);
@@ -426,7 +475,7 @@ namespace Misaki
         /// <returns></returns>
         private IEnumerator BreakingTime()
         {
-            // 既にブレイク演出中なら処理を中断
+            // 既にブレイクまたはチャンス演出中なら処理を中断
             if (isBreaking || isChanceTime) yield break;
             isBreaking = true;
 
@@ -446,6 +495,9 @@ namespace Misaki
             }
             player.GetAnimator.speed = 0.1f;
 
+            // ボリューム情報を変更する
+            ChangeVolume(VolumeType.E_BreakingTime);
+
             // 1.5秒間待つ
             yield return new WaitForSeconds(1.5f);
 
@@ -462,7 +514,39 @@ namespace Misaki
             }
             player.GetAnimator.speed = 1f;
 
+            // ボリューム情報を元に戻す
+            ChangeVolume(VolumeType.E_Normal);
+
             isBreaking = false;
+        }
+
+        public static void BeginHPAttackTime()
+        {
+            // 既にブレイクまたはチャンス演出中なら処理を中止
+            if (isBreaking || isChanceTime) return;
+
+            // 発生個数を増やす
+            hpAttackCount++;
+
+            // ボリューム情報を変更する
+            ChangeVolume(VolumeType.E_HPAttackTime);
+        }
+
+        public static void EndHPAttackTime()
+        {
+            // 既にブレイク演出中なら処理を中止
+            if (isBreaking || isChanceTime) return;
+
+            // HP攻撃が発生してない場合は処理を中止
+            if (hpAttackCount <= 0) return;
+            
+            // HP攻撃発生個数を減らして0ならボリュームを通常に戻す
+            hpAttackCount--;
+            if (hpAttackCount <= 0)
+            {
+                // ボリューム情報を元に戻す
+                ChangeVolume(VolumeType.E_Normal);
+            }
         }
 
         /// ------private関数------- ///
@@ -483,6 +567,42 @@ namespace Misaki
             public List<Collider> targetColliders = new List<Collider>(); // パーティクルシステムのトリガーに設定するためのコライダー配列
         }
 
+        /// <summary>
+        /// ボリューム情報を格納するクラス
+        /// </summary>
+        [System.Serializable]
+        public class CustomVolume
+        {
+            // 各変数
+            public float weight;
+            public float bloomIntensity;
+            public bool vignetteRounded;
+            public float vignetteIntensity;
+            public float vignetteSmoothness;
+            public Color vignetteColor;
+
+            private Vignette vignette; // ビネット変数
+            private Bloom bloom; // ブルーム変数
+
+            public CustomVolume() { }
+
+            public CustomVolume(Volume _volume)
+            {
+                weight = _volume.weight;
+                if (_volume.profile.TryGet(out vignette))
+                {
+                    vignetteRounded = vignette.rounded.value;
+                    vignetteIntensity = vignette.intensity.value;
+                    vignetteSmoothness = vignette.smoothness.value;
+                    vignetteColor = vignette.color.value;
+                }
+                if (_volume.profile.TryGet(out bloom))
+                {
+                    bloomIntensity = bloom.intensity.value;
+                }
+            }
+        }
+
         /// -------public変数------- ///
         #endregion
 
@@ -498,11 +618,13 @@ namespace Misaki
         /// ------private変数------- ///
 
         private static bool isChanceTime = false; // チャンスタイムかどうか
-        private bool isBreaking = false; // ブレイク演出中かどうか
+        private static bool isBreaking = false; // ブレイク演出中かどうか
 
         [SerializeField] private float gameOverDelay = 5f; // ゲームをリセットするまでの時間
         [SerializeField] private float chanceTime = 5f; // チャンスタイムの制限時間
         [SerializeField] private static float breakBonus = 500; // 相手をブレイクした際のボーナスブレイブ
+
+        private static int hpAttackCount = 0; // HP攻撃が発生している個数
 
         private static List<GameObject> enemyCameraAnchor = new List<GameObject>(); // ロックオン位置リスト
         [SerializeField] private GameObject titleUI; // タイトルのUI
@@ -528,9 +650,20 @@ namespace Misaki
 
         private List<AttackScript> attackScripts = new List<AttackScript>(); // アタックスクリプトのリスト
 
-        [SerializeField] private Volume volume; // ボリューム変数
+        [SerializeField] private Volume volume; // ボリューム変数　インスペクター用
+        [SerializeField] private static Volume staticVolume; // ボリューム変数
 
-        private Vignette vignette; // ビネット変数
+        private static Vignette vignette; // ビネット変数
+
+        private static Bloom bloom; // ブルーム変数
+
+        private static Color color; // カラー変数
+
+        [SerializeField, EnumIndex(typeof(VolumeType)),
+            Header("要素数0はゲーム起動時自動で取得します。\n要素数1以降で小素数0と同じ値で問題ない場合は-1を入力\nColorの場合はコード000000\nboolは必ずどちらかにしてください")]
+        private CustomVolume[] customVolume; // 現在のボリューム情報を格納する変数 インスペクター用
+
+        private static CustomVolume[] staticCustomVolume; // 現在のボリューム情報を格納する変数
 
         private Camerawork camerawork; // カメラワーク変数
 

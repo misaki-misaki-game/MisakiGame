@@ -107,6 +107,15 @@ public enum PoolType
     E_DamageText = 1
 }
 
+// ƒ{ƒŠƒ…[ƒ€‚Ìí—Ş
+public enum VolumeType
+{
+    E_Normal = 0,
+    E_ChanceTime = 1,
+    E_BreakingTime = 2,
+    E_HPAttackTime = 3
+}
+
 /// -------public•Ï”------- ///
 #endregion
 

@@ -61,6 +61,10 @@ namespace Misaki
             if (AnimState == AnimState.E_Attack) return;
 
             base.HPAttack();
+
+            // HP攻撃ボリュームに変更
+            isHPAttack = true;
+            GameManager.BeginHPAttackTime();
         }
 
         public override void Move()
@@ -165,6 +169,11 @@ namespace Misaki
         {
             base.EndAnim();
             GetAttackPattern();
+            // 通常ボリュームに戻す
+            if(isHPAttack)
+            {
+                GameManager.EndHPAttackTime();
+            }
         }
 
         public override void BeginKnockBack()
@@ -647,6 +656,7 @@ namespace Misaki
 
         private bool canAttack; // 攻撃フラグ
         private bool isWandering; // うろうろするかのフラグ
+        private bool isHPAttack; // HP攻撃中かのフラグ
 
         private int attackID; // 攻撃ID
 
