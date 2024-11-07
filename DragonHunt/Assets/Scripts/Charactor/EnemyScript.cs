@@ -25,6 +25,9 @@ namespace Misaki
             // 待機・移動中以外ならリターン
             if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
+            // ターゲット方向を向く
+            FaceTarget(target);
+
             base.BraveAttack();
         }
         public override void Dead()
@@ -59,6 +62,9 @@ namespace Misaki
         {
             // HP攻撃中ならリターン
             if (AnimState == AnimState.E_Attack) return;
+
+            // ターゲット方向を向く
+            FaceTarget(target);
 
             base.HPAttack();
 
@@ -136,10 +142,8 @@ namespace Misaki
                 isWandering = false; // うろうろしないようにする
             }
 
-            // ターゲットの方向を向く（回転のみ）
-            Vector3 direction = (target.position - transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f); // スムーズに回転
+            // ターゲット方向を向く
+            FaceTarget(target, true);
         }
 
         /// <summary>

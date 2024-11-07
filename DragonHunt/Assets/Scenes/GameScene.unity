@@ -513,7 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd6fa17502d6ded45b847158b8d42e32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  freeLookCamera: {fileID: 1575927842}
+  freeLockCamera: {fileID: 1575927842}
   lockonCamera: {fileID: 1384291508}
   lockonCursor: {fileID: 1242194619}
 --- !u!114 &32538317

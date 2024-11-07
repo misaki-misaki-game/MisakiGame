@@ -35,6 +35,12 @@ namespace Misaki
             }
             else if (AnimState != AnimState.E_Idle && AnimState != AnimState.E_Move) return;
 
+            // ターゲット方向を向く
+            if (camerawork.GetLockonTargetTransform != null)
+            {
+                FaceTarget(camerawork.GetLockonTargetTransform);
+            }
+
             base.BraveAttack();
         }
 
@@ -81,6 +87,12 @@ namespace Misaki
         {
             // HP攻撃中ならリターン
             if (AnimState == AnimState.E_Attack) return;
+
+            // ターゲット方向を向く
+            if (camerawork.GetLockonTargetTransform != null)
+            {
+                FaceTarget(camerawork.GetLockonTargetTransform);
+            }
 
             base.HPAttack();
         }

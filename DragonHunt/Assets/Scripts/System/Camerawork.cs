@@ -109,6 +109,7 @@ namespace Misaki
             // ロックオンカメラの優先度を最上位にして、ターゲットを代入する
             lockonCamera.Priority = lockonCameraActivePriority;
             lockonCamera.LookAt = target.transform;
+            lockonTargetTransform= target.transform;
             currentCameraTransform = lockonCamera.transform;
             lockonCursor.SetActive(true);
         }
@@ -121,13 +122,14 @@ namespace Misaki
             // ロックオンカメラの優先度を最下位にして、ターゲットをはずす
             lockonCamera.Priority = lockonCameraInactivePriority;
             lockonCamera.LookAt = null;
+            lockonTargetTransform = null;
             lockonCursor.SetActive(false);
 
             // 直前のLockonCameraの角度を引き継ぐ
-            CinemachinePOV pov = freeLookCamera.GetCinemachineComponent<CinemachinePOV>();
+            CinemachinePOV pov = freeLockCamera.GetCinemachineComponent<CinemachinePOV>();
             pov.m_VerticalAxis.Value = Mathf.Repeat(lockonCamera.transform.eulerAngles.x + 180, 360) - 180;
             pov.m_HorizontalAxis.Value = lockonCamera.transform.eulerAngles.y;
-            currentCameraTransform = freeLookCamera.transform;
+            currentCameraTransform = freeLockCamera.transform;
         }
 
         /// ------private関数------- ///
@@ -165,7 +167,7 @@ namespace Misaki
         readonly int lockonCameraActivePriority = 21; // ロックオンカメラを優先する際の値
         readonly int lockonCameraInactivePriority = 0; // 優先しない際の値
 
-        [SerializeField] private CinemachineVirtualCamera freeLookCamera; // フリーカメラ
+        [SerializeField] private CinemachineVirtualCamera freeLockCamera; // フリーカメラ
         [SerializeField] private CinemachineVirtualCamera lockonCamera; // ロックオンカメラ
 
         private static Transform currentCameraTransform; // 現在使用しているカメラ
@@ -181,7 +183,9 @@ namespace Misaki
 
         public static Transform GetCurrentCameraTransform { get { return currentCameraTransform; } }
 
-        public CinemachineVirtualCamera GetFreeLookCamera { get { return freeLookCamera; } }
+        public Transform GetLockonTargetTransform { get { return lockonTargetTransform; } }
+
+        public CinemachineVirtualCamera GetFreeLockCamera { get { return freeLockCamera; } }
 
         /// -------プロパティ------- ///
         #endregion

@@ -166,7 +166,7 @@ namespace Misaki
             titleUI.gameObject.SetActive(false);
 
             // プレイヤー追従カメラの優先度を上げて画面に表示する
-            camerawork.GetFreeLookCamera.Priority = 20;
+            camerawork.GetFreeLockCamera.Priority = 20;
 
             // BGMを流す
             SoundManager.SoundPlay(BGMList.E_OpeningBGM, true);
@@ -185,7 +185,7 @@ namespace Misaki
             gameState = GameState.E_InGame;
 
             // カメラワークを許可し、敵をロックオン
-            camerawork.GetFreeLookCamera.GetComponent<CinemachineInputProvider>().enabled = true;
+            camerawork.GetFreeLockCamera.GetComponent<CinemachineInputProvider>().enabled = true;
             camerawork.Lockon();
 
             // インゲームUIを表示にする

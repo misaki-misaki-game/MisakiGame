@@ -745,6 +745,27 @@ namespace Misaki
             }
         }
 
+        /// <summary>
+        /// ターゲットの方向へ体を向ける関数
+        /// </summary>
+        /// <param name="target">ターゲット</param>
+        /// <param name="isSmoothRotation">スムーズに回転させるかどうか</param>
+        protected void FaceTarget(Transform target, bool isSmoothRotation = false)
+        {
+            // ターゲットの方向を向く（回転のみ）
+            Vector3 direction = (target.position - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // 水平回転のみ適用
+            // スムーズに回転させる
+            if (isSmoothRotation)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 4f);
+            }
+            else
+            {
+                transform.rotation = lookRotation;
+            }
+        }
+
         /// -----protected関数------ ///
         #endregion
 
