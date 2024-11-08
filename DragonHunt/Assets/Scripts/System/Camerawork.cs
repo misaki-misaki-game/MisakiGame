@@ -109,8 +109,8 @@ namespace Misaki
             // ロックオンカメラの優先度を最上位にして、ターゲットを代入する
             lockonCamera.Priority = lockonCameraActivePriority;
             lockonCamera.LookAt = target.transform;
-            lockonTargetTransform= target.transform;
-            currentCameraTransform = lockonCamera.transform;
+            lockonTargetTransform = target.transform;
+            currentCamera = lockonCamera;
             lockonCursor.SetActive(true);
         }
 
@@ -129,7 +129,7 @@ namespace Misaki
             CinemachinePOV pov = freeLockCamera.GetCinemachineComponent<CinemachinePOV>();
             pov.m_VerticalAxis.Value = Mathf.Repeat(lockonCamera.transform.eulerAngles.x + 180, 360) - 180;
             pov.m_HorizontalAxis.Value = lockonCamera.transform.eulerAngles.y;
-            currentCameraTransform = freeLockCamera.transform;
+            currentCamera = freeLockCamera;
         }
 
         /// ------private関数------- ///
@@ -167,10 +167,10 @@ namespace Misaki
         readonly int lockonCameraActivePriority = 21; // ロックオンカメラを優先する際の値
         readonly int lockonCameraInactivePriority = 0; // 優先しない際の値
 
+        [SerializeField] private CinemachineVirtualCamera currentCamera; // 現在のカメラ
         [SerializeField] private CinemachineVirtualCamera freeLockCamera; // フリーカメラ
         [SerializeField] private CinemachineVirtualCamera lockonCamera; // ロックオンカメラ
 
-        private static Transform currentCameraTransform; // 現在使用しているカメラ
         private Transform lockonTargetTransform; // ロックオンしているターゲットのトランスフォーム
 
         [SerializeField] private GameObject lockonCursor; // ロックオンカーソル
@@ -181,11 +181,11 @@ namespace Misaki
         #region プロパティ
         /// -------プロパティ------- ///
 
-        public static Transform GetCurrentCameraTransform { get { return currentCameraTransform; } }
-
         public Transform GetLockonTargetTransform { get { return lockonTargetTransform; } }
 
         public CinemachineVirtualCamera GetFreeLockCamera { get { return freeLockCamera; } }
+
+        public CinemachineVirtualCamera GetCurrentCamera { get { return currentCamera; } }
 
         /// -------プロパティ------- ///
         #endregion

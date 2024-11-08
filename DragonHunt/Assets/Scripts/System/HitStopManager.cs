@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using UnityEngine;
 
@@ -18,6 +19,11 @@ namespace Misaki
         /// <param name="isCameraShake">カメラを揺らすかどうか</param>
         public void StartHitStop(Animator anim, float duration, bool isCameraShake = false)
         {
+            // カメラ関係を初期化
+            virtualCamera = camerawork.GetCurrentCamera;
+            noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+            // ヒットストップ開始
             StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake));
         }
 
@@ -65,7 +71,7 @@ namespace Misaki
 
             // キャラクター及びカメラを揺らす
             StartCoroutine(ShakeCoroutine(anim.transform, duration, 0.15f));
-            if (isCameraShake) StartCoroutine(ShakeCameraCoroutine(2f, 8, duration));
+            if (isCameraShake) StartCoroutine(ShakeCameraCoroutine(duration));
 
             // チャンスタイムではない場合
             if (!GameManager.GetIsChanceTime)
@@ -119,61 +125,23 @@ namespace Misaki
         /// <summary>
         /// カメラを揺らすコルーチン
         /// </summary>
-        /// <param name="width">揺れ幅</param>
-        /// <param name="count">揺らす回数</param>
-        /// <param name="duration">揺らす秒数</param>
-        /// <returns></returns>
-        private IEnumerator ShakeCameraCoroutine(float width, int count, float duration)
+        /// <param name="shakeTimer">揺らす秒数</param>
+        private IEnumerator ShakeCameraCoroutine(float shakeTimer)
         {
-            // メインカメラを取得し、元のローテーションを保持する
-            Transform camera = Camerawork.GetCurrentCameraTransform;
-            Quaternion originalRotation = camera.localRotation;
+            // 揺れの強さ速さを設定
+            noise.m_AmplitudeGain = shakeAmplitude;
+            noise.m_FrequencyGain = shakeFrequency;
 
-            // 振れ演出の片道の揺れ分の時間
-            var partDuration = duration / count / 2f;
-            // 振れ幅の半分の値
-            var widthHalf = width / 2f;
-
-            for (int i = 0; i < count - 1; i++)
+            // 指定時間揺らす
+            while (shakeTimer > 0)
             {
-                // 相対的にカメラを左に回転させる
-                yield return RotateCamera(camera, originalRotation, new Vector3(-widthHalf, 0f, 0f), partDuration);
-                // 相対的にカメラを右に回転させる
-                yield return RotateCamera(camera, originalRotation, new Vector3(widthHalf, 0f, 0f), partDuration);
-            }
-
-            // 最後の揺れは元の角度に戻す工程
-            yield return RotateCamera(camera, originalRotation, Vector3.zero, partDuration);
-
-            // カメラの回転を元に戻す
-            camera.localRotation = originalRotation;
-        }
-
-        /// <summary>
-        /// カメラを回転させる関数
-        /// </summary>
-        /// <param name="camera">カメラのトランスフォーム</param>
-        /// <param name="originalRotation">元のカメラローテーション</param>
-        /// <param name="targetOffset">最終的なローテーション座標</param>
-        /// <param name="duration">回転させる秒数</param>
-        /// <returns></returns>
-        private IEnumerator RotateCamera(Transform camera, Quaternion originalRotation, Vector3 targetOffset, float duration)
-        {
-            Quaternion startRotation = camera.localRotation;
-            Quaternion endRotation = originalRotation * Quaternion.Euler(targetOffset); // 元の回転に対してオフセットを加える
-
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                // 線形補間で回転を徐々に変更
-                camera.localRotation = Quaternion.Slerp(startRotation, endRotation, elapsed / duration);
+                shakeTimer -= Time.deltaTime;
                 yield return null;
             }
 
-            // 最終的な回転をターゲットに合わせる
-            camera.localRotation = endRotation;
+            // シェイクが終了したら振幅と周波数をリセット
+            noise.m_AmplitudeGain = 0;
+            noise.m_FrequencyGain = 0;
         }
 
         /// ------private関数------- ///
@@ -205,6 +173,14 @@ namespace Misaki
         /// ------private変数------- ///
 
         private bool isHitStop = false; // ヒットストップしているかどうか
+
+        [SerializeField] private float shakeAmplitude = 2f; // 揺れの強さ
+        [SerializeField] private float shakeFrequency = 2f; // 揺れの速さ
+
+        [SerializeField] private CinemachineVirtualCamera virtualCamera; // 現在のカメラ
+        [SerializeField] private CinemachineBasicMultiChannelPerlin noise; // カメラのノイズ
+
+        [SerializeField] private Camerawork camerawork; // カメラワーク変数
 
         /// ------private変数------- ///
         #endregion

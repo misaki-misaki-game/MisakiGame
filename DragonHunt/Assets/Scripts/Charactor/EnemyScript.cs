@@ -231,6 +231,7 @@ namespace Misaki
             textBreak = eUI.transform.Find("BreakText").gameObject.GetComponent<TextMeshProUGUI>();
             textBreak.gameObject.SetActive(false);
             hpBar = eUI.transform.Find("HPGauge/HPBar").gameObject.GetComponent<Image>();
+            braveTextAnimators = new TextMeshProGeometryAnimator[1];
             braveTextAnimators[0] = eUI.transform.Find("BrText").gameObject.GetComponent<TextMeshProGeometryAnimator>();
 
             // HPUIと変数を連動
