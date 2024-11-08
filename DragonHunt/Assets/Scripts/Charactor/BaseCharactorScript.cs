@@ -38,7 +38,10 @@ namespace Misaki
             }
 
             // Braveからdamage分を引く
-            if (braveState != BraveState.E_Break) parameter.brave = parameter.brave - damage;
+            if (braveState != BraveState.E_Break)
+            {
+                parameter.brave = parameter.brave - damage;
+            }
 
             // ダメージを表示する
             StartCoroutine(damageUI.PopDamageUI(damage, isCritical));
@@ -398,8 +401,8 @@ namespace Misaki
                 parameter.brave += GameManager.GetBreakBonus;
             }
 
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
+            // ブレイブテキストを変更する
+            SetTextBrave();
         }
 
         /// <summary>
@@ -423,8 +426,8 @@ namespace Misaki
                 parameter.brave = parameter.standardBrave;
             }
 
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
+            // ブレイブテキストを変更する
+            SetTextBrave();
         }
 
         /// <summary>
@@ -458,8 +461,8 @@ namespace Misaki
                 textBreak.gameObject.SetActive(false);
             }
 
-            // テキストを変更する
-            textBrave.text = string.Format("{0:0}", parameter.brave);
+            // ブレイブテキストを変更する
+            SetTextBrave();
         }
 
         /// <summary>
@@ -821,6 +824,49 @@ namespace Misaki
             else return false;
         }
 
+        /// <summary>
+        /// テキストアニメーションを開始する関数
+        /// </summary>
+        /// <param name="animator">スタートさせたいアニメーター</param>
+        private void TextAnimationPlay(TextMeshProGeometryAnimator[] animator)
+        {
+            for (int i = 0; i < animator.Length; i++)
+            {
+                animator[i].Play();
+            }
+        }
+
+        /// <summary>
+        /// テキストアニメーションを終了する関数
+        /// </summary>
+        /// <param name="animator">スタートさせたいアニメーター</param>
+        private void TextAnimationFinish(TextMeshProGeometryAnimator[] animator)
+        {
+            for (int i = 0; i < animator.Length; i++)
+            {
+                animator[i].Finish();
+            }
+        }
+
+        /// <summary>
+        /// ブレイブテキストを変更する関数
+        /// </summary>
+        private void SetTextBrave()
+        {
+            // テキストを変更する
+            textBrave.text = string.Format("{0:0}", parameter.brave);
+
+            // ブレイブテキストのアニメーションを再生・停止する
+            if (parameter.brave >= 500)
+            {
+                TextAnimationPlay(braveTextAnimators);
+            }
+            else
+            {
+                TextAnimationFinish(braveTextAnimators);
+            }
+        }
+
         /// ------private関数------- ///
         #endregion
 
@@ -921,6 +967,8 @@ namespace Misaki
         [SerializeField] protected TextMeshProUGUI textBreak; // ブレイク状態表示テキスト
 
         [SerializeField] protected Image hpBar; // HPバー
+
+        [SerializeField] protected TextMeshProGeometryAnimator[] braveTextAnimators = new TextMeshProGeometryAnimator[1]; // ブレイブテキストアニメーション配列
 
         /// -----protected変数------ ///
         #endregion

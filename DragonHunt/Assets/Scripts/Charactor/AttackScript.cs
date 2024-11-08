@@ -71,8 +71,14 @@ namespace Misaki
         private void OnTriggerEnter(Collider col)
         {
             // ステートによって処理を変える
-            if (attack == AttackState.E_BraveAttack) CalcBrave(col);
-            else if (attack == AttackState.E_HPAttack) CalcHP(col);
+            if (attack == AttackState.E_BraveAttack)
+            {
+                CalcBrave(col);
+            }
+            else if (attack == AttackState.E_HPAttack)
+            {
+                CalcHP(col);
+            }
         }
 
         /// <summary>
@@ -173,7 +179,6 @@ namespace Misaki
                 bool isBreak = col.GetComponent<BaseCharactorScript>().ReceiveBraveDamage(braveAttack, dir, isCritical);
 
                 // ブレイクしていたらブレイクイベントを発火させる
-
                 if (isBreak)
                 {
                     TriggerBreakSuccess();

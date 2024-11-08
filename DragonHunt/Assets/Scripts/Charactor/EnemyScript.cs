@@ -231,6 +231,7 @@ namespace Misaki
             textBreak = eUI.transform.Find("BreakText").gameObject.GetComponent<TextMeshProUGUI>();
             textBreak.gameObject.SetActive(false);
             hpBar = eUI.transform.Find("HPGauge/HPBar").gameObject.GetComponent<Image>();
+            braveTextAnimators[0] = eUI.transform.Find("BrText").gameObject.GetComponent<TextMeshProGeometryAnimator>();
 
             // HPUIと変数を連動
             InitializeHPUI();
@@ -250,11 +251,11 @@ namespace Misaki
         }
 
         /// <summary>
-        /// 自身を削除する関数
+        /// フェードを開始する関数
         /// </summary>
-        private void DestroySelf()
+        public void StartFade()
         {
-            Destroy(gameObject);
+            StartCoroutine(FadeAllMaterials());
         }
 
         /// -------public関数------- ///
@@ -474,14 +475,6 @@ namespace Misaki
         }
 
         /// <summary>
-        /// フェードを開始する関数
-        /// </summary>
-        public void StartFade()
-        {
-            StartCoroutine(FadeAllMaterials());
-        }
-
-        /// <summary>
         /// 全マテリアルを徐々に透明にする関数
         /// </summary>
         /// <returns></returns>
@@ -558,6 +551,14 @@ namespace Misaki
                 // 押し出す関数の許可を取り消す
                 inCollider = false;
             }
+        }
+
+        /// <summary>
+        /// 自身を削除する関数
+        /// </summary>
+        private void DestroySelf()
+        {
+            Destroy(gameObject);
         }
 
         /// ------private関数------- ///
