@@ -118,7 +118,8 @@ namespace Misaki
             ishit = false;
 
             // ヒットストップさせる
-            HitStopManager.hitStop.StartHitStop(anim, 0.1f);
+            //HitStopManager.hitStop.StartHitStop(anim, 0.1f,true, bone);
+            hitStopManager.StartHitStop(anim, 0.1f, true, bone);
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -213,7 +214,8 @@ namespace Misaki
             }
 
             // ヒットストップさせる
-            HitStopManager.hitStop.StartHitStop(anim, 0.2f, true);
+            //HitStopManager.hitStop.StartHitStop(anim, 0.2f, true, bone);
+            hitStopManager.StartHitStop(anim, 0.2f, true, bone);
 
             // テキストを変更する
             textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
@@ -576,6 +578,9 @@ namespace Misaki
         {
             base.Awake();
             effectPos = new Vector3(0, adjustEffectYPos, 0);
+
+            gameObject.AddComponent<HitStopManager>();
+            hitStopManager = GetComponent<HitStopManager>();
         }
 
         protected virtual void Start()
@@ -996,11 +1001,15 @@ namespace Misaki
 
         private Vector3 effectPos; // エフェクト表示位置
 
+        [SerializeField] private Transform bone; // ボーン変数
+
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"),
             SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
 
         private DamageUIScript damageUI; // ダメージポップアップUI
+
+        private HitStopManager hitStopManager; // ヒットストップマネージャー変数
 
         /// ------private変数------- ///
         #endregion
@@ -1022,6 +1031,10 @@ namespace Misaki
                 else textBrave.alpha = 1f;
             } 
         }
+
+        public Transform GetBone { get { return bone; } }
+
+        public HitStopManager GetHitStopManager { get { return hitStopManager; } }
 
         protected virtual AnimState AnimState { get { return animState; } set { animState = value; } }
 

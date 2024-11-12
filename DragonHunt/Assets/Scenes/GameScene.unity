@@ -6746,6 +6746,12 @@ Transform:
   - {fileID: 1789821072}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &948186267 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3166464839650923199, guid: 9f9e613086425be4b822f2ab8a124dca,
+    type: 3}
+  m_PrefabInstance: {fileID: 8226913475154798167}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1009622467
 GameObject:
   m_ObjectHideFlags: 0
@@ -11492,6 +11498,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1910134629}
   m_CullTransparentMesh: 1
+--- !u!4 &1925514489 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7887082598003022933, guid: dfc5122c15f111742b1f2831df2aba03,
+    type: 3}
+  m_PrefabInstance: {fileID: 2654534960692154695}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1950316098
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12937,7 +12949,7 @@ PrefabInstance:
     - target: {fileID: 4175556506405256256, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
       propertyPath: m_Name
-      value: Player
+      value: ShakePlayer
       objectReference: {fileID: 0}
     - target: {fileID: 4547948650671167861, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
@@ -12959,6 +12971,11 @@ PrefabInstance:
       propertyPath: m_IncludeLayers.m_Bits
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6323405084502904604, guid: dfc5122c15f111742b1f2831df2aba03,
+        type: 3}
+      propertyPath: bone
+      value: 
+      objectReference: {fileID: 1925514489}
     - target: {fileID: 6323405084502904604, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
       propertyPath: hpBar
@@ -13318,6 +13335,11 @@ PrefabInstance:
       propertyPath: ui
       value: 
       objectReference: {fileID: 3495948249611899815}
+    - target: {fileID: 2737478110485823940, guid: 9f9e613086425be4b822f2ab8a124dca,
+        type: 3}
+      propertyPath: bone
+      value: 
+      objectReference: {fileID: 948186267}
     - target: {fileID: 2737478110485823940, guid: 9f9e613086425be4b822f2ab8a124dca,
         type: 3}
       propertyPath: speed

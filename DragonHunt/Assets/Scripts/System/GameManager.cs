@@ -665,7 +665,7 @@ namespace Misaki
 
         private static CustomVolume[] staticCustomVolume; // 現在のボリューム情報を格納する変数
 
-        private Camerawork camerawork; // カメラワーク変数
+        private static Camerawork camerawork; // カメラワーク変数
 
         private static ParticleTriggerColliderGroup[] particleTriggerColliderGroup;  // トリガー対象とするコライダー
 
@@ -689,6 +689,7 @@ namespace Misaki
 
         public static ParticleTriggerColliderGroup[] GetParticleTriggerColliderGroup { get { return particleTriggerColliderGroup; } }
 
+        public static Camerawork GetCamerawork { get { return camerawork; } }
 
         /// -------プロパティ------- ///
         #endregion

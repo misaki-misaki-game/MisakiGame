@@ -16,15 +16,23 @@ namespace Misaki
         /// </summary>
         /// <param name="anim">止めたいアニメーター/param>
         /// <param name="duration">止める秒数</param>
+        /// <param name="bone">揺らしたいキャラクタートランスフォーム</param>
         /// <param name="isCameraShake">カメラを揺らすかどうか</param>
-        public void StartHitStop(Animator anim, float duration, bool isCameraShake = false)
+        public void StartHitStop(Animator anim, float duration, bool isCameraShake = false, Transform bone = null)
         {
             // カメラ関係を初期化
             virtualCamera = camerawork.GetCurrentCamera;
             noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 
             // ヒットストップ開始
-            StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake));
+            if (bone != null)
+            {
+                StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake, bone));
+            }
+            else
+            {
+                StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake));
+            }
         }
 
         /// -------public関数------- ///
@@ -43,7 +51,8 @@ namespace Misaki
 
         private void Start()
         {
-            hitStop = this;
+            //hitStop = this;
+            camerawork = GameManager.GetCamerawork;
         }
 
         /// <summary>
@@ -51,9 +60,10 @@ namespace Misaki
         /// </summary>
         /// <param name="anim">止めたいアニメーター/param>
         /// <param name="duration">止める秒数</param>
+        /// <param name="bone">揺らしたいキャラクタートランスフォーム</param>
         /// <param name="isCameraShake">カメラを揺らすかどうか</param>
         /// <returns></returns>
-        private IEnumerator HitStopCoroutine(Animator anim, float duration, bool isCameraShake = false)
+        private IEnumerator HitStopCoroutine(Animator anim, float duration, bool isCameraShake = false, Transform bone = null)
         {
             // ヒットストップ中なら処理を中断する
             if(isHitStop) yield break;
@@ -70,8 +80,14 @@ namespace Misaki
             }
 
             // キャラクター及びカメラを揺らす
-            StartCoroutine(ShakeCoroutine(anim.transform, duration, 0.15f));
-            if (isCameraShake) StartCoroutine(ShakeCameraCoroutine(duration));
+            if (bone != null)
+            {
+                StartCoroutine(ShakeCoroutine(bone, duration, 0.15f));
+            }
+            if (isCameraShake)
+            {
+                StartCoroutine(ShakeCameraCoroutine(duration));
+            }
 
             // チャンスタイムではない場合
             if (!GameManager.GetIsChanceTime)
@@ -89,7 +105,7 @@ namespace Misaki
         /// <summary>
         /// キャラクターを揺らすコルーチン
         /// </summary>
-        /// <param name="target">揺らしたいキャラクターのトランスフォーム</param>
+        /// <param name="target">揺らしたいキャラクターのボーントランスフォーム</param>
         /// <param name="duration">揺らす秒数</param>
         /// <param name="magnitude">振動の掛け率</param>
         /// <returns></returns>
