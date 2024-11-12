@@ -188,7 +188,7 @@ namespace Misaki
                 ownOwner.HitBraveAttack(braveAttack, isBreak);
 
                 // ヒットストップさせる
-                /*HitStopManager.hitStop*/ownOwner.GetHitStopManager.StartHitStop(ownOwner.GetAnimator, 0.1f, true);
+                ownOwner.GetHitStopManager.StartHitStop(ownOwner.GetAnimator, 0.1f, true);
             }
         }
         
@@ -220,7 +220,7 @@ namespace Misaki
                 col.GetComponent<BaseCharactorScript>().ReceiveHPDamage(hpAttack, dir);
 
                 // ヒットストップさせる
-                /*HitStopManager.hitStop */ ownOwner.GetHitStopManager.StartHitStop(ownOwner.GetAnimator, 0.2f, true);
+                ownOwner.GetHitStopManager.StartHitStop(ownOwner.GetAnimator, 0.2f, true);
 
                 // 所有者のブレイブを0にしてリジェネを開始する
                 ownOwner.HitHPAttack(hpAttack);

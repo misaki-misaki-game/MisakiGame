@@ -118,8 +118,7 @@ namespace Misaki
             ishit = false;
 
             // ヒットストップさせる
-            //HitStopManager.hitStop.StartHitStop(anim, 0.1f,true, bone);
-            hitStopManager.StartHitStop(anim, 0.1f, true, bone);
+            hitStopManager.StartHitStop(anim, 0.1f, true);
 
             // テキストを変更する
             textBrave.text = string.Format("{0:0}", parameter.brave);
@@ -214,8 +213,7 @@ namespace Misaki
             }
 
             // ヒットストップさせる
-            //HitStopManager.hitStop.StartHitStop(anim, 0.2f, true, bone);
-            hitStopManager.StartHitStop(anim, 0.2f, true, bone);
+            hitStopManager.StartHitStop(anim, 0.2f, true);
 
             // テキストを変更する
             textHP.text = string.Format("{0:0} / {1:0}", parameter.hp, parameter.maxHp);
@@ -1001,8 +999,6 @@ namespace Misaki
 
         private Vector3 effectPos; // エフェクト表示位置
 
-        [SerializeField] private Transform bone; // ボーン変数
-
         [Header("エフェクトの親オブジェクトを入れてください, 使用しないエフェクトの場合はnullにしてください"),
             SerializeField, EnumIndex(typeof(EffectName))]
         private GameObject[] effectPositions; // エフェクト発生位置配列
@@ -1031,8 +1027,6 @@ namespace Misaki
                 else textBrave.alpha = 1f;
             } 
         }
-
-        public Transform GetBone { get { return bone; } }
 
         public HitStopManager GetHitStopManager { get { return hitStopManager; } }
 

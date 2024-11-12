@@ -18,21 +18,14 @@ namespace Misaki
         /// <param name="duration">止める秒数</param>
         /// <param name="bone">揺らしたいキャラクタートランスフォーム</param>
         /// <param name="isCameraShake">カメラを揺らすかどうか</param>
-        public void StartHitStop(Animator anim, float duration, bool isCameraShake = false, Transform bone = null)
+        public void StartHitStop(Animator anim, float duration, bool isCameraShake = false)
         {
             // カメラ関係を初期化
             virtualCamera = camerawork.GetCurrentCamera;
             noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 
             // ヒットストップ開始
-            if (bone != null)
-            {
-                StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake, bone));
-            }
-            else
-            {
                 StartCoroutine(HitStopCoroutine(anim, duration, isCameraShake));
-            }
         }
 
         /// -------public関数------- ///
@@ -63,7 +56,7 @@ namespace Misaki
         /// <param name="bone">揺らしたいキャラクタートランスフォーム</param>
         /// <param name="isCameraShake">カメラを揺らすかどうか</param>
         /// <returns></returns>
-        private IEnumerator HitStopCoroutine(Animator anim, float duration, bool isCameraShake = false, Transform bone = null)
+        private IEnumerator HitStopCoroutine(Animator anim, float duration, bool isCameraShake = false)
         {
             // ヒットストップ中なら処理を中断する
             if(isHitStop) yield break;
@@ -79,11 +72,7 @@ namespace Misaki
                 anim.speed = 0.04f;
             }
 
-            // キャラクター及びカメラを揺らす
-            if (bone != null)
-            {
-                StartCoroutine(ShakeCoroutine(bone, duration, 0.15f));
-            }
+            // カメラを揺らす
             if (isCameraShake)
             {
                 StartCoroutine(ShakeCameraCoroutine(duration));

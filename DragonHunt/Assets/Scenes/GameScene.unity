@@ -12949,7 +12949,7 @@ PrefabInstance:
     - target: {fileID: 4175556506405256256, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
       propertyPath: m_Name
-      value: ShakePlayer
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 4547948650671167861, guid: dfc5122c15f111742b1f2831df2aba03,
         type: 3}
