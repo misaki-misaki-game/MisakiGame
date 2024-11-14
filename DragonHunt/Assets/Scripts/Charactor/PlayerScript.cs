@@ -356,11 +356,11 @@ namespace Misaki
             // ダメージ量をテキストに代入
             if(ui.isPlayerAttack)
             {
-                ui.damageText.text = damage.ToString() + " !!!";
+                ui.damageText.text = string.Format("{0:0}", damage) + " !!!";
             }
             else
             {
-                ui.damageText.text = damage.ToString();
+                ui.damageText.text = string.Format("{0:0}", damage);
             }
 
             // 2秒間待つ
@@ -374,7 +374,6 @@ namespace Misaki
         /// HP攻撃ヒット時にUIを呼び出す関数
         /// </summary>
         /// <param name="ui">呼び出したいUI構造体</param>
-        /// <param name="damage">ダメージ量</param>
         /// <returns></returns>
         private IEnumerator ViewBreakUI(BreakUI ui)
         {

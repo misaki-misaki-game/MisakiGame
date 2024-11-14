@@ -1023,8 +1023,14 @@ namespace Misaki
             set
             {
                 braveState = value;
-                if (BraveState != BraveState.E_Default) textBrave.alpha = 0.5f;
-                else textBrave.alpha = 1f;
+                if (BraveState != BraveState.E_Default)
+                {
+                    textBrave.alpha = 0.5f;
+                }
+                else
+                {
+                    textBrave.alpha = 1f;
+                }
             } 
         }
 
