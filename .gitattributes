@@ -1,3 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 Tree[[:space:]]main.psd filter=lfs diff=lfs merge=lfs -text
+DragonHuntビルドデータ/DragonHunt_Data/sharedassets0.assets.resS filter=lfs diff=lfs merge=lfs -text
